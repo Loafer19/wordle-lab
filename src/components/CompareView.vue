@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { BEST_ID, NA } from '../lib/lang'
+import { customs } from '../lib/custom'
+import { t } from '../lib/i18n'
 import { ref, computed, watch } from 'vue'
 import VChart from 'vue-echarts'
 import { GitCompare, Trophy, ArrowLeftRight } from 'lucide-vue-next'
@@ -13,7 +15,7 @@ const a = ref('freqbal-cand'), b = ref(BEST_ID), hardA = ref(false), hardB = ref
 const fa = ref<Full | null>(null), fb = ref<Full | null>(null)
 watch([a, hardA], async () => { await simReady; fa.value = await loadFull(fullId(a.value, hardA.value)) }, { immediate: true })
 watch([b, hardB], async () => { await simReady; fb.value = await loadFull(fullId(b.value, hardB.value)) }, { immediate: true })
-const nameOf = (id: string, h: boolean) => (simIndex.value.find(s => s.id === fullId(id, h))?.name ?? id)
+const nameOf = (id: string, h: boolean) => t(simIndex.value.find(s => s.id === fullId(id, h))?.name ?? customs.value.find(c => c.id === id)?.name ?? id)
 const swap = () => { [a.value, b.value] = [b.value, a.value]; [hardA.value, hardB.value] = [hardB.value, hardA.value] }
 const rows = computed(() => (fa.value && fb.value ? answers.value.map((w, i) => ({ w, ga: fa.value!.guesses[i], gb: fb.value!.guesses[i], d: fa.value!.guesses[i] - fb.value!.guesses[i] })) : []))
 const wins = computed(() => rows.value.filter(r => r.d < 0).length), losses = computed(() => rows.value.filter(r => r.d > 0).length), ties = computed(() => rows.value.filter(r => r.d === 0).length)

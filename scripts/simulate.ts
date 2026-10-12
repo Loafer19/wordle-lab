@@ -2,6 +2,7 @@
 // Simulates every strategy (normal + hard mode) over all 2,315 answers, verifies the published optimal trees,
 // prints a table with the gap to the proven optimum and writes public/sim/*.json, public/results.json, public/opener-pairs.json.
 import { STRATEGIES, type Strategy } from '../src/lib/wordle'
+import { PRESET_STRATEGIES } from '../src/lib/compose'
 import { simulateEx, simulatePair, twoStepStrategy, parseSelbyTree, verifyTree, OPTIMUM, type RichResult } from '../src/lib/advanced'
 const root = new URL('..', import.meta.url).pathname
 const args0 = process.argv.slice(2), LANG = args0.includes('--lang') ? args0[args0.indexOf('--lang') + 1] : 'en'
@@ -22,7 +23,7 @@ if (trees) for (const m of ['normal', 'hard'] as const) { const e = verifyTree(t
 if (trees) await Bun.write(root + 'public/optimal-tree.json', JSON.stringify(trees))
 
 const optimal: Strategy = { id: 'optimal', name: 'Optimal tree (SALET)', desc: 'Provably optimal decision tree (Selby / Bertsimas–Paskov), loaded from alex1770/wordle.', pick: c => ({ guess: c[0], score: 0, why: '' }) }
-const all: Strategy[] = [...(trees ? [optimal] : []), twoStepStrategy(), ...STRATEGIES].filter(s => !ids.length || ids.includes(s.id))
+const all: Strategy[] = [...(trees ? [optimal] : []), twoStepStrategy(), ...PRESET_STRATEGIES, ...STRATEGIES].filter(s => !ids.length || ids.includes(s.id))
 const results: RichResult[] = []
 for (const s of all) for (const hard of noHard ? [false] : [false, true]) {
   const r = simulateEx(s, ctx, { hard, tree: s.id === 'optimal' && trees ? trees[hard ? 'hard' : 'normal'] : undefined })
