@@ -31,7 +31,7 @@ watchDebounced(() => ({ ...p }), () => run(false), { debounce: 400, deep: true, 
 onUnmounted(() => worker?.terminate())
 const reset = () => Object.assign(p, defaults)
 const ref1 = computed(() => simIndex.value.find(s => s.id === 'freqbal-cand'))
-const opt = computed(() => res.value && ({ ...baseC.value, grid: { left: 40, right: 20, top: 20, bottom: 30 }, xAxis: { type: 'category', data: ['1', '2', '3', '4', '5', '6', '7+'] }, yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
+const opt = computed(() => res.value && ({ ...baseC.value, legend: { ...baseC.value.legend, top: 0 }, grid: { left: 40, right: 20, top: 40, bottom: 30 }, xAxis: { type: 'category', data: ['1', '2', '3', '4', '5', '6', '7+'] }, yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
   series: [{ type: 'bar', name: 'tuned', itemStyle: { color: ruslanColor, borderRadius: [4, 4, 0, 0] }, data: [1, 2, 3, 4, 5, 6].map(i => +((100 * (res.value!.dist[i] ?? 0)) / res.value!.n).toFixed(1)).concat(+((100 * res.value!.dist.slice(7).reduce((a, b) => a + b, 0)) / res.value!.n).toFixed(1)) },
     ...(ref1.value ? [{ type: 'bar', name: 'balanced (preset)', itemStyle: { color: otherColor, borderRadius: [4, 4, 0, 0] }, data: [1, 2, 3, 4, 5, 6].map(i => +((100 * (ref1.value!.dist[i] ?? 0)) / 2315).toFixed(1)).concat(+((100 * ref1.value!.dist.slice(7).reduce((a, b) => a + b, 0)) / 2315).toFixed(1)) }] : [])] }))
 </script>
