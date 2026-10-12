@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Tests / tooling
+test-results
+playwright-report
+.env
+.env.*
+*.tgz
