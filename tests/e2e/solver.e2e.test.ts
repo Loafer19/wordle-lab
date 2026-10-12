@@ -55,3 +55,17 @@ test('unset tiles → explicit message only after Apply; all-gray candidate → 
     expect(await alertText(p)).toContain('Set the colour of every tile')
   } finally { await b.close() }
 }, 30000)
+
+test('Optimal tree strategy is selectable in the Solver and opens with SALET', async () => {
+  const { b, p, errors } = await open('assist')
+  try {
+    await pickStrategy(p, 'Optimal tree (SALET)')
+    await p.waitForTimeout(800)
+    expect(await suggestion(p)).toBe('SALET')
+    await playAllGray(p, 'salet', 'keys')
+    expect(await alertText(p)).toBe('')
+    expect((await suggestion(p)).length).toBe(5)
+    expect(await p.locator('text=Off the optimal tree').count()).toBe(0)
+    expect(errors).toEqual([])
+  } finally { await b.close() }
+}, 30000)

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWindowSize } from '@vueuse/core'
+const { width: vw } = useWindowSize()
 import { ref, computed, watch } from 'vue'
 import VChart from 'vue-echarts'
 import { Waves } from 'lucide-vue-next'
@@ -28,10 +30,10 @@ const opt = computed(() => {
   const sortKey = (n: string) => n.startsWith('Solved') ? 100 + parseInt(n.slice(10)) : parseInt(n.slice(1)) * 10 + order.indexOf(n.split(' · ')[1])
   return {
     ...baseC.value, tooltip: { trigger: 'item', formatter: (i: any) => i.dataType === 'edge' ? `${i.data.source} → ${i.data.target}<br/><b>${i.data.value}</b> answers` : `${i.name}<br/><b>${i.value}</b> answers` },
-    series: [{ type: 'sankey', left: 10, right: 110, top: 10, bottom: 10, nodeGap: 10, nodeAlign: 'justify', layoutIterations: 0, emphasis: { focus: 'adjacency' },
+    series: [{ type: 'sankey', left: 10, right: vw.value < 640 ? 64 : 110, top: 10, bottom: 10, nodeGap: 10, nodeAlign: 'justify', layoutIterations: 0, emphasis: { focus: 'adjacency' },
       data: [...nodes].sort((a, b) => sortKey(a) - sortKey(b)).map(n => ({ name: n, itemStyle: { color: color(n), borderWidth: 0 } })),
       links: [...links].map(([k, v]) => { const [source, target] = k.split('>'); return { source, target, value: v } }),
-      lineStyle: { color: 'gradient', opacity: 0.35, curveness: 0.5 }, label: { color: fg.value, fontSize: 11 } }],
+      lineStyle: { color: 'gradient', opacity: 0.35, curveness: 0.5 }, label: { color: fg.value, fontSize: vw.value < 640 ? 9 : 11, ...(vw.value < 640 ? { formatter: (x: any) => (x.value >= 60 || /Solved/.test(x.name) ? x.name.replace(/^G(\d) · /, 'G$1 ').replace('Solved in ', '✓') : '') } : {}) } }],
   }
 })
 </script>

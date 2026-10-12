@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useWindowSize } from '@vueuse/core'
+const { width: vw } = useWindowSize()
 import { ref, computed } from 'vue'
 import VChart from 'vue-echarts'
 import AutoComplete from 'primevue/autocomplete'; import SelectButton from 'primevue/selectbutton'
@@ -25,7 +27,7 @@ const biggest = computed(() => Math.max(0, ...rows.value.map(r => r.c)))
 const shown = computed(() => sort.value === 'by size' ? [...rows.value].sort((a, b) => b.c - a.c) : rows.value)
 const dominant = (p: number) => { const d = patternDigits(p); return d.includes(2) ? tile.correct : d.includes(1) ? tile.present : tile.absent }
 const opt = computed(() => ({
-  ...baseC.value, grid: { left: 50, right: 50, top: 30, bottom: 30 }, legend: { ...baseC.value.legend, top: 0 },
+  ...baseC.value, grid: { left: vw.value < 640 ? 36 : 50, right: vw.value < 640 ? 36 : 50, top: vw.value < 640 ? 48 : 30, bottom: 30 }, legend: { ...baseC.value.legend, top: 0, ...(vw.value < 640 ? { itemGap: 8, textStyle: { ...(baseC.value.legend as any)?.textStyle, fontSize: 10 } } : {}) },
   tooltip: { trigger: 'axis', formatter: (ps: any) => { const r = shown.value[ps[0].dataIndex]; return `${patternDigits(r.p).map(d => `<span style="display:inline-block;width:11px;height:11px;margin-right:2px;border-radius:2px;background:${[tile.absent, tile.present, tile.correct][d]}"></span>`).join('')}<br/>${r.c} words (${(100 * r.prob).toFixed(2)}%)<br/>info if seen: ${r.info.toFixed(2)} bits<br/>contribution to H: ${r.contrib.toFixed(3)} bits` } },
   xAxis: { type: 'category', data: shown.value.map(r => r.p), axisLabel: { show: false }, axisTick: { show: false } },
   yAxis: [{ type: 'value', name: 'words' }, { type: 'value', name: 'bits', splitLine: { show: false } }],
