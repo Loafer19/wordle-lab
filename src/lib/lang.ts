@@ -25,8 +25,8 @@ export function gameKey(e: KeyboardEvent): string {
   return ''
 }
 export function setLang(l: Lang) { localStorage.setItem('wl-lang', l); const h = location.hash.replace(/&?lang=(en|ua)/, ''); location.hash = h; location.reload() }
-/** Best precomputed strategy id for this language (EN has the proven-optimal tree). */
-export const BEST_ID = isUA ? 'entropy-all' : 'optimal'
+/** Best precomputed strategy id for this language (both have a proven-optimal tree: EN SALET, UA КОТРА). */
+export const BEST_ID = 'optimal'
 export const DEMO_WORD = isUA ? 'слово' : 'knoll'
 export const FAMOUS_OPENERS = isUA
   ? ['котра', 'колар', 'косар', 'норка', 'корал', 'ранок', 'токар', 'барок', 'корма', 'крона', 'танок', 'комар', 'карта', 'актор', 'сокіл', 'мрія', 'слово'].filter(w => w.length === 5)

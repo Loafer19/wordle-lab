@@ -1,0 +1,25 @@
+# UA optimal decision tree (normal mode)
+
+Exact Selby-style solver: minimise total guesses over the 1,717 UA answers, guesses from all 7,158 allowed words.
+
+```sh
+bun scripts/ua-optimal/matrix.ts ua                     # /tmp/wl-ua.{mat,words,ansidx}  (feedback() of the app)
+gcc -O3 -march=native -fopenmp scripts/ua-optimal/solver.c -o /tmp/wlsolver -lm
+S="/tmp/wlsolver /tmp/wl-ua.mat /tmp/wl-ua.words /tmp/wl-ua.ansidx"
+$S rank                                     # entropy + one-level bound for every opener
+$S lb2 w1,w2,...                            # two-level lower bound per opener (all 7158: ~20 s on 12 cores)
+OMP_STACKSIZE=64M $S solve 8 0 0 5806 w1,...   # exact DFS (K=0 → no guess restriction), prune at total 5806
+$S tree 8 0 0 котра out.json                # write the tree   (DEPTH=5 → best tree with ≤5 guesses)
+```
+
+Algorithm: DFS over candidate sets, memo (64-bit hash of sorted set + depth) per thread, lower bound f(S) ≥ 2|S|−1
+(one answer may cost 1, the rest ≥2), node bound = min over guesses of |S| + Σ lb(parts), alpha-beta style cut
+against the best total so far, immediate return 2n−1 for an in-set perfect splitter / 2n for an out-of-set one,
+all 7,158 guesses considered at every node (no heuristic restriction).
+
+## Result (proven, modulo 64-bit hash collisions in the memo)
+* `lb2` ≥ 5806 for 7,070 of 7,158 openers → cannot beat 5805.
+* The remaining 88 were solved exactly with cut 5806 (`proof-log.txt`): only **КОТРА** reaches 5805; every other is ≥ 5806.
+* **Optimum: КОТРА, 5805/1717 = 3.38090**, distribution 2:82 3:949 4:638 5:46 6:2 (worst 6).
+* With a 5-guess cap: КОТРА 5806/1717 = 3.38148 (2:82 3:945 4:643 5:47) — optimal under the cap (every other opener is ≥ 5806 even uncapped; ties possible).
+* **4-guess guarantee is impossible**: DEPTH=4 search is infeasible for all 7,158 openers (`d4-log.txt`, ~8 min on 12 cores). So 5 is the minimum worst case.

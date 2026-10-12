@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## Unreleased — exp/ua-optimal
+- UA: proven-optimal decision tree (exact Selby-style search, `scripts/ua-optimal/`): opener КОТРА, 5805/1717 = 3.3809 avg (worst 6); best with ≤5 guesses 5806/1717 = 3.3815; a 4-guess guarantee is impossible.
+- New strategies 'Optimal tree (UA)' and 'Optimal tree (UA, ≤5 guesses)'; UA default best strategy is now the optimal tree.
+
 ## [1.2.0] - 2026-10-12
 
 ### Added

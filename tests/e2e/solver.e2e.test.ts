@@ -69,3 +69,16 @@ test('Optimal tree strategy is selectable in the Solver and opens with SALET', a
     expect(errors).toEqual([])
   } finally { await b.close() }
 }, 30000)
+
+test('UA: Optimal tree (UA) is selectable in the Solver and opens with КОТРА', async () => {
+  const { b, p, errors } = await open('assist', { lang: 'ua' })
+  try {
+    await pickStrategy(p, 'Оптимальне дерево (UA)')
+    await p.waitForTimeout(800)
+    expect(await suggestion(p)).toBe('КОТРА')
+    await playAllGray(p, 'котра', 'keys')
+    expect((await suggestion(p)).length).toBe(5)
+    expect(await p.locator('text=Поза оптимальним деревом').count()).toBe(0)
+    expect(errors).toEqual([])
+  } finally { await b.close() }
+}, 30000)

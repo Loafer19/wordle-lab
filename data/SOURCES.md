@@ -7,3 +7,7 @@
 # Ukrainian (data/ua, public/ua)
 - `ua/allowed.txt` (7,158 words): five-letter word forms from the Kobza dictionary (https://github.com/kobzaapp/kobzadict, `out/kobza_filtered_dict.txt`). Kobza filters VESUM (Великий електронний словник української мови, https://github.com/brown-uk/dict_uk), removing vulgarisms, inflected forms and words with apostrophes. Data licence: **CC BY-NC-SA 4.0** (same as VESUM); filter code MIT.
 - `ua/answers.txt` (1,717 words): Kobza "random" pool restricted to nouns tagged only as nominative singular (no rare, archaic, slang, proper-noun or abbreviation tags), keeping only words found in the OpenSubtitles frequency list (hermitdave/FrequencyWords, `uk_full.txt`, CC BY-SA 4.0; used for filtering only), minus a small blocklist.
+
+## data/ua/optimal/
+`kotra.normal.json` (proven-optimal average, 5805/1717 = 3.3809) and `kotra.max5.json` (best average with ≤5 guesses, 5806/1717)
+were computed by us with `scripts/ua-optimal/solver.c` (exact search, see `scripts/ua-optimal/README.md`). Format: `{g, n, c: {pattern: node}}`.
