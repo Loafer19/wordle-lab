@@ -14,6 +14,6 @@ const toggle = (e: Event) => { shown.value = true; op.value.toggle(e) }
   </span>
 </template>
 <style scoped>
-.word-link { font: inherit; color: inherit; cursor: help; text-decoration: underline dotted; text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, currentColor 40%, transparent); }
+.word-link { font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, currentColor 40%, transparent); }
 .word-link:hover { color: var(--color-brand); }
 </style>

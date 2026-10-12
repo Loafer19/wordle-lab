@@ -73,3 +73,13 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
 }
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
+
+/* Cursor affordances: everything clickable gets a pointer, disabled gets not-allowed */
+@layer base {
+  button, [role=button], [role=tab], [role=option], [role=menuitem], [role=switch], [role=checkbox], [role=radio], a[href], summary, label[for], select,
+  input[type=checkbox], input[type=radio], input[type=range], [onclick], [data-click], .p-select, .p-multiselect, .p-togglebutton, .p-selectbutton .p-togglebutton,
+  .p-toggleswitch, .p-checkbox, .p-radiobutton, .p-slider, .p-slider-handle, .p-autocomplete-option, .p-select-option, .p-multiselect-option, .p-tab, .tile[role=button], .chip { cursor: pointer; }
+  button:disabled, [aria-disabled=true], .p-disabled, :disabled, fieldset:disabled * { cursor: not-allowed !important; }
+}
+.echarts-clickable canvas { cursor: pointer; }

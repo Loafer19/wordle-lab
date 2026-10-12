@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { onKeyStroke, useLocalStorage, useClipboard } from '@vueuse/core'
-import { RotateCcw, Copy, Check, Trophy, Share2, ListFilter, CalendarDays, Shuffle, Sparkles, Crown, Star, PartyPopper, ThumbsUp, HeartPulse, Frown, BookOpen, X } from 'lucide-vue-next'
+import { RotateCcw, Copy, Check, Trophy, Share2, Clock, CalendarDays, Shuffle, Sparkles, Crown, Star, PartyPopper, ThumbsUp, HeartPulse, Frown, BookOpen, X } from 'lucide-vue-next'
 import confetti from 'canvas-confetti'
 import { usePreferredReducedMotion } from '@vueuse/core'
 import WordMeaning from './WordMeaning.vue'
-import WordLink from './WordLink.vue'
+import CandidatesCard from './CandidatesCard.vue'
+import { lang, isLetter, gameKey } from '../lib/lang'
+import { useNow } from '@vueuse/core'
 import { tile, brand } from '../lib/tokens'
-import ToggleSwitch from 'primevue/toggleswitch'; import SelectButton from 'primevue/selectbutton'
+import SelectButton from 'primevue/selectbutton'
 import { answers, allowed } from '../lib/words'
 import { feedback, patternDigits, digitsToPattern, filter, ALL_GREEN } from '../lib/wordle'
 import { motion } from '../lib/tokens'
@@ -23,25 +25,33 @@ function celebrate() {
   confetti({ ...o, particleCount: 90, spread: 75, startVelocity: 42, origin: { x: 0.5, y: 0.45 } })
   setTimeout(() => { confetti({ ...o, particleCount: 45, angle: 60, spread: 55, origin: { x: 0, y: 0.7 } }); confetti({ ...o, particleCount: 45, angle: 120, spread: 55, origin: { x: 1, y: 0.7 } }) }, 250)
 }
-import InfoTip from './InfoTip.vue'
 import GameKeyboard from './GameKeyboard.vue'
 import BitsPanel from './BitsPanel.vue'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import CountUp from './ui/CountUp.vue'
-import { ANSWERS_HELP } from '../lib/labels'
 const mode = ref<'daily' | 'random'>('daily')
 const modes = [{ v: 'daily', l: 'Daily', i: CalendarDays }, { v: 'random', l: 'Random', i: Shuffle }]
 const answer = ref(''), rows = ref<{ w: string; d: number[] }[]>([]), cur = ref(''), msg = ref(''), hard = useLocalStorage('wl-hard', false), over = ref(false), won = ref(false)
 const revealed = ref(0), shake = ref(false), winRow = ref(-1), activeKey = ref('')
-const stats = useLocalStorage('wl-stats', { played: 0, wins: 0, streak: 0, best: 0, dist: [0, 0, 0, 0, 0, 0], last: -1 })
+const stats = useLocalStorage(lang === 'en' ? 'wl-stats' : 'wl-stats-' + lang, { played: 0, wins: 0, streak: 0, best: 0, dist: [0, 0, 0, 0, 0, 0], last: -1 })
 const allowedSet = computed(() => new Set(allowed.value))
 const remaining = computed(() => rows.value.slice(0, revealed.value).reduce((c, r) => filter(c, r.w, digitsToPattern(r.d)), answers.value))
 const dayIndex = () => Math.floor((Date.now() - new Date(2021, 5, 19).getTime()) / 864e5)
 const revealMs = 4 * motion.flipStagger + motion.flip
+const dailyKey = () => `wl-daily-${lang}-${dayIndex()}`
 function newGame() {
   const a = answers.value
   answer.value = mode.value === 'daily' ? a[(dayIndex() * 7919) % a.length] : a[Math.floor(Math.random() * a.length)]
   rows.value = []; cur.value = ''; msg.value = ''; banner.value = null; justWon.value = false; over.value = false; won.value = false; revealed.value = 0; winRow.value = -1
+  if (mode.value === 'daily') { // restore today's progress (one daily word per day, like Wordle)
+    try { const saved: string[] = JSON.parse(localStorage.getItem(dailyKey()) || '[]'); for (const w of saved) rows.value.push({ w, d: patternDigits(feedback(w, answer.value)) }) } catch {}
+    revealed.value = rows.value.length
+    const last = rows.value.at(-1); if (last && last.w === answer.value) { over.value = won.value = true; winRow.value = rows.value.length - 1 } else if (rows.value.length >= 6) over.value = true
+  }
 }
+const now = useNow({ interval: 1000 })
+const countdown = computed(() => { const t = new Date(now.value); const next = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1); const s = Math.max(0, Math.floor((+next - +t) / 1000)); return [s / 3600, (s / 60) % 60, s % 60].map(x => String(Math.floor(x)).padStart(2, '0')).join(':') })
+let lastDay = dayIndex()
+setInterval(() => { if (mode.value === 'daily' && dayIndex() !== lastDay) { lastDay = dayIndex(); newGame() } }, 5000)
 onMounted(newGame)
 const keyState = computed(() => { const m: Record<string, number> = {}; for (const r of rows.value.slice(0, revealed.value)) [...r.w].forEach((c, i) => (m[c] = Math.max(m[c] ?? 0, r.d[i]))); return m })
 let msgTimer: number | undefined
@@ -67,6 +77,7 @@ function press(k: string) {
     if (!allowedSet.value.has(cur.value)) return invalid(`${cur.value.toUpperCase()} is not in the word list`)
     if (hard.value) { const v = hardViolation(cur.value); if (v) return invalid(v) }
     const p = feedback(cur.value, answer.value); rows.value.push({ w: cur.value, d: patternDigits(p) }); cur.value = ''
+    if (mode.value === 'daily') localStorage.setItem(dailyKey(), JSON.stringify(rows.value.map(r => r.w)))
     const n = rows.value.length
     setTimeout(() => {
       revealed.value = n
@@ -74,9 +85,9 @@ function press(k: string) {
       else if (n >= 6) { finish(false); showBanner({ win: false, title: 'So close', sub: `The word was ${answer.value.toUpperCase()}`, icon: Frown }, 6000) }
     }, revealMs)
   } else if (k === 'back') cur.value = cur.value.slice(0, -1)
-  else if (/^[a-z]$/.test(k) && cur.value.length < 5) cur.value += k
+  else if (isLetter(k) && cur.value.length < 5) cur.value += k
 }
-onKeyStroke(e => { if (e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLElement)?.tagName === 'INPUT') return; const k = e.key.toLowerCase(); if (k === 'backspace' || k === 'enter' || /^[a-z]$/.test(k)) press(k === 'backspace' ? 'back' : k) })
+onKeyStroke(e => { if (e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLElement)?.closest?.('input, textarea, [role=dialog]')) return; const k = gameKey(e); if (k) { e.preventDefault(); press(k) } })
 const grid = computed(() => Array.from({ length: 6 }, (_, i) => rows.value[i] ? { ...rows.value[i], state: 'done' } : i === rows.value.length ? { w: cur.value.padEnd(5), d: null, state: 'cur' } : { w: '     ', d: null, state: 'empty' }))
 const shareText = computed(() => `Wordle Lab ${mode.value === 'daily' ? '#' + dayIndex() : '(random)'} ${won.value ? rows.value.length : 'X'}/6${hard.value ? '*' : ''}\n` + rows.value.map(r => r.d.map(d => ['⬛', '🟨', '🟩'][d]).join('')).join('\n'))
 const { copy, copied } = useClipboard()
@@ -90,8 +101,9 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
         <SelectButton v-model="mode" :options="modes" optionLabel="l" optionValue="v" :allowEmpty="false" size="small" @change="newGame">
           <template #option="{ option }"><component :is="option.i" :size="14" /><span>{{ option.l }}</span></template>
         </SelectButton>
-        <UiButton :icon="RotateCcw" label="New game" variant="secondary" @click="newGame" :disabled="mode === 'daily' && !over && rows.length > 0" />
-        <label class="flex items-center gap-2 text-body cursor-pointer" v-tooltip.top="'Revealed hints must be used in later guesses'"><ToggleSwitch v-model="hard" /> Hard mode</label>
+        <UiButton v-if="mode === 'random'" :icon="RotateCcw" label="New game" variant="secondary" @click="newGame" data-newgame />
+        <span v-else class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line bg-surface-2 text-caption text-muted tabular-nums" data-countdown v-tooltip.bottom="'A new daily word every midnight (your local time)'"><Clock :size="14" />Next word in <b class="text-fg">{{ countdown }}</b></span>
+        <span v-if="hard" class="text-caption font-semibold px-2 py-1 rounded-md bg-present/15 text-present" v-tooltip.bottom="'Hard mode is on (change it in Settings)'">Hard</span>
       </div>
       <div class="h-14 w-full flex items-center justify-center" aria-live="polite">
         <Transition name="banner" mode="out-in">
@@ -139,12 +151,9 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
         </div>
       </UiCard>
       <BitsPanel :rows="rows.slice(0, revealed)" />
-      <UiCard title="Words still possible" :icon="ListFilter" :subtitle="`${Math.log2(Math.max(1, remaining.length)).toFixed(2)} bits of uncertainty left`">
-        <template #actions><UiBadge tone="brand"><CountUp :value="remaining.length" /></UiBadge><InfoTip :text="ANSWERS_HELP" /></template>
-        <div v-if="revealed && remaining.length <= 60" class="font-mono text-muted break-words uppercase text-caption leading-6"><template v-for="w in remaining" :key="w"><WordLink :word="w" /> </template></div>
-        <p v-else-if="revealed" class="text-muted">Too many to list — keep guessing.</p>
-        <p v-else class="text-muted">Type a 5-letter word and press <kbd>Enter</kbd>.</p>
-      </UiCard>
+      <CandidatesCard title="Words still possible" :words="remaining" :started="revealed > 0" :max="80">
+        <template #empty><p class="text-muted">Type a 5-letter word and press <kbd>Enter</kbd>.</p></template>
+      </CandidatesCard>
     </div>
   </div>
 </template>
