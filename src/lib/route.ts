@@ -2,20 +2,21 @@
 import { reactive } from 'vue'
 export const SECTIONS: Record<string, string[]> = {
   play: [], solver: [],
-  strategies: ['simulation', 'compare', 'tuner'],
+  strategies: ['simulation', 'compare', 'lab'],
   explore: ['paths', 'tree', 'flow', 'map'],
-  letters: ['letters', 'patterns', 'openers'],
+  analytics: ['letters', 'patterns', 'openers'],
 }
 const LEGACY: Record<string, [string, string?]> = {
-  assist: ['solver'], sim: ['strategies', 'simulation'], compare: ['strategies', 'compare'], tuner: ['strategies', 'tuner'],
+  assist: ['solver'], sim: ['strategies', 'simulation'], compare: ['strategies', 'compare'], tuner: ['strategies', 'lab'], letters: ['analytics', 'letters'],
   path: ['explore', 'paths'], tree: ['explore', 'tree'], flow: ['explore', 'flow'], map: ['explore', 'map'],
-  patterns: ['letters', 'patterns'], openers: ['letters', 'openers'],
+  patterns: ['analytics', 'patterns'], openers: ['analytics', 'openers'],
 }
 export const href = (tab: string, view?: string) => `#tab=${tab}${view ? '&view=' + view : ''}`
 function parse() {
   const q = new URLSearchParams(location.hash.slice(1))
   let tab = q.get('tab') ?? 'play', view = q.get('view') ?? undefined
-  if (LEGACY[tab] && !(tab === 'letters')) { [tab, view] = [LEGACY[tab][0], LEGACY[tab][1] ?? view] }
+  if (LEGACY[tab]) [tab, view] = [LEGACY[tab][0], view && tab === 'letters' ? view : LEGACY[tab][1] ?? view]
+  if (tab === 'strategies' && view === 'tuner') view = 'lab'
   if (!(tab in SECTIONS)) tab = 'play'
   const views = SECTIONS[tab]
   if (views.length && (!view || !views.includes(view))) view = views[0]

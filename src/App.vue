@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, Sparkles, SlidersHorizontal, Network, Waves, Grid2x2, Map as MapIcon, GitCompare, Send, Github, FlaskConical, Compass, Tag } from 'lucide-vue-next'
+import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, Sparkles, SlidersHorizontal, Network, Waves, Grid2x2, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag } from 'lucide-vue-next'
 import { ready } from './lib/words'
 import { isDark, toggleDark } from './lib/theme'
 import { route, href } from './lib/route'
@@ -21,18 +21,18 @@ import AnswerMapView from './components/AnswerMapView.vue'
 import PatternView from './components/PatternView.vue'
 import SankeyView from './components/SankeyView.vue'
 import TreeView from './components/TreeView.vue'
-import TunerView from './components/TunerView.vue'
+import LabView from './components/LabView.vue'
 const sub = {
-  strategies: [{ id: 'simulation', label: 'Simulation', icon: BarChart3, comp: SimView }, { id: 'compare', label: 'Compare', icon: GitCompare, comp: CompareView }, { id: 'tuner', label: 'Tuner', icon: SlidersHorizontal, comp: TunerView }],
+  strategies: [{ id: 'simulation', label: 'Simulation', icon: BarChart3, comp: SimView }, { id: 'compare', label: 'Compare', icon: GitCompare, comp: CompareView }, { id: 'lab', label: 'Strategy Lab', icon: Blocks, comp: LabView }],
   explore: [{ id: 'paths', label: 'Decision paths', icon: GitBranch, comp: PathView }, { id: 'tree', label: 'Tree', icon: Network, comp: TreeView }, { id: 'flow', label: 'Flow', icon: Waves, comp: SankeyView }, { id: 'map', label: 'Answer map', icon: MapIcon, comp: AnswerMapView }],
-  letters: [{ id: 'letters', label: 'Letters', icon: CaseSensitive, comp: LettersView }, { id: 'patterns', label: 'Patterns', icon: Grid2x2, comp: PatternView }, { id: 'openers', label: 'Openers', icon: Rocket, comp: OpenersView }],
+  analytics: [{ id: 'letters', label: 'Letters', icon: CaseSensitive, comp: LettersView }, { id: 'patterns', label: 'Patterns', icon: Grid2x2, comp: PatternView }, { id: 'openers', label: 'Openers', icon: Rocket, comp: OpenersView }],
 }
 const tabs = [
   { id: 'play', label: 'Play', icon: Gamepad2 },
   { id: 'solver', label: 'Solver', icon: Brain },
   { id: 'strategies', label: 'Strategies', icon: FlaskConical },
   { id: 'explore', label: 'Explore', icon: Compass },
-  { id: 'letters', label: 'Letters & Patterns', icon: CaseSensitive },
+  { id: 'analytics', label: 'Analytics', icon: CaseSensitive },
 ]
 const loaded = ref(false); ready.then(() => (loaded.value = true))
 const version = __APP_VERSION__, commit = __COMMIT__
