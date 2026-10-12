@@ -1,4 +1,5 @@
 // Advanced solvers + rich simulation (hard mode, decision trees, per-answer stats).
+import { CI, NL } from './alpha'
 import { feedback, filter, buckets, entropy, ALL_GREEN, STRATEGIES, type Strategy, type Ctx, type Pattern } from './wordle'
 
 export const OPTIMUM = { normal: 7920 / 2315, hard: 8122 / 2315 } // 3.4212 / 3.5084 (Selby; Bertsimas & Paskov)
@@ -8,16 +9,16 @@ export interface Step { g: string; p: Pattern }
 /** Wordle hard mode: greens must stay in place, revealed (yellow/green) letters must be reused with at least the same multiplicity. */
 export function hardValid(word: string, history: Step[]) {
   for (const { g, p } of history) {
-    const need = new Int8Array(26), have = new Int8Array(26)
+    const need = new Int8Array(NL), have = new Int8Array(NL)
     let q = p
     for (let i = 0; i < 5; i++) {
       const d = q % 3; q = (q - d) / 3
-      const c = g.charCodeAt(i) - 97
+      const c = CI[g.charCodeAt(i)]
       if (d === 2 && word.charCodeAt(i) !== g.charCodeAt(i)) return false
       if (d > 0) need[c]++
     }
-    for (let i = 0; i < 5; i++) have[word.charCodeAt(i) - 97]++
-    for (let c = 0; c < 26; c++) if (need[c] > have[c]) return false
+    for (let i = 0; i < 5; i++) have[CI[word.charCodeAt(i)]]++
+    for (let c = 0; c < NL; c++) if (need[c] > have[c]) return false
   }
   return true
 }
@@ -108,8 +109,8 @@ export function tunableStrategy(t: TuneParams): Strategy {
     pick(cands, ctx) {
       const n = cands.length
       if (n <= 2) return { guess: cands[0], score: 0, why: `${n} left` }
-      const overall = new Array(26).fill(0), pos = Array.from({ length: 5 }, () => new Array(26).fill(0))
-      for (const w of cands) { const seen = new Set<number>(); for (let i = 0; i < 5; i++) { const c = w.charCodeAt(i) - 97; pos[i][c]++; seen.add(c) } for (const c of seen) overall[c]++ }
+      const overall = new Array(NL).fill(0), pos = Array.from({ length: 5 }, () => new Array(NL).fill(0))
+      for (const w of cands) { const seen = new Set<number>(); for (let i = 0; i < 5; i++) { const c = CI[w.charCodeAt(i)]; pos[i][c]++; seen.add(c) } for (const c of seen) overall[c]++ }
       const f = (x: number) => (t.balanced ? x * (n - x) : t.fromAll && x === n ? 0 : x)
       const lw = overall.map(f)
       const cut = [...lw].sort((a, b) => b - a)[Math.min(25, Math.max(0, t.topN - 1))]
@@ -119,7 +120,7 @@ export function tunableStrategy(t: TuneParams): Strategy {
       for (const w of pool) {
         let s = 0
         const seen = new Set<number>()
-        for (let i = 0; i < 5; i++) { const c = w.charCodeAt(i) - 97; if (!seen.has(c)) { seen.add(c); s += t.wPlain * lw2[c] } s += t.wPos * f(pos[i][c]) }
+        for (let i = 0; i < 5; i++) { const c = CI[w.charCodeAt(i)]; if (!seen.has(c)) { seen.add(c); s += t.wPlain * lw2[c] } s += t.wPos * f(pos[i][c]) }
         if (s > bs || (s === bs && cset.has(w) && !cset.has(best))) { bs = s; best = w }
       }
       return { guess: best, score: bs, why: '' }

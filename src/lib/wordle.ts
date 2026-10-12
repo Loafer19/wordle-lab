@@ -1,17 +1,18 @@
 // Core Wordle engine + solver strategies. Pure TS: runs in browser, Web Worker and Bun.
+import { CI, NL, L } from './alpha'
 export type Pattern = number // base-3, 0..242; digit i: 0 gray,1 yellow,2 green
 export const ALL_GREEN = 242
 
 export function feedback(guess: string, answer: string): Pattern {
   const res = [0, 0, 0, 0, 0]
-  const counts = new Int8Array(26)
+  const counts = new Int8Array(NL)
   for (let i = 0; i < 5; i++) {
     if (guess.charCodeAt(i) === answer.charCodeAt(i)) res[i] = 2
-    else counts[answer.charCodeAt(i) - 97]++
+    else counts[CI[answer.charCodeAt(i)]]++
   }
   for (let i = 0; i < 5; i++) {
     if (res[i]) continue
-    const c = guess.charCodeAt(i) - 97
+    const c = CI[guess.charCodeAt(i)]
     if (counts[c] > 0) { res[i] = 1; counts[c]-- }
   }
   return res[0] + 3 * res[1] + 9 * res[2] + 27 * res[3] + 81 * res[4]
@@ -35,11 +36,11 @@ export function entropy(guess: string, cands: string[]) {
   return h
 }
 export function letterFreq(words: string[]) {
-  const overall = new Array(26).fill(0)       // # words containing letter
-  const pos = Array.from({ length: 5 }, () => new Array(26).fill(0))
+  const overall = new Array(NL).fill(0)       // # words containing letter
+  const pos = Array.from({ length: 5 }, () => new Array(NL).fill(0))
   for (const w of words) {
     const seen = new Set<number>()
-    for (let i = 0; i < 5; i++) { const c = w.charCodeAt(i) - 97; pos[i][c]++; seen.add(c) }
+    for (let i = 0; i < 5; i++) { const c = CI[w.charCodeAt(i)]; pos[i][c]++; seen.add(c) }
     for (const c of seen) overall[c]++
   }
   return { overall, pos }
@@ -54,7 +55,6 @@ export interface Strategy {
 export interface HardState { greens: (string | null)[]; mins: Record<string, number> }
 
 const uniq = (w: string) => [...new Set(w)]
-const L = (i: number) => String.fromCharCode(97 + i)
 
 function bestBy(pool: string[], score: (w: string) => number, cands: Set<string>, minimize = false) {
   let best = pool[0], bs = minimize ? Infinity : -Infinity
@@ -80,9 +80,9 @@ function freqStrategy(id: string, name: string, fromAll: boolean, positional: bo
       const w8 = overall.map(f => (balanced ? f * (n - f) : fromAll && f === n ? 0 : f))
       const score = (w: string) => {
         let s = 0
-        for (const c of uniq(w)) s += w8[c.charCodeAt(0) - 97]
-        if (balanced) for (let i = 0; i < 5; i++) { const f = pos[i][w.charCodeAt(i) - 97]; s += f * (n - f) }
-        else if (positional) for (let i = 0; i < 5; i++) s += pos[i][w.charCodeAt(i) - 97]
+        for (const c of uniq(w)) s += w8[CI[c.charCodeAt(0)]]
+        if (balanced) for (let i = 0; i < 5; i++) { const f = pos[i][CI[w.charCodeAt(i)]]; s += f * (n - f) }
+        else if (positional) for (let i = 0; i < 5; i++) s += pos[i][CI[w.charCodeAt(i)]]
         return s
       }
       const pool = fromAll ? ctx.allowed : cands
@@ -120,11 +120,8 @@ let seed = 12345
 const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff)
 export const STRATEGIES: Strategy[] = [
   freqStrategy('freq-cand', 'Ruslan freq (candidates)', false, false),
-  freqStrategy('freq-all', 'Ruslan freq (any word)', true, false),
   freqStrategy('freqpos-cand', 'Ruslan pos-freq (candidates)', false, true),
-  freqStrategy('freqpos-all', 'Ruslan pos-freq (any word)', true, true),
   freqStrategy('freqbal-cand', 'Ruslan balanced f·(n−f) (candidates)', false, false, true),
-  freqStrategy('freqbal-all', 'Ruslan balanced f·(n−f) (any word)', true, false, true),
   bucketStrategy('entropy-all', 'Max entropy (3b1b)', 'Maximise expected information (Shannon entropy of feedback distribution), any allowed word; ties prefer candidates.', true, 'entropy'),
   bucketStrategy('entropy-cand', 'Max entropy (candidates)', 'Max entropy but only guessing possible answers (hard-mode-ish).', false, 'entropy'),
   bucketStrategy('minimax-all', 'Minimax worst bucket', 'Minimise the largest remaining group (Knuth Mastermind style).', true, 'minimax'),
