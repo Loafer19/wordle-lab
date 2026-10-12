@@ -45,6 +45,6 @@ All notable changes to this project are documented here. The format follows [Kee
 - Simulation of all 2,315 answers, Compare, the live Tuner, decision Tree, Flow, Patterns, Answer map, Decision paths, Letters, and Openers with a pair heatmap.
 - Playwright tests, Dockerfile and MIT license.
 
-[1.2.0]: https://github.com/Loafer19/wordle-lab/releases/tag/v1.2.0
+[1.2.0]: https://github.com/Loafer19/wordle-lab/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Loafer19/wordle-lab/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Loafer19/wordle-lab/releases/tag/v1.0.0

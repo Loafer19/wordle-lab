@@ -36,7 +36,7 @@ Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can
 <tr><td><img src="docs/readme/dark-assist.png" alt="Solver"/></td><td><img src="docs/readme/dark-tree.png" alt="Tree"/></td></tr>
 <tr><td><img src="docs/readme/dark-flow.png" alt="Flow"/></td><td><img src="docs/readme/dark-map.png" alt="Answer map"/></td></tr>
 <tr><td><img src="docs/readme/dark-compare.png" alt="Compare"/></td><td><img src="docs/readme/light-patterns.png" alt="Patterns"/></td></tr>
-<tr><td><img src="docs/readme/dark-tuner.png" alt="Strategy Lab"/></td><td><img src="docs/readme/dark-openers.png" alt="Openers"/></td></tr>
+<tr><td><img src="docs/readme/dark-lab.png" alt="Strategy Lab"/></td><td><img src="docs/readme/dark-openers.png" alt="Openers"/></td></tr>
 </table>
 
 ## 🏁 Strategy results (all 2,315 answers, normal mode)
