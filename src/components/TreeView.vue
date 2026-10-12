@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { BEST_ID } from '../lib/lang'
 import { ref, computed, watch } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import VChart from 'vue-echarts'
@@ -14,7 +15,7 @@ import { patternDigits } from '../lib/wordle'
 import type { TreeNode } from '../lib/advanced'
 import UiCard from './ui/UiCard.vue'; import UiBadge from './ui/UiBadge.vue'
 import StrategyPicker from './StrategyPicker.vue'
-const id = ref('optimal'), hard = ref(false), layout = ref<'orthogonal' | 'radial'>('orthogonal')
+const id = ref(BEST_ID), hard = ref(false), layout = ref<'orthogonal' | 'radial'>('orthogonal')
 const tree = ref<TreeNode | null>(null)
 watch([id, hard], async () => { await simReady; tree.value = (await loadFull(fullId(id.value, hard.value))).tree }, { immediate: true })
 const sq = (p: number) => patternDigits(p).map(d => `{${'apc'[d]}|}`).join('')

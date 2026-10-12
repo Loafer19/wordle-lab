@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { BEST_ID, NA } from '../lib/lang'
 import { useWindowSize } from '@vueuse/core'
 const { width: vw } = useWindowSize()
 import { ref, computed, watch } from 'vue'
@@ -11,7 +12,7 @@ import { tile, chartPalette, danger } from '../lib/tokens'
 import { loadFull, simReady, fullId, type Full } from '../lib/simdata'
 import UiCard from './ui/UiCard.vue'
 import StrategyPicker from './StrategyPicker.vue'
-const id = ref('optimal'), hard = ref(false), full = ref<Full | null>(null)
+const id = ref(BEST_ID), hard = ref(false), full = ref<Full | null>(null)
 watch([id, hard], async () => { await simReady; full.value = await loadFull(fullId(id.value, hard.value)) }, { immediate: true })
 const cls = (n: number) => (n === 1 ? '1 left' : n <= 5 ? '2–5' : n <= 20 ? '6–20' : n <= 100 ? '21–100' : '101+')
 const order = ['101+', '21–100', '6–20', '2–5', '1 left']
@@ -39,7 +40,7 @@ const opt = computed(() => {
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard title="Flow of 2,315 answers through the guesses" :icon="Waves" subtitle="Each band is a group of answers. Columns = guess number; nodes = how many possible answers were left before that guess; right side = the guess that solved it.">
+    <UiCard :title="`Flow of ${NA} answers through the guesses`" :icon="Waves" subtitle="Each band is a group of answers. Columns = guess number; nodes = how many possible answers were left before that guess; right side = the guess that solved it.">
       <StrategyPicker v-model:id="id" v-model:hard="hard" />
     </UiCard>
     <UiCard><VChart v-if="opt" :option="opt" style="height: 640px" autoresize /></UiCard>

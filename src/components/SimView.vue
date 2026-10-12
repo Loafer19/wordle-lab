@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { NA, NV, isUA } from '../lib/lang'
 import { ref, computed, watch } from 'vue'
 import VChart from 'vue-echarts'
 import GapView from './GapView.vue'
@@ -37,8 +38,8 @@ const shrinkOpt = computed(() => ({ ...baseC.value, title: { show: false }, lege
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <GapView />
-    <UiCard title="Strategy simulation" :icon="FlaskConical" subtitle="Each strategy plays all 2,315 possible answers. 'Any word' variants may guess from all 12,972 valid guesses.">
+    <GapView v-if="!isUA" />
+    <UiCard title="Strategy simulation" :icon="FlaskConical" :subtitle="`Each strategy plays all ${NA} possible answers. 'Any word' variants may guess from all ${NV} valid guesses.`">
       <div class="flex flex-wrap items-center gap-3">
         <MultiSelect v-model="selected" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-full sm:w-96" :maxSelectedLabels="3" />
         <UiButton :icon="Cpu" label="Re-run in Web Workers" @click="run" :loading="Object.keys(progress).length > 0" />

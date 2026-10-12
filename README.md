@@ -22,17 +22,15 @@
 
 | | |
 |---|---|
-| 🎮 **Play** | Daily and random games, hard mode, an on-screen keyboard, flip, bounce and confetti animations, stats, a shareable emoji grid, and **word meanings** after every game. |
-| 🧭 **Solver** | Type your guess, tap the tiles to match your colours, and get the next best word with a plain-English reason. Undo, a demo mode, keyboard shortcuts and 14 strategies, including the provably optimal tree. |
-| 📊 **Simulation** | Every strategy played against all 2,315 answers: average guesses, failure rate, distributions and the gap to the optimum. Re-runs in Web Workers. |
-| 🌳 **Decision tree** | Interactive tree of the optimal SALET strategy (expand and collapse, zoom and pan). |
-| 🌊 **Flow** | Sankey diagram showing how the answer set shrinks with each guess. |
-| 🧩 **Patterns** | All 243 colour patterns for any opener, with the entropy maths spelled out. |
-| 🗺️ **Answer map** | One cell per answer, coloured by the number of guesses needed. Searchable, with ` ?ight`-style filters. |
-| ⚖️ **Compare** | Head-to-head comparison of any two strategies, answer by answer. |
-| 🎛️ **Tuner** | Tune the letter-frequency heuristic live and re-simulate all 2,315 answers in about a second. |
-| 🥇 **Openers** | Best first words, plus a heatmap of opener pairs. |
-| 📖 **Word meanings** | Click any word for its definition (dictionaryapi.dev, with Wiktionary as a fallback, cached locally). |
+| 🎮 **Play** | Daily word with a countdown to the next one, or random games. Hard mode, flip, bounce and confetti animations, stats, a shareable emoji grid, and the **word's meaning** after each game. |
+| 🧭 **Solver** | Type your guess, tap the tiles to match your colours, and get the next best word with a plain-English reason. Undo, a demo mode, keyboard shortcuts, and the provably optimal tree. |
+| 🧪 **Strategies** | **Simulation** of every strategy on every answer (Web Workers), a head-to-head **Compare**, and a live **Tuner** for the letter-frequency heuristic. |
+| 🧭 **Explore** | **Decision paths** for any secret word, the optimal decision **Tree**, a **Flow** sankey of how the answer set shrinks, and an **Answer map** of how hard each word is. |
+| 🔤 **Letters & Patterns** | Letter frequencies, all 243 colour patterns with the entropy maths, and the best **Openers**, including a heatmap of opener pairs. |
+| 🇺🇦 **Ukrainian** | EN/UA switch in Settings: Ukrainian word lists, a ЙЦУКЕН keyboard (ґ, є, і, ї), and every strategy simulated on Ukrainian answers. |
+| 📖 **Word meanings** | Click any word for its definition (dictionaryapi.dev with Wiktionary as a fallback; UA words link to Горох, СУМ-20 and sum.in.ua). |
+
+Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can open views in new tabs and share them.
 
 <table>
 <tr><td><img src="docs/readme/dark-assist.png" alt="Solver"/></td><td><img src="docs/readme/dark-tree.png" alt="Tree"/></td></tr>
@@ -50,14 +48,30 @@
 | Entropy (any word) | 3.465 | 0 | Maximise the expected information (bits) |
 | Expected size | 3.481 | – | Minimise the expected number of answers left |
 | Minimax | 3.573 | – | Minimise the worst-case group size |
-| Ruslan balanced (candidates) | 3.599 | 0.56% | Letter frequency weighted f·(n−f) |
+| Ruslan balanced f·(n−f) | 3.599 | 0.56% | Letter frequency weighted f·(n−f) |
 | Entropy (candidates only) | 3.599 | – | Entropy, but only guessing possible answers |
-| Ruslan positional (candidates) | 3.622 | – | Letter frequency per position |
-| Ruslan freq (candidates) | 3.684 | – | Plain letter frequency |
+| Ruslan positional | 3.622 | – | Letter frequency per position |
+| Ruslan freq | 3.684 | – | Plain letter frequency |
 | Random candidate | 4.091 | – | Baseline |
 
 Hard mode: optimal 3.5084, two-step 3.553, entropy 3.603. Best opener pair: **SLATE + HUMID** (3.633).
-Regenerate everything with `bun run simulate`.
+Regenerate everything with `bun run simulate` (`--lang ua` for Ukrainian).
+
+### 🇺🇦 Ukrainian (1,717 answers, 7,158 guesses)
+
+| Strategy | Normal | Hard |
+|---|---:|---:|
+| Max entropy (any word) | **3.396** | 3.488 |
+| Min expected size | 3.409 | 3.503 |
+| Two-step entropy | 3.418 | 3.497 |
+| Max entropy (candidates) | 3.487 | **3.487** |
+| Minimax | 3.502 | 3.569 |
+| Ruslan positional | 3.551 | 3.551 |
+| Ruslan balanced f·(n−f) | 3.593 | 3.593 |
+| Ruslan freq | 3.649 | 3.649 |
+| Random candidate | 4.134 | 4.070 |
+
+The best Ukrainian opener is **КОТРА**.
 
 ## 🧮 How it works
 
@@ -91,6 +105,7 @@ Docker: `docker build -t wordle-lab . && docker run -p 8080:80 wordle-lab` (Bun 
 
 * **Word lists:** original Wordle answers (2,315) and allowed guesses (10,657 extra) from [cfreshman's gists](https://gist.github.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b) ([allowed](https://gist.github.com/cfreshman/cdcdf777450c5b5301e439061d29694c)). The gists have no license; they are reproduced with attribution.
 * **Optimal trees:** [alex1770/wordle](https://github.com/alex1770/wordle) by Alex Selby, MIT License © 2022 Alex Selby.
+* **Ukrainian words:** [kobzaapp/kobzadict](https://github.com/kobzaapp/kobzadict), filtered from [VESUM / brown-uk](https://github.com/brown-uk/dict_uk) (CC BY-NC-SA 4.0, so the UA data is non-commercial), with answers ranked using [hermitdave/FrequencyWords](https://github.com/hermitdave/FrequencyWords) (CC BY-SA 4.0).
 * **Definitions:** [Free Dictionary API](https://dictionaryapi.dev) and [Wiktionary](https://en.wiktionary.org) (CC BY-SA 4.0).
 * **Inspiration:** 3Blue1Brown's *Solving Wordle using information theory*; *An Exact and Interpretable Solution to Wordle* by Bertsimas & Paskov.
 * Built with Vue 3, Vite, Tailwind CSS v4, PrimeVue 4 (MIT), Apache ECharts, VueUse, Lucide and canvas-confetti.

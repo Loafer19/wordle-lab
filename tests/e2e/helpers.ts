@@ -1,9 +1,10 @@
 import { chromium, type Page, type Browser } from 'playwright-core'
 export const BASE = process.env.BASE_URL ?? 'http://localhost:5173'
 export const CHROME = process.env.CHROME ?? '/usr/bin/google-chrome-stable'
-export async function open(tab: string, opts: { reducedMotion?: 'reduce' | 'no-preference'; viewport?: { width: number; height: number } } = {}): Promise<{ b: Browser; p: Page; errors: string[] }> {
+export async function open(tab: string, opts: { reducedMotion?: 'reduce' | 'no-preference'; viewport?: { width: number; height: number }; lang?: 'en' | 'ua' } = {}): Promise<{ b: Browser; p: Page; errors: string[] }> {
   const b = await chromium.launch({ executablePath: CHROME })
   const ctx = await b.newContext({ viewport: opts.viewport ?? { width: 1300, height: 1000 }, reducedMotion: opts.reducedMotion ?? 'reduce' })
+  if (opts.lang) await ctx.addInitScript(l => localStorage.setItem('wl-lang', l), opts.lang)
   const p = await ctx.newPage(); const errors: string[] = []
   p.on('console', m => { if (['error', 'warning'].includes(m.type())) errors.push(m.text()) })
   p.on('pageerror', e => errors.push(e.message))

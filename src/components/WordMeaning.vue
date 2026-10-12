@@ -2,10 +2,11 @@
 import { ref, watch } from 'vue'
 import { BookOpen, Volume2, ExternalLink, Loader2 } from 'lucide-vue-next'
 import { define, type Def } from '../lib/dictionary'
+import { isUA } from '../lib/lang'
 import UiBadge from './ui/UiBadge.vue'
 const props = defineProps<{ word: string; compact?: boolean }>()
 const def = ref<Def | null>(null), loading = ref(true)
-watch(() => props.word, async w => { loading.value = true; def.value = null; def.value = await define(w); loading.value = false }, { immediate: true })
+watch(() => props.word, async w => { if (isUA) { loading.value = false; return } loading.value = true; def.value = null; def.value = await define(w); loading.value = false }, { immediate: true })
 const play = () => def.value?.au && new Audio(def.value.au).play().catch(() => {})
 </script>
 <template>
@@ -16,7 +17,9 @@ const play = () => def.value?.au && new Audio(def.value.au).play().catch(() => {
       <span v-if="def?.ph" class="text-caption text-muted">{{ def.ph }}</span>
       <button v-if="def?.au" class="ml-auto p-1 rounded-md hover:bg-surface-2 text-muted hover:text-fg" aria-label="Play pronunciation" @click="play"><Volume2 :size="16" /></button>
     </div>
-    <div v-if="loading" class="flex items-center gap-2 text-caption text-muted"><Loader2 :size="14" class="animate-spin" />Looking up…</div>
+    <div v-if="isUA" class="flex flex-col gap-1.5 text-body"><p class="text-muted text-caption">Ukrainian definitions open in an online dictionary:</p>
+      <span class="flex flex-wrap gap-2"><a :href="`https://goroh.pp.ua/Тлумачення/${word}`" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-line hover:bg-surface-2 text-caption">Горох <ExternalLink :size="12" /></a><a :href="`https://sum20ua.com/?wrd=${word}`" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-line hover:bg-surface-2 text-caption">СУМ-20 <ExternalLink :size="12" /></a><a :href="`https://sum.in.ua/?swrd=${word}`" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-line hover:bg-surface-2 text-caption">sum.in.ua <ExternalLink :size="12" /></a></span></div>
+    <div v-else-if="loading" class="flex items-center gap-2 text-caption text-muted"><Loader2 :size="14" class="animate-spin" />Looking up…</div>
     <template v-else-if="def">
       <div v-for="m in def.m.slice(0, compact ? 2 : 3)" :key="m.p" class="flex flex-col gap-1">
         <div class="flex items-start gap-2"><UiBadge tone="neutral">{{ m.p }}</UiBadge><span class="text-body leading-snug">{{ m.d }}</span></div>
@@ -24,6 +27,6 @@ const play = () => def.value?.au && new Audio(def.value.au).play().catch(() => {
       </div>
     </template>
     <p v-else class="text-caption text-muted">No dictionary entry found for this word (many valid Wordle guesses are rare or plural forms).</p>
-    <a :href="`https://www.merriam-webster.com/dictionary/${word}`" target="_blank" rel="noopener" class="text-caption text-brand inline-flex items-center gap-1 hover:underline">More on Merriam-Webster <ExternalLink :size="12" /></a>
+    <a v-if="!isUA" :href="`https://www.merriam-webster.com/dictionary/${word}`" target="_blank" rel="noopener" class="text-caption text-brand inline-flex items-center gap-1 hover:underline">More on Merriam-Webster <ExternalLink :size="12" /></a>
   </div>
 </template>

@@ -3,6 +3,7 @@ import { shallowRef, computed } from 'vue'
 import { STRATEGIES, filter, feedback, ALL_GREEN, type Strategy } from './wordle'
 import { twoStepStrategy, type TreeNode } from './advanced'
 import { answers } from './words'
+import { isUA } from './lang'
 
 /** Index an optimal tree by the exact candidate set reaching each node → guess. Falls back to two-step when the user left the tree. */
 export function treeLookupStrategy(id: string, name: string, tree: TreeNode, all: string[], fallback: Strategy): Strategy {
@@ -25,7 +26,7 @@ export function treeLookupStrategy(id: string, name: string, tree: TreeNode, all
 }
 const two = twoStepStrategy()
 export const extra = shallowRef<Strategy[]>([two])
-fetch(import.meta.env.BASE_URL + 'optimal-tree.json').then(r => r.json()).then(async (t: { normal: TreeNode; hard: TreeNode }) => {
+if (!isUA) fetch(import.meta.env.BASE_URL + 'optimal-tree.json').then(r => r.json()).then(async (t: { normal: TreeNode; hard: TreeNode }) => {
   const wait = () => new Promise<void>(r => { const i = setInterval(() => { if (answers.value.length) { clearInterval(i); r() } }, 50) })
   await wait()
   extra.value = [treeLookupStrategy('optimal', 'Optimal tree (SALET)', t.normal, answers.value, two), treeLookupStrategy('optimal-hard', 'Optimal tree (SALET, hard mode)', t.hard, answers.value, two), two]

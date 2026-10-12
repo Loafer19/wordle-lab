@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { BEST_ID, NA } from '../lib/lang'
 import { ref, computed, watch } from 'vue'
 import VChart from 'vue-echarts'
 import { GitCompare, Trophy, ArrowLeftRight } from 'lucide-vue-next'
@@ -8,7 +9,7 @@ import { answers } from '../lib/words'
 import { loadFull, simReady, fullId, simIndex, type Full } from '../lib/simdata'
 import UiCard from './ui/UiCard.vue'; import UiBadge from './ui/UiBadge.vue'; import UiButton from './ui/UiButton.vue'; import CountUp from './ui/CountUp.vue'
 import StrategyPicker from './StrategyPicker.vue'
-const a = ref('freqbal-cand'), b = ref('optimal'), hardA = ref(false), hardB = ref(false)
+const a = ref('freqbal-cand'), b = ref(BEST_ID), hardA = ref(false), hardB = ref(false)
 const fa = ref<Full | null>(null), fb = ref<Full | null>(null)
 watch([a, hardA], async () => { await simReady; fa.value = await loadFull(fullId(a.value, hardA.value)) }, { immediate: true })
 watch([b, hardB], async () => { await simReady; fb.value = await loadFull(fullId(b.value, hardB.value)) }, { immediate: true })
@@ -28,7 +29,7 @@ const distOpt = computed(() => ({ ...baseC.value, grid: { left: 50, right: 20, t
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard title="Side-by-side comparison" :icon="GitCompare" subtitle="Both strategies play the same 2,315 answers. A 'win' means A needed fewer guesses than B for that word.">
+    <UiCard title="Side-by-side comparison" :icon="GitCompare" :subtitle="`Both strategies play the same ${NA} answers. A 'win' means A needed fewer guesses than B for that word.`">
       <div class="grid md:grid-cols-[1fr_auto_1fr] gap-3 items-center">
         <div><div class="text-caption text-muted mb-1">Strategy A</div><StrategyPicker v-model:id="a" v-model:hard="hardA" /></div>
         <UiButton :icon="ArrowLeftRight" variant="secondary" ariaLabel="Swap A and B" @click="swap" />

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { isUA } from '../lib/lang'
+import { NA, META } from '../lib/lang'
 import { ref, reactive, computed, onUnmounted } from 'vue'
 import { watchDebounced, useLocalStorage } from '@vueuse/core'
 import VChart from 'vue-echarts'
@@ -38,7 +40,7 @@ const opt = computed(() => res.value && ({ ...baseC.value, legend: { ...baseC.va
 <template>
   <div class="flex flex-col gap-5">
     <UiCard title="Tune Ruslan's letter-frequency strategy" :icon="SlidersHorizontal" subtitle="Changes re-simulate instantly on a 386-word sample (every 6th answer). Run the full 2,315 for exact numbers.">
-      <template #actions><UiButton :icon="RotateCcw" label="Defaults" variant="secondary" @click="reset" /><UiButton :icon="Play" label="Run full 2,315" @click="run(true)" :loading="running && full" /></template>
+      <template #actions><UiButton :icon="RotateCcw" label="Defaults" variant="secondary" @click="reset" /><UiButton :icon="Play" :label="`Run full ${NA}`" @click="run(true)" :loading="running && full" /></template>
       <div class="grid md:grid-cols-2 gap-x-8 gap-y-5">
         <div><div class="flex justify-between mb-2"><span>Plain letter weight<InfoTip text="How much the letters a word contains count (each distinct letter once)." /></span><b class="tabular-nums">{{ p.wPlain.toFixed(2) }}</b></div><Slider v-model="p.wPlain" :min="0" :max="2" :step="0.05" /></div>
         <div><div class="flex justify-between mb-2"><span>Positional weight<InfoTip text="How much a letter in a likely position (e.g. S first, E last) counts." /></span><b class="tabular-nums">{{ p.wPos.toFixed(2) }}</b></div><Slider v-model="p.wPos" :min="0" :max="2" :step="0.05" /></div>
@@ -52,16 +54,16 @@ const opt = computed(() => res.value && ({ ...baseC.value, legend: { ...baseC.va
     </UiCard>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
       <UiCard interactive><div class="text-caption text-muted flex items-center gap-1"><Gauge :size="12" />Average ({{ res?.n ?? '…' }} words)</div><div class="text-3xl font-extrabold"><CountUp :value="res?.avg ?? 0" :decimals="3" /></div></UiCard>
-      <UiCard interactive><div class="text-caption text-muted">Gap to optimum 3.4212</div><div class="text-3xl font-extrabold text-present">+<CountUp :value="res ? res.avg - OPTIMUM.normal : 0" :decimals="3" /></div></UiCard>
+      <UiCard v-if="!isUA" interactive><div class="text-caption text-muted">Gap to optimum 3.4212</div><div class="text-3xl font-extrabold text-present">+<CountUp :value="res ? res.avg - OPTIMUM.normal : 0" :decimals="3" /></div></UiCard>
       <UiCard interactive><div class="text-caption text-muted">Fail rate (&gt;6)</div><div class="text-3xl font-extrabold" :class="res?.failRate ? 'text-red-500' : 'text-correct'"><CountUp :value="(res?.failRate ?? 0) * 100" :decimals="2" />%</div></UiCard>
       <UiCard interactive><div class="text-caption text-muted">Opener · worst</div><div class="text-3xl font-extrabold font-mono uppercase">{{ res?.opener ?? '…' }}</div><div class="text-caption text-muted">worst {{ res?.worst }} · {{ res?.worstWords?.slice(0, 3).join(' ') }}</div></UiCard>
     </div>
     <div class="grid lg:grid-cols-[2fr_1fr] gap-5">
-      <UiCard title="Guess distribution (% of games)" subtitle="Orange = your tuning, blue = 'Ruslan balanced (candidates)' preset on all 2,315"><VChart v-if="opt" :option="opt" style="height: 300px" autoresize /></UiCard>
+      <UiCard title="Guess distribution (% of games)" subtitle="Orange = your tuning, blue = 'Ruslan balanced (candidates)' preset on all answers"><VChart v-if="opt" :option="opt" style="height: 300px" autoresize /></UiCard>
       <UiCard title="Recent runs" :icon="History">
         <TransitionGroup name="list" tag="div" class="flex flex-col gap-1.5 text-caption">
           <button v-for="(h, i) in history" :key="i + JSON.stringify(h.p) + h.n" class="flex items-center gap-2 text-left rounded-lg px-2 py-1 hover:bg-surface-2 transition-colors" @click="Object.assign(p, h.p)">
-            <UiBadge :tone="h.n === 2315 ? 'brand' : 'neutral'">{{ h.avg.toFixed(3) }}</UiBadge>
+            <UiBadge :tone="h.n === META.answers ? 'brand' : 'neutral'">{{ h.avg.toFixed(3) }}</UiBadge>
             <span class="text-muted truncate">pl {{ h.p.wPlain }} · pos {{ h.p.wPos }} · top {{ h.p.topN }} · {{ h.p.balanced ? 'bal' : 'raw' }} · {{ h.p.fromAll ? 'any' : 'cand' }} · {{ h.n }}w</span>
           </button>
         </TransitionGroup>

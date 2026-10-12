@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { FAMOUS_OPENERS, NA } from '../lib/lang'
 import { useWindowSize } from '@vueuse/core'
 const { width: vw } = useWindowSize()
 import { ref, computed } from 'vue'
@@ -11,7 +12,7 @@ import { answers, allowed } from '../lib/words'
 import { feedback, patternDigits } from '../lib/wordle'
 import UiCard from './ui/UiCard.vue'; import UiBadge from './ui/UiBadge.vue'; import CountUp from './ui/CountUp.vue'
 import PatternSquares from './PatternSquares.vue'
-const word = ref('salet'), sugg = ref<string[]>([]), sort = ref<'by size' | 'by pattern'>('by size')
+const word = ref(FAMOUS_OPENERS[0]), sugg = ref<string[]>([]), sort = ref<'by size' | 'by pattern'>('by size')
 const search = (e: { query: string }) => (sugg.value = allowed.value.filter(w => w.startsWith(e.query.toLowerCase())).slice(0, 20))
 const valid = computed(() => allowed.value.includes(word.value.toLowerCase()))
 const rows = computed(() => {
@@ -39,7 +40,7 @@ const opt = computed(() => ({
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard title="All 243 feedback patterns for one guess" :icon="Grid2x2" subtitle="How the 2,315 possible answers split into colour patterns if you guess this word first.">
+    <UiCard title="All 243 feedback patterns for one guess" :icon="Grid2x2" :subtitle="`How the ${NA} possible answers split into colour patterns if you guess this word first.`">
       <div class="flex flex-wrap items-center gap-3">
         <AutoComplete v-model="word" :suggestions="sugg" @complete="search" inputClass="w-32 uppercase" placeholder="word" />
         <SelectButton v-model="sort" :options="['by size', 'by pattern']" :allowEmpty="false" size="small" />
@@ -54,7 +55,7 @@ const opt = computed(() => ({
     </UiCard>
     <UiCard v-if="valid"><VChart :option="opt" style="height: 380px" autoresize /></UiCard>
     <UiCard v-if="valid" title="Entropy, explained" :icon="Sigma">
-      <p class="text-muted mb-3">Each pattern p happens with probability P(p) = bucket size / 2,315. Seeing it gives log₂(1/P) bits. Entropy H = Σ −P·log₂P is the <i>expected</i> information: big when many patterns are possible and none dominates. A perfect split into 243 equal buckets would give log₂243 ≈ 7.92 bits.</p>
+      <p class="text-muted mb-3">Each pattern p happens with probability P(p) = bucket size / {{ NA }}. Seeing it gives log₂(1/P) bits. Entropy H = Σ −P·log₂P is the <i>expected</i> information: big when many patterns are possible and none dominates. A perfect split into 243 equal buckets would give log₂243 ≈ 7.92 bits.</p>
       <div class="overflow-x-auto"><table class="text-caption font-mono w-full">
         <thead><tr class="text-muted text-left"><th class="py-1 pr-3 font-medium">pattern</th><th class="pr-3 font-medium">words</th><th class="pr-3 font-medium">P</th><th class="pr-3 font-medium">bits if seen</th><th class="pr-3 font-medium">−P·log₂P</th><th class="font-medium">examples</th></tr></thead>
         <TransitionGroup name="list" tag="tbody">

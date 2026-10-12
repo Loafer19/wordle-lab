@@ -29,3 +29,7 @@ https://github.com/alex1770/wordle — same MIT terms as above.
 Word lists in data/answers.txt, data/allowed*.txt come from public gists by
 cfreshman (no explicit license; reproduced with attribution, see data/SOURCES.md).
 Definitions in data/definitions.json come from Wiktionary (CC BY-SA 4.0).
+
+Ukrainian word lists in data/ua/ and public/ua/ are derived from VESUM (brown-uk/dict_uk)
+via kobzaapp/kobzadict and are licensed CC BY-NC-SA 4.0 (non-commercial, share-alike),
+not MIT. See data/SOURCES.md.

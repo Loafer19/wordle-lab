@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { DEMO_WORD } from '../lib/lang'
 import { ref, computed, watch } from 'vue'
 import AutoComplete from 'primevue/autocomplete'; import MultiSelect from 'primevue/multiselect'
 import VChart from 'vue-echarts'
@@ -10,7 +11,7 @@ import { GitBranch, Shuffle, Route, TrendingDown, ArrowRight } from 'lucide-vue-
 import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
 import { playOne, patternDigits } from '../lib/wordle'
-const answer = ref('knoll'), sugg = ref<string[]>([])
+const answer = ref(DEMO_WORD), sugg = ref<string[]>([])
 const sel = ref(['freq-cand', 'freqbal-cand', 'entropy-all', 'minimax-all'])
 const paths = ref<{ id: string; name: string; steps: ReturnType<typeof playOne> }[]>([]), busy = ref(false)
 function search(e: { query: string }) { sugg.value = answers.value.filter(w => w.startsWith(e.query.toLowerCase())).slice(0, 20) }
@@ -26,7 +27,7 @@ watch(precomputed, run, { immediate: true })
 const rand = () => { answer.value = answers.value[Math.floor(Math.random() * answers.value.length)]; run() }
 const opt = computed(() => ({ ...baseC.value, title: { show: false }, legend: { ...baseC.value.legend, top: 0 }, grid: { top: 50, left: 50, right: 20 },
   xAxis: { type: 'category', data: ['start', 'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8'] }, yAxis: { type: 'log', min: 1 },
-  series: paths.value.map(p => ({ type: 'line', name: p.name, data: [2315, ...p.steps.map(s => Math.max(1, s.after))] })) }))
+  series: paths.value.map(p => ({ type: 'line', name: p.name, data: [answers.value.length, ...p.steps.map(s => Math.max(1, s.after))] })) }))
 </script>
 <template>
   <div class="flex flex-col gap-5">

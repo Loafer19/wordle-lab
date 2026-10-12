@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { META } from '../lib/lang'
 import { computed, ref } from 'vue'
 import VChart from 'vue-echarts'
 import SelectButton from 'primevue/selectbutton'
@@ -14,7 +15,7 @@ const src = ref('answers')
 const opts = [{ label: ANSWERS_LABEL, value: 'answers' }, { label: ALLOWED_LABEL, value: 'allowed' }]
 const words = computed(() => (src.value === 'answers' ? answers.value : allowed.value))
 const f = computed(() => letterFreq(words.value))
-const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')
+const letters = META.letters.split('')
 const order = computed(() => letters.map((l, i) => ({ l, v: f.value.overall[i] })).sort((a, b) => b.v - a.v))
 const overallOpt = computed(() => ({ ...baseC.value, title: { show: false },
   xAxis: { type: 'category', data: order.value.map(o => o.l.toUpperCase()) }, yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
