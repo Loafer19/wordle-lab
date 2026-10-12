@@ -42,7 +42,7 @@ const shrinkOpt = computed(() => ({ ...baseC.value, title: { show: false }, lege
       <div class="flex flex-wrap items-center gap-3">
         <MultiSelect v-model="selected" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-full sm:w-96" :maxSelectedLabels="3" />
         <UiButton :icon="Cpu" label="Re-run in Web Workers" @click="run" :loading="Object.keys(progress).length > 0" />
-        <span class="text-caption text-muted">Preloaded from <code>public/results.json</code> (<code>bun run simulate</code>).</span>
+        <span class="text-caption text-muted">Preloaded from <code>public/results.json</code> (<code>bun run simulate</code>). Two-step entropy (~16 s CPU) and the optimal SALET tree (a loaded proof, not a search) are precomputed only — see the gap table above.</span>
       </div>
       <TransitionGroup name="list" tag="div" class="flex flex-col gap-1.5 mt-3">
         <div v-for="(p, id) in progress" :key="id" class="flex items-center gap-2 text-caption"><span class="w-36 truncate">{{ id }}</span><ProgressBar :value="Math.round(p * 100)" class="flex-1 !h-2" :showValue="false" /></div>

@@ -3,10 +3,11 @@ import { ref, computed, watch, onUnmounted } from 'vue'
 import { onKeyStroke } from '@vueuse/core'
 import Select from 'primevue/select'; import InputText from 'primevue/inputtext'
 import { Play, Undo2, RotateCcw, Check, PartyPopper, Lightbulb, Keyboard, ListFilter, History, CircleAlert, Info, ArrowRight } from 'lucide-vue-next'
+import { allStrategies } from '../lib/allStrategies'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import UiIcon from './ui/UiIcon.vue'; import CountUp from './ui/CountUp.vue'
 import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
-import { STRATEGIES, filter, digitsToPattern, entropy, feedback, patternDigits, type Suggestion } from '../lib/wordle'
+import { filter, digitsToPattern, entropy, feedback, patternDigits, type Suggestion } from '../lib/wordle'
 import InfoTip from './InfoTip.vue'
 import BitsPanel from './BitsPanel.vue'
 import PatternSquares from './PatternSquares.vue'
@@ -24,7 +25,7 @@ function compute() {
   if (solved.value || cands.value.length === 0) { sug.value = null; return }
   busy.value = true; sug.value = null
   setTimeout(() => {
-    const s = STRATEGIES.find(x => x.id === stratId.value)!
+    const s = allStrategies.value.find(x => x.id === stratId.value)!
     const pre = precomputed.value.find(r => r.id === s.id)
     if (steps.value.length === 0 && pre && s.id !== 'random') sug.value = { guess: pre.opener, score: 0, why: `Best first word for this strategy (precomputed): "${pre.opener.toUpperCase()}" gives ${entropy(pre.opener, answers.value).toFixed(2)} bits of information on average.` }
     else sug.value = s.pick(cands.value, { answers: answers.value, allowed: allowed.value }, steps.value.length + 1)
@@ -116,8 +117,8 @@ const colourNames: Record<number, string> = { [-1]: 'not set', 0: 'gray', 1: 'ye
       </div>
       <div class="flex flex-wrap gap-2 items-center mt-4 pt-4 border-t border-line">
         <span class="text-body font-medium">Strategy</span>
-        <Select v-model="stratId" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-full sm:w-80" />
-        <InfoTip :text="STRATEGIES.find(s => s.id === stratId)?.desc ?? ''" />
+        <Select v-model="stratId" :options="allStrategies" optionLabel="name" optionValue="id" class="w-full sm:w-80" />
+        <InfoTip :text="allStrategies.find(s => s.id === stratId)?.desc ?? ''" />
         <div class="flex-1"></div>
         <UiButton :icon="Undo2" label="Undo" variant="secondary" @click="undo" :disabled="!steps.length" />
         <UiButton :icon="RotateCcw" label="Reset" variant="secondary" @click="reset" />

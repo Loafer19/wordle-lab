@@ -3,11 +3,12 @@ import { ref, computed, watch } from 'vue'
 import AutoComplete from 'primevue/autocomplete'; import MultiSelect from 'primevue/multiselect'
 import VChart from 'vue-echarts'
 import { baseC } from '../lib/charts'
+import { allStrategies } from '../lib/allStrategies'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'
 import { GitBranch, Shuffle, Route, TrendingDown, ArrowRight } from 'lucide-vue-next'
 import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
-import { STRATEGIES, playOne, patternDigits } from '../lib/wordle'
+import { playOne, patternDigits } from '../lib/wordle'
 const answer = ref('knoll'), sugg = ref<string[]>([])
 const sel = ref(['freq-cand', 'freqbal-cand', 'entropy-all', 'minimax-all'])
 const paths = ref<{ id: string; name: string; steps: ReturnType<typeof playOne> }[]>([]), busy = ref(false)
@@ -16,7 +17,7 @@ function run() {
   if (!answers.value.includes(answer.value)) return
   busy.value = true
   setTimeout(() => {
-    paths.value = sel.value.map(id => { const s = STRATEGIES.find(x => x.id === id)!; return { id, name: s.name, steps: playOne(s, { answers: answers.value, allowed: allowed.value }, answer.value, precomputed.value.find(r => r.id === id)?.opener) } })
+    paths.value = sel.value.map(id => { const s = allStrategies.value.find(x => x.id === id)!; return { id, name: s.name, steps: playOne(s, { answers: answers.value, allowed: allowed.value }, answer.value, precomputed.value.find(r => r.id === id)?.opener) } })
     busy.value = false
   }, 10)
 }
@@ -32,7 +33,7 @@ const opt = computed(() => ({ ...baseC.value, title: { show: false }, legend: { 
       <div class="flex flex-wrap gap-2 items-center">
         <AutoComplete v-model="answer" :suggestions="sugg" @complete="search" @item-select="run" inputClass="w-32 uppercase" placeholder="secret" />
         <UiButton :icon="Shuffle" label="Random" variant="secondary" @click="rand" />
-        <MultiSelect v-model="sel" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-full sm:w-80" :maxSelectedLabels="2" />
+        <MultiSelect v-model="sel" :options="allStrategies" optionLabel="name" optionValue="id" class="w-full sm:w-80" :maxSelectedLabels="2" />
         <UiButton :icon="Route" label="Show paths" @click="run" :loading="busy" />
       </div>
     </UiCard>
