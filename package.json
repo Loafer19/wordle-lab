@@ -8,6 +8,7 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "simulate": "bun scripts/simulate.ts",
+    "definitions": "bun scripts/definitions.ts",
     "test:e2e": "bun test tests/e2e"
   },
   "dependencies": {

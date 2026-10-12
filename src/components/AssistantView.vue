@@ -4,6 +4,7 @@ import { onKeyStroke } from '@vueuse/core'
 import Select from 'primevue/select'; import InputText from 'primevue/inputtext'
 import { Play, Undo2, RotateCcw, Check, PartyPopper, Lightbulb, Keyboard, ListFilter, History, CircleAlert, Info, ArrowRight } from 'lucide-vue-next'
 import { allStrategies } from '../lib/allStrategies'
+import WordLink from './WordLink.vue'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import UiIcon from './ui/UiIcon.vue'; import CountUp from './ui/CountUp.vue'
 import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
@@ -177,7 +178,7 @@ const colourNames: Record<number, string> = { [-1]: 'not set', 0: 'gray', 1: 'ye
           <TransitionGroup name="list" tag="div" class="flex flex-col gap-1">
             <div v-for="a in alts" :key="a.w" class="flex gap-2 items-center font-mono text-caption"><span class="w-14 uppercase font-semibold">{{ a.w }}</span><div class="h-2.5 rounded-full bg-brand-500 transition-all duration-500" :style="{ width: a.h * 28 + 'px' }"></div><span class="text-muted">{{ a.h.toFixed(2) }} bits</span></div>
           </TransitionGroup></div>
-        <div v-if="cands.length <= 150" class="font-mono text-muted break-words uppercase text-caption leading-6">{{ cands.join(' ') }}</div>
+        <div v-if="cands.length <= 150" class="font-mono text-muted break-words uppercase text-caption leading-6"><template v-for="w in cands" :key="w"><WordLink :word="w" /> </template></div>
         <p v-else class="text-muted">Too many to list — apply a guess first.</p>
       </UiCard>
     </div>

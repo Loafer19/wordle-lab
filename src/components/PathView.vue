@@ -4,6 +4,7 @@ import AutoComplete from 'primevue/autocomplete'; import MultiSelect from 'prime
 import VChart from 'vue-echarts'
 import { baseC } from '../lib/charts'
 import { allStrategies } from '../lib/allStrategies'
+import WordLink from './WordLink.vue'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'
 import { GitBranch, Shuffle, Route, TrendingDown, ArrowRight } from 'lucide-vue-next'
 import { answers, allowed } from '../lib/words'
@@ -43,7 +44,7 @@ const opt = computed(() => ({ ...baseC.value, title: { show: false }, legend: { 
         <template #actions><UiBadge :tone="p.steps.length > 6 ? 'danger' : p.steps.length <= 3 ? 'correct' : 'present'">{{ p.steps.length }} guesses</UiBadge></template>
         <div v-for="(s, i) in p.steps" :key="i" class="flex gap-3 items-start mb-2.5">
           <div class="flex gap-0.5 shrink-0"><div v-for="(d, j) in patternDigits(s.pattern)" :key="j" class="tile tile-xs reveal" :style="{ '--i': j }" :class="'s' + d">{{ s.guess[j] }}</div></div>
-          <div class="text-caption"><b class="inline-flex items-center gap-1">{{ s.before }}<ArrowRight :size="12" />{{ s.after }}</b> <span class="text-muted">{{ s.why }}</span></div>
+          <div class="text-caption"><WordLink :word="s.guess" class="font-mono font-bold mr-1.5" /><b class="inline-flex items-center gap-1">{{ s.before }}<ArrowRight :size="12" />{{ s.after }}</b> <span class="text-muted">{{ s.why }}</span></div>
         </div>
       </UiCard>
     </TransitionGroup>

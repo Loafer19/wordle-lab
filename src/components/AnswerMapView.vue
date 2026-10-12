@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import WordLink from './WordLink.vue'
 import { ref, computed, watch } from 'vue'
 import InputText from 'primevue/inputtext'
 import { Map as MapIcon, Search } from 'lucide-vue-next'
@@ -10,6 +11,7 @@ import StrategyPicker from './StrategyPicker.vue'
 const id = ref('freqbal-cand'), hard = ref(false), full = ref<Full | null>(null)
 watch([id, hard], async () => { await simReady; full.value = await loadFull(fullId(id.value, hard.value)) }, { immediate: true })
 const q = ref(''), minG = ref(0), hover = ref<{ w: string; g: number } | null>(null)
+const pinned = ref<{ w: string; g: number } | null>(null)
 const colors = guessScale
 const re = computed(() => { const t = q.value.trim().toLowerCase(); if (!t) return null; try { return new RegExp('^' + t.replace(/[?_]/g, '.').replace(/\*/g, '.*') + (t.length === 5 && !t.includes('*') ? '$' : '')) } catch { return null } })
 const cells = computed(() => (full.value ? answers.value.map((w, i) => ({ w, g: full.value!.guesses[i] })) : []))
@@ -21,7 +23,7 @@ const presets = ['?ight', '?ills', '?atch', '?ound', '?aker', 's*', '*er']
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard title="Answer map" :icon="MapIcon" subtitle="Every possible answer as one cell, coloured by how many guesses the strategy needs. Hover a cell to see the word.">
+    <UiCard title="Answer map" :icon="MapIcon" subtitle="Every possible answer as one cell, coloured by how many guesses the strategy needs. Hover a cell to see the word, click to pin it, click the word for its meaning.">
       <div class="flex flex-wrap items-center gap-3">
         <StrategyPicker v-model:id="id" v-model:hard="hard" />
         <span class="relative"><Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" /><InputText v-model="q" placeholder="filter: ?ight, s*, *er" size="small" class="!pl-8 w-48" /></span>
@@ -36,16 +38,16 @@ const presets = ['?ight', '?ills', '?atch', '?ound', '?aker', 's*', '*er']
     </UiCard>
     <UiCard>
       <div class="flex items-center gap-2 mb-3 h-6 text-body">
-        <template v-if="hover"><b class="font-mono uppercase">{{ hover.w }}</b><UiBadge :tone="hover.g <= 3 ? 'correct' : hover.g <= 5 ? 'present' : 'danger'">{{ hover.g }} guesses</UiBadge></template>
+        <template v-if="hover"><b class="font-mono uppercase"><WordLink :word="hover.w" /></b><UiBadge :tone="hover.g <= 3 ? 'correct' : hover.g <= 5 ? 'present' : 'danger'">{{ hover.g }} guesses</UiBadge></template>
         <span v-else class="text-muted">Hover a cell…</span>
         <div class="flex-1"></div>
         <UiBadge tone="brand">{{ matched.length }} shown · avg {{ avgMatched.toFixed(2) }}</UiBadge>
       </div>
-      <div class="grid gap-[2px]" style="grid-template-columns: repeat(auto-fill, minmax(11px, 1fr))" @mouseleave="hover = null">
-        <div v-for="c in cells" :key="c.w" class="aspect-square rounded-[2px] transition-[opacity,transform] duration-200 hover:scale-150 hover:z-10 cursor-pointer" :style="{ background: colors[Math.min(7, c.g)], opacity: match(c) ? 1 : 0.12 }" :title="`${c.w.toUpperCase()}: ${c.g}`" @mouseenter="hover = c"></div>
+      <div class="grid gap-[2px]" style="grid-template-columns: repeat(auto-fill, minmax(11px, 1fr))" @mouseleave="hover = pinned">
+        <div v-for="c in cells" :key="c.w" @click="pinned = c" class="aspect-square rounded-[2px] transition-[opacity,transform] duration-200 hover:scale-150 hover:z-10 cursor-pointer" :style="{ background: colors[Math.min(7, c.g)], opacity: match(c) ? 1 : 0.12 }" :title="`${c.w.toUpperCase()}: ${c.g}`" @mouseenter="hover = c"></div>
       </div>
       <div v-if="re && matched.length <= 80" class="mt-4 flex flex-wrap gap-1.5">
-        <UiBadge v-for="c in [...matched].sort((a, b) => b.g - a.g)" :key="c.w" :tone="c.g <= 3 ? 'correct' : c.g <= 5 ? 'present' : 'danger'"><span class="font-mono uppercase">{{ c.w }}</span> {{ c.g }}</UiBadge>
+        <UiBadge v-for="c in [...matched].sort((a, b) => b.g - a.g)" :key="c.w" :tone="c.g <= 3 ? 'correct' : c.g <= 5 ? 'present' : 'danger'"><WordLink :word="c.w" class="font-mono uppercase" /> {{ c.g }}</UiBadge>
       </div>
     </UiCard>
   </div>
