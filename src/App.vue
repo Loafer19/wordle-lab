@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useEventListener } from '@vueuse/core'
-import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, BookOpen, Sparkles } from 'lucide-vue-next'
+import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, BookOpen, Sparkles, SlidersHorizontal, Network, Waves, Grid2x2, Map as MapIcon, GitCompare } from 'lucide-vue-next'
 import { ready } from './lib/words'
 import { isDark, toggleDark } from './lib/theme'
 import { ANSWERS_HELP, ALLOWED_HELP, ANSWERS_LABEL, ALLOWED_LABEL } from './lib/labels'
@@ -13,12 +13,24 @@ import SimView from './components/SimView.vue'
 import PathView from './components/PathView.vue'
 import LettersView from './components/LettersView.vue'
 import OpenersView from './components/OpenersView.vue'
+import CompareView from './components/CompareView.vue'
+import AnswerMapView from './components/AnswerMapView.vue'
+import PatternView from './components/PatternView.vue'
+import SankeyView from './components/SankeyView.vue'
+import TreeView from './components/TreeView.vue'
+import TunerView from './components/TunerView.vue'
 const tabs = [
   { id: 'play', label: 'Play', icon: Gamepad2, comp: PlayView },
   { id: 'assist', label: 'Solver', icon: Brain, comp: AssistantView },
   { id: 'sim', label: 'Simulation', icon: BarChart3, comp: SimView },
   { id: 'path', label: 'Decision paths', icon: GitBranch, comp: PathView },
   { id: 'letters', label: 'Letters', icon: CaseSensitive, comp: LettersView },
+  { id: 'tuner', label: 'Tuner', icon: SlidersHorizontal, comp: TunerView },
+  { id: 'tree', label: 'Tree', icon: Network, comp: TreeView },
+  { id: 'flow', label: 'Flow', icon: Waves, comp: SankeyView },
+  { id: 'patterns', label: 'Patterns', icon: Grid2x2, comp: PatternView },
+  { id: 'map', label: 'Answer map', icon: MapIcon, comp: AnswerMapView },
+  { id: 'compare', label: 'Compare', icon: GitCompare, comp: CompareView },
   { id: 'openers', label: 'Openers', icon: Rocket, comp: OpenersView },
 ]
 const loaded = ref(false); ready.then(() => (loaded.value = true))
