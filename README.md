@@ -24,10 +24,10 @@
 |---|---|
 | 🎮 **Play** | Daily word with a countdown to the next one, or random games. Hard mode, flip, bounce and confetti animations, stats, a shareable emoji grid, and the **word's meaning** after each game. |
 | 🧭 **Solver** | Type your guess, tap the tiles to match your colours, and get the next best word with a plain-English reason. Undo, a demo mode, keyboard shortcuts, and the provably optimal tree. |
-| 🧪 **Strategies** | **Simulation** of every strategy on every answer (Web Workers), a head-to-head **Compare**, and a live **Tuner** for the letter-frequency heuristic. |
+| 🧪 **Strategies** | **Simulation** of every strategy on every answer (Web Workers), a head-to-head **Compare**, and the **Strategy Lab**: build a strategy from blocks (opener, explore turns, scoring, tie-breaker), see live results against the best known strategy, and save it for use in Solver, Compare, Tree and more. |
 | 🧭 **Explore** | **Decision paths** for any secret word, the optimal decision **Tree**, a **Flow** sankey of how the answer set shrinks, and an **Answer map** of how hard each word is. |
-| 🔤 **Letters & Patterns** | Letter frequencies, all 243 colour patterns with the entropy maths, and the best **Openers**, including a heatmap of opener pairs. |
-| 🇺🇦 **Ukrainian** | EN/UA switch in Settings: Ukrainian word lists, a ЙЦУКЕН keyboard (ґ, є, і, ї), and every strategy simulated on Ukrainian answers. |
+| 🔤 **Analytics** | Letter frequencies, all 243 colour patterns with the entropy maths, and the best **Openers**, including a heatmap of opener pairs. |
+| 🇺🇦 **Ukrainian** | EN/UA switch in Settings: the whole interface in Ukrainian, Ukrainian word lists, a ЙЦУКЕН keyboard (ґ, є, і, ї), and every strategy simulated on Ukrainian answers. |
 | 📖 **Word meanings** | Click any word for its definition (dictionaryapi.dev with Wiktionary as a fallback; UA words link to Горох, СУМ-20 and sum.in.ua). |
 
 Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can open views in new tabs and share them.
@@ -36,7 +36,7 @@ Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can
 <tr><td><img src="docs/readme/dark-assist.png" alt="Solver"/></td><td><img src="docs/readme/dark-tree.png" alt="Tree"/></td></tr>
 <tr><td><img src="docs/readme/dark-flow.png" alt="Flow"/></td><td><img src="docs/readme/dark-map.png" alt="Answer map"/></td></tr>
 <tr><td><img src="docs/readme/dark-compare.png" alt="Compare"/></td><td><img src="docs/readme/light-patterns.png" alt="Patterns"/></td></tr>
-<tr><td><img src="docs/readme/dark-tuner.png" alt="Tuner"/></td><td><img src="docs/readme/dark-openers.png" alt="Openers"/></td></tr>
+<tr><td><img src="docs/readme/dark-tuner.png" alt="Strategy Lab"/></td><td><img src="docs/readme/dark-openers.png" alt="Openers"/></td></tr>
 </table>
 
 ## 🏁 Strategy results (all 2,315 answers, normal mode)
@@ -49,12 +49,13 @@ Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can
 | Expected size | 3.481 | – | Minimise the expected number of answers left |
 | Minimax | 3.573 | – | Minimise the worst-case group size |
 | Ruslan balanced f·(n−f) | 3.599 | 0.56% | Letter frequency weighted f·(n−f) |
-| Entropy (candidates only) | 3.599 | – | Entropy, but only guessing possible answers |
+| Entropy (candidates only) | 3.599 | 0.48% | Entropy, but only guessing possible answers |
+| Explore 1 → candidates | 3.618 | 0.48% | 1 entropy turn with any word, then entropy on candidates |
 | Ruslan positional | 3.622 | – | Letter frequency per position |
 | Ruslan freq | 3.684 | – | Plain letter frequency |
 | Random candidate | 4.091 | – | Baseline |
 
-Hard mode: optimal 3.5084, two-step 3.553, entropy 3.603. Best opener pair: **SLATE + HUMID** (3.633).
+Hard mode: optimal 3.5084, two-step 3.553, entropy 3.603, Explore 1 3.618, Explore 2 3.632. Best opener pair: **SLATE + HUMID** (3.633).
 Regenerate everything with `bun run simulate` (`--lang ua` for Ukrainian).
 
 ### 🇺🇦 Ukrainian (1,717 answers, 7,158 guesses)
@@ -64,7 +65,9 @@ Regenerate everything with `bun run simulate` (`--lang ua` for Ukrainian).
 | Max entropy (any word) | **3.396** | 3.488 |
 | Min expected size | 3.409 | 3.503 |
 | Two-step entropy | 3.418 | 3.497 |
+| Explore 2 → candidates | 3.433 | 3.514 |
 | Max entropy (candidates) | 3.487 | **3.487** |
+| Explore 1 → candidates | 3.493 | 3.493 |
 | Minimax | 3.502 | 3.569 |
 | Ruslan positional | 3.551 | 3.551 |
 | Ruslan balanced f·(n−f) | 3.593 | 3.593 |

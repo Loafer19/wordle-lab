@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-10-12
+
+### Added
+- **Strategy Lab** (replaces the Tuner): compose a strategy from blocks: a computed or fixed opener; K explore turns (any valid word); the explore and exploit scores (frequency, positional, balanced, entropy, min-expected, minimax); and a tie-breaker. It re-simulates live on a sample, can run all answers, and shows the gap to the best known strategy, the guess distribution and the hardest words. Save it as a custom strategy (stored in your browser) and pick it in Solver, Compare, Tree, Flow and Answer map.
+- **Explore-then-exploit presets**, simulated in EN and UA in normal and hard mode. "Explore 2 → candidates" scores 3.515 in EN (3.433 in UA) and "Explore 1 → candidates" 3.618 (3.493 in UA).
+- **Full Ukrainian interface:** when UA is selected, every label, tooltip, explanation, banner, chart axis and the footer are in Ukrainian, and `<html lang>` follows the language.
+- **Footer pills:** a version pill that links to the release, and an "updated" pill that links to the deployed commit.
+- Unit tests for the alphabet mapping (EN/UA letter frequencies add up and every letter is present). New e2e tests cover UA analytics, the UA UI, the footer and the Strategy Lab.
+
+### Changed
+- "Letters & Patterns" is renamed **Analytics** (UA: «Аналітика»). Old `#tab=letters…` and `#tab=…tuner` links redirect.
+
+### Fixed
+- **UA letter-frequency chart and heatmap** showed only 7 letters (Ц Я Ш Ю Ч Щ Ь), because they were indexed by position in the alphabet string instead of the engine's letter code. The engine and simulations were not affected, and the regenerated UA results are unchanged.
+
 ## [1.1.0] - 2026-10-12
 
 ### Added
@@ -30,5 +45,6 @@ All notable changes to this project are documented here. The format follows [Kee
 - Simulation of all 2,315 answers, Compare, the live Tuner, decision Tree, Flow, Patterns, Answer map, Decision paths, Letters, and Openers with a pair heatmap.
 - Playwright tests, Dockerfile and MIT license.
 
+[1.2.0]: https://github.com/Loafer19/wordle-lab/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Loafer19/wordle-lab/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Loafer19/wordle-lab/releases/tag/v1.0.0
