@@ -1,11 +1,28 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { onKeyStroke, useLocalStorage, useClipboard } from '@vueuse/core'
-import { RotateCcw, Copy, Check, Trophy, Share2, ListFilter, CalendarDays, Shuffle } from 'lucide-vue-next'
+import { RotateCcw, Copy, Check, Trophy, Share2, ListFilter, CalendarDays, Shuffle, Sparkles, Crown, Star, PartyPopper, ThumbsUp, HeartPulse, Frown, BookOpen, X } from 'lucide-vue-next'
+import confetti from 'canvas-confetti'
+import { usePreferredReducedMotion } from '@vueuse/core'
+import WordMeaning from './WordMeaning.vue'
+import WordLink from './WordLink.vue'
+import { tile, brand } from '../lib/tokens'
 import ToggleSwitch from 'primevue/toggleswitch'; import SelectButton from 'primevue/selectbutton'
 import { answers, allowed } from '../lib/words'
 import { feedback, patternDigits, digitsToPattern, filter, ALL_GREEN } from '../lib/wordle'
 import { motion } from '../lib/tokens'
+const WIN = [{ t: 'Genius', i: Sparkles }, { t: 'Magnificent', i: Crown }, { t: 'Impressive', i: Star }, { t: 'Splendid', i: PartyPopper }, { t: 'Great', i: ThumbsUp }, { t: 'Phew', i: HeartPulse }]
+const banner = ref<{ win: boolean; title: string; sub: string; icon: any } | null>(null), justWon = ref(false)
+const reduced = usePreferredReducedMotion()
+let bannerTimer: number | undefined
+function showBanner(b: NonNullable<typeof banner.value>, ms: number) { banner.value = b; clearTimeout(bannerTimer); bannerTimer = window.setTimeout(() => (banner.value = null), ms) }
+function celebrate() {
+  if (reduced.value === 'reduce') return
+  const colors = [tile.correct, tile.present, brand[400], '#ffffff']
+  const o = { colors, disableForReducedMotion: true, zIndex: 60, ticks: 220 }
+  confetti({ ...o, particleCount: 90, spread: 75, startVelocity: 42, origin: { x: 0.5, y: 0.45 } })
+  setTimeout(() => { confetti({ ...o, particleCount: 45, angle: 60, spread: 55, origin: { x: 0, y: 0.7 } }); confetti({ ...o, particleCount: 45, angle: 120, spread: 55, origin: { x: 1, y: 0.7 } }) }, 250)
+}
 import InfoTip from './InfoTip.vue'
 import GameKeyboard from './GameKeyboard.vue'
 import BitsPanel from './BitsPanel.vue'
@@ -23,7 +40,7 @@ const revealMs = 4 * motion.flipStagger + motion.flip
 function newGame() {
   const a = answers.value
   answer.value = mode.value === 'daily' ? a[(dayIndex() * 7919) % a.length] : a[Math.floor(Math.random() * a.length)]
-  rows.value = []; cur.value = ''; msg.value = ''; over.value = false; won.value = false; revealed.value = 0; winRow.value = -1
+  rows.value = []; cur.value = ''; msg.value = ''; banner.value = null; justWon.value = false; over.value = false; won.value = false; revealed.value = 0; winRow.value = -1
 }
 onMounted(newGame)
 const keyState = computed(() => { const m: Record<string, number> = {}; for (const r of rows.value.slice(0, revealed.value)) [...r.w].forEach((c, i) => (m[c] = Math.max(m[c] ?? 0, r.d[i]))); return m })
@@ -53,8 +70,8 @@ function press(k: string) {
     const n = rows.value.length
     setTimeout(() => {
       revealed.value = n
-      if (p === ALL_GREEN) { winRow.value = n - 1; finish(true); toast(['Genius', 'Magnificent', 'Impressive', 'Splendid', 'Great', 'Phew'][n - 1], true) }
-      else if (n >= 6) { finish(false); toast(answer.value.toUpperCase(), true) }
+      if (p === ALL_GREEN) { winRow.value = n - 1; finish(true); justWon.value = true; showBanner({ win: true, title: WIN[n - 1].t + '!', sub: `Solved in ${n}/6${hard.value ? ' · hard mode' : ''}`, icon: WIN[n - 1].i }, 4200); setTimeout(celebrate, 4 * 90 + 300) }
+      else if (n >= 6) { finish(false); showBanner({ win: false, title: 'So close', sub: `The word was ${answer.value.toUpperCase()}`, icon: Frown }, 6000) }
     }, revealMs)
   } else if (k === 'back') cur.value = cur.value.slice(0, -1)
   else if (/^[a-z]$/.test(k) && cur.value.length < 5) cur.value += k
@@ -76,8 +93,18 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
         <UiButton :icon="RotateCcw" label="New game" variant="secondary" @click="newGame" :disabled="mode === 'daily' && !over && rows.length > 0" />
         <label class="flex items-center gap-2 text-body cursor-pointer" v-tooltip.top="'Revealed hints must be used in later guesses'"><ToggleSwitch v-model="hard" /> Hard mode</label>
       </div>
+      <div class="h-14 w-full flex items-center justify-center" aria-live="polite">
+        <Transition name="banner" mode="out-in">
+          <div v-if="banner" :key="banner.title" data-banner class="flex items-center gap-3 pl-3 pr-2 py-2 rounded-xl shadow-lift border text-white"
+            :class="banner.win ? 'bg-correct border-correct' : 'bg-absent border-absent'" role="status">
+            <span class="grid place-items-center size-8 rounded-lg bg-white/20"><component :is="banner.icon" :size="18" /></span>
+            <span class="flex flex-col leading-tight"><b class="text-body">{{ banner.title }}</b><span class="text-caption opacity-90">{{ banner.sub }}</span></span>
+            <button class="p-1 rounded-md hover:bg-white/20" aria-label="Dismiss" @click="banner = null"><X :size="14" /></button>
+          </div>
+          <div v-else-if="msg" :key="msg" class="px-4 py-2 rounded-lg bg-fg text-bg text-body font-semibold shadow-lift whitespace-nowrap" role="status">{{ msg }}</div>
+        </Transition>
+      </div>
       <div class="relative">
-        <Transition name="tab"><div v-if="msg" class="absolute left-1/2 -translate-x-1/2 -top-2 z-10 px-4 py-2 rounded-lg bg-fg text-bg text-body font-semibold shadow-lift whitespace-nowrap" role="status">{{ msg }}</div></Transition>
         <div class="grid gap-1.5 [perspective:600px]">
           <div v-for="(r, i) in grid" :key="i" class="flex gap-1.5" :class="r.state === 'cur' && shake && 'animate-shake'">
             <div v-for="j in 5" :key="j" class="tile" :style="{ '--i': j - 1 }"
@@ -88,6 +115,9 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
       <GameKeyboard :states="keyState" :active="activeKey" @press="press" />
     </div>
     <div class="flex flex-col gap-5 w-full">
+      <Transition name="tab">
+        <UiCard v-if="over" title="Word meaning" :icon="BookOpen" :subtitle="won ? 'You found it — here is what it means' : 'Today’s answer'"><WordMeaning :word="answer" /></UiCard>
+      </Transition>
       <Transition name="tab">
         <UiCard v-if="over" title="Share your result" :icon="Share2">
           <pre class="text-xl leading-tight font-mono">{{ shareText }}</pre>
@@ -104,14 +134,14 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
           <div v-for="(c, i) in stats.dist" :key="i" class="flex items-center gap-2 text-caption">
             <span class="w-3 font-semibold">{{ i + 1 }}</span>
             <div class="h-5 rounded flex items-center justify-end px-1.5 font-semibold transition-all duration-700 ease-out"
-              :class="c === 0 ? 'bg-surface-2 text-muted' : i === stats.last ? 'bg-correct text-white' : 'bg-absent text-white'" :style="{ width: Math.max(7, (c / maxDist) * 100) + '%' }">{{ c }}</div>
+              :class="c === 0 ? 'bg-surface-2 text-muted' : i === stats.last ? ['bg-correct text-white', justWon && 'bar-new'] : 'bg-absent text-white'" :style="{ width: Math.max(7, (c / maxDist) * 100) + '%' }">{{ c }}</div>
           </div>
         </div>
       </UiCard>
       <BitsPanel :rows="rows.slice(0, revealed)" />
       <UiCard title="Words still possible" :icon="ListFilter" :subtitle="`${Math.log2(Math.max(1, remaining.length)).toFixed(2)} bits of uncertainty left`">
         <template #actions><UiBadge tone="brand"><CountUp :value="remaining.length" /></UiBadge><InfoTip :text="ANSWERS_HELP" /></template>
-        <div v-if="revealed && remaining.length <= 60" class="font-mono text-muted break-words uppercase text-caption leading-6">{{ remaining.join(' ') }}</div>
+        <div v-if="revealed && remaining.length <= 60" class="font-mono text-muted break-words uppercase text-caption leading-6"><template v-for="w in remaining" :key="w"><WordLink :word="w" /> </template></div>
         <p v-else-if="revealed" class="text-muted">Too many to list — keep guessing.</p>
         <p v-else class="text-muted">Type a 5-letter word and press <kbd>Enter</kbd>.</p>
       </UiCard>
