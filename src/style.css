@@ -1,5 +1,11 @@
 @import "tailwindcss";
-body { @apply bg-zinc-950 text-zinc-100 min-h-screen; font-family: system-ui, sans-serif; }
-.tile { @apply w-12 h-12 sm:w-14 sm:h-14 border-2 border-zinc-700 flex items-center justify-center text-2xl font-bold uppercase select-none; }
-.t0 { @apply bg-zinc-700 border-zinc-700; } .t1 { @apply bg-yellow-500 border-yellow-500; } .t2 { @apply bg-green-600 border-green-600; }
-.card { @apply bg-zinc-900 rounded-xl p-4 border border-zinc-800; }
+@custom-variant dark (&:where(.dark, .dark *));
+:root { --bg: #f4f4f5; --card: #ffffff; --sub: #e4e4e7; --border: #d4d4d8; --fg: #18181b; --muted: #52525b; --key: #d4d4d8; --tile-empty: #d4d4d8; }
+.dark { --bg: #09090b; --card: #18181b; --sub: #27272a; --border: #27272a; --fg: #f4f4f5; --muted: #a1a1aa; --key: #71717a; --tile-empty: #3f3f46; }
+body { background: var(--bg); color: var(--fg); min-height: 100vh; font-family: system-ui, sans-serif; }
+.muted { color: var(--muted); }
+.sub { background: var(--sub); }
+.tile { @apply w-12 h-12 sm:w-14 sm:h-14 border-2 flex items-center justify-center text-2xl font-bold uppercase select-none transition-colors; border-color: var(--tile-empty); }
+.t0 { @apply bg-zinc-500 border-zinc-500 text-white; } .t1 { @apply bg-yellow-500 border-yellow-500 text-white; } .t2 { @apply bg-green-600 border-green-600 text-white; }
+.card { @apply rounded-xl p-4 border; background: var(--card); border-color: var(--border); }
+.key { background: var(--key); }

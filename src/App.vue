@@ -1,30 +1,43 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Tabs from 'primevue/tabs'; import TabList from 'primevue/tablist'; import Tab from 'primevue/tab'
-import TabPanels from 'primevue/tabpanels'; import TabPanel from 'primevue/tabpanel'
+import Button from 'primevue/button'
 import { ready } from './lib/words'
+import { isDark, toggleDark } from './lib/theme'
+import { ANSWERS_HELP, ALLOWED_HELP, ANSWERS_LABEL, ALLOWED_LABEL } from './lib/labels'
 import PlayView from './components/PlayView.vue'
 import AssistantView from './components/AssistantView.vue'
 import SimView from './components/SimView.vue'
+import PathView from './components/PathView.vue'
 import LettersView from './components/LettersView.vue'
 import OpenersView from './components/OpenersView.vue'
 const loaded = ref(false); ready.then(() => (loaded.value = true))
-const tab = ref('play')
+const tab = ref(location.hash.match(/tab=(\w+)/)?.[1] || 'play')
+const setTab = (v: string | number) => { tab.value = String(v); history.replaceState(null, '', '#tab=' + v) }
+const showWords = ref(false)
 </script>
 <template>
-  <div class="max-w-6xl mx-auto p-4">
-    <h1 class="text-3xl font-bold mb-1">Wordle Lab</h1>
-    <p class="text-zinc-400 mb-4 text-sm">Play Wordle, compare solvers (Ruslan's letter-frequency recount vs entropy vs minimax), and explore the information theory.</p>
+  <div class="max-w-6xl mx-auto p-3 sm:p-4">
+    <header class="flex items-center gap-3 mb-3 flex-wrap">
+      <h1 class="text-2xl sm:text-3xl font-bold">🟩 Wordle Lab</h1>
+      <div class="flex-1"></div>
+      <Button size="small" text :label="showWords ? 'Hide word lists info' : 'What are the word lists?'" icon="" @click="showWords = !showWords" />
+      <Button size="small" severity="secondary" :label="isDark ? '☀️ Light' : '🌙 Dark'" @click="toggleDark()" />
+    </header>
+    <div v-if="showWords" class="card text-sm mb-3 grid sm:grid-cols-2 gap-3">
+      <div><b>{{ ANSWERS_LABEL }}</b><p class="muted">{{ ANSWERS_HELP }}</p></div>
+      <div><b>{{ ALLOWED_LABEL }}</b><p class="muted">{{ ALLOWED_HELP }}</p></div>
+    </div>
     <div v-if="!loaded">Loading dictionaries…</div>
-    <Tabs v-else v-model:value="tab">
-      <TabList><Tab value="play">Play</Tab><Tab value="assist">Solver assistant</Tab><Tab value="sim">Simulation</Tab><Tab value="letters">Letter frequency</Tab><Tab value="openers">Openers & entropy</Tab></TabList>
-      <TabPanels>
-        <TabPanel value="play"><PlayView /></TabPanel>
-        <TabPanel value="assist"><AssistantView /></TabPanel>
-        <TabPanel value="sim"><SimView /></TabPanel>
-        <TabPanel value="letters"><LettersView /></TabPanel>
-        <TabPanel value="openers"><OpenersView /></TabPanel>
-      </TabPanels>
+    <Tabs v-else :value="tab" @update:value="setTab" scrollable>
+      <TabList>
+        <Tab value="play">🎮 Play</Tab><Tab value="assist">🧠 Solver assistant</Tab><Tab value="sim">📊 Simulation</Tab>
+        <Tab value="path">🧭 Decision paths</Tab><Tab value="letters">🔤 Letter frequency</Tab><Tab value="openers">🚀 Openers</Tab>
+      </TabList>
     </Tabs>
+    <main v-if="loaded" class="mt-4">
+      <PlayView v-if="tab === 'play'" /><AssistantView v-else-if="tab === 'assist'" /><SimView v-else-if="tab === 'sim'" />
+      <PathView v-else-if="tab === 'path'" /><LettersView v-else-if="tab === 'letters'" /><OpenersView v-else-if="tab === 'openers'" />
+    </main>
   </div>
 </template>

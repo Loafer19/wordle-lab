@@ -10,10 +10,10 @@
     "simulate": "bun scripts/simulate.ts"
   },
   "dependencies": {
-    "@primeuix/themes": "^3.0.1",
+    "@primeuix/themes": "2.0.3",
     "@vueuse/core": "^15.0.0",
     "echarts": "^6.1.0",
-    "primevue": "^5.0.2",
+    "primevue": "4.5.5",
     "vue": "^3.5.42",
     "vue-echarts": "^8.3.2"
   },

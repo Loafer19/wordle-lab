@@ -68,20 +68,21 @@ function bestBy(pool: string[], score: (w: string) => number, cands: Set<string>
 }
 
 // Ruslan's strategy: count letter frequencies over remaining candidates, guess word covering most frequent letters, filter, recount.
-function freqStrategy(id: string, name: string, fromAll: boolean, positional: boolean): Strategy {
+function freqStrategy(id: string, name: string, fromAll: boolean, positional: boolean, balanced = false): Strategy {
   return {
     id, name,
-    desc: `Letter-frequency recount (Ruslan). ${positional ? 'Positional+plain' : 'Plain'} frequency, guess from ${fromAll ? 'any allowed word' : 'remaining candidates only'}.`,
+    desc: `Letter-frequency recount (Ruslan). ${balanced ? 'Balanced score f·(n−f) for letters and for letter-at-position: letters in about half the remaining words count most' : positional ? 'Positional+plain' : 'Plain'} frequency, guess from ${fromAll ? 'any allowed word' : 'remaining candidates only'}.`,
     pick(cands, ctx) {
       if (cands.length <= 2) return { guess: cands[0], score: 1, why: `${cands.length} candidate(s) left — just guess one.` }
       const n = cands.length
       const { overall, pos } = letterFreq(cands)
       // letters present in every candidate carry no information when exploring
-      const w8 = overall.map(f => (fromAll && f === n ? 0 : f))
+      const w8 = overall.map(f => (balanced ? f * (n - f) : fromAll && f === n ? 0 : f))
       const score = (w: string) => {
         let s = 0
         for (const c of uniq(w)) s += w8[c.charCodeAt(0) - 97]
-        if (positional) for (let i = 0; i < 5; i++) s += pos[i][w.charCodeAt(i) - 97]
+        if (balanced) for (let i = 0; i < 5; i++) { const f = pos[i][w.charCodeAt(i) - 97]; s += f * (n - f) }
+        else if (positional) for (let i = 0; i < 5; i++) s += pos[i][w.charCodeAt(i) - 97]
         return s
       }
       const pool = fromAll ? ctx.allowed : cands
@@ -122,6 +123,8 @@ export const STRATEGIES: Strategy[] = [
   freqStrategy('freq-all', 'Ruslan freq (any word)', true, false),
   freqStrategy('freqpos-cand', 'Ruslan pos-freq (candidates)', false, true),
   freqStrategy('freqpos-all', 'Ruslan pos-freq (any word)', true, true),
+  freqStrategy('freqbal-cand', 'Ruslan balanced f·(n−f) (candidates)', false, false, true),
+  freqStrategy('freqbal-all', 'Ruslan balanced f·(n−f) (any word)', true, false, true),
   bucketStrategy('entropy-all', 'Max entropy (3b1b)', 'Maximise expected information (Shannon entropy of feedback distribution), any allowed word; ties prefer candidates.', true, 'entropy'),
   bucketStrategy('entropy-cand', 'Max entropy (candidates)', 'Max entropy but only guessing possible answers (hard-mode-ish).', false, 'entropy'),
   bucketStrategy('minimax-all', 'Minimax worst bucket', 'Minimise the largest remaining group (Knuth Mastermind style).', true, 'minimax'),
@@ -165,4 +168,18 @@ export function simulate(strat: Strategy, ctx: Ctx, onProgress?: (i: number) => 
   const n = ctx.answers.length
   return { id: strat.id, name: strat.name, avg: total / n, failRate: fails / n, worst, dist,
     avgSizes: sizeSum.map((s, i) => (sizeCnt[i] ? s / n : 0)).filter((_, i) => sizeCnt[i]), opener, ms: performance.now() - t0, worstWords }
+}
+
+/** Play one game with a strategy; returns guesses + candidate sizes and explanations. opener can short-circuit the expensive first pick. */
+export function playOne(strat: Strategy, ctx: Ctx, answer: string, opener?: string, maxTurns = 10) {
+  let cands = ctx.answers
+  const steps: { guess: string; pattern: Pattern; before: number; after: number; why: string }[] = []
+  for (let t = 1; t <= maxTurns; t++) {
+    const s = t === 1 && opener ? { guess: opener, why: `Opener "${opener.toUpperCase()}" (precomputed for this strategy).`, score: 0 } : strat.pick(cands, ctx, t)
+    const p = feedback(s.guess, answer), next = filter(cands, s.guess, p)
+    steps.push({ guess: s.guess, pattern: p, before: cands.length, after: next.length, why: s.why })
+    if (p === ALL_GREEN) break
+    cands = next
+  }
+  return steps
 }

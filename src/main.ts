@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 import PrimeVue from 'primevue/config'
+import Tooltip from 'primevue/tooltip'
 import Aura from '@primeuix/themes/aura'
 import './style.css'
+import './lib/theme'
 import App from './App.vue'
-document.documentElement.classList.add('dark')
-createApp(App).use(PrimeVue, { theme: { preset: Aura, options: { darkModeSelector: '.dark' } } }).mount('#app')
+createApp(App).use(PrimeVue, { theme: { preset: Aura, options: { darkModeSelector: '.dark' } } }).directive('tooltip', Tooltip).mount('#app')

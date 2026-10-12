@@ -1,6 +1,9 @@
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart, LineChart, HeatmapChart } from 'echarts/charts'
-import { GridComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent } from 'echarts/components'
-use([CanvasRenderer, BarChart, LineChart, HeatmapChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent])
-export const base = { backgroundColor: 'transparent', textStyle: { color: '#ddd' }, tooltip: { trigger: 'axis' }, legend: { textStyle: { color: '#ddd' }, type: 'scroll' } }
+import { GridComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent, MarkLineComponent } from 'echarts/components'
+import { computed } from 'vue'
+import { fg } from './theme'
+use([CanvasRenderer, BarChart, LineChart, HeatmapChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent, MarkLineComponent])
+export const baseC = computed(() => ({ backgroundColor: 'transparent', textStyle: { color: fg.value }, tooltip: { trigger: 'axis' }, legend: { textStyle: { color: fg.value }, type: 'scroll' } }))
+export const title = (text: string) => ({ text, textStyle: { color: fg.value, fontSize: 14 } })
