@@ -1,2 +1,5 @@
-<script setup lang="ts">defineProps<{ text: string }>()</script>
-<template><span v-tooltip.top="text" class="inline-flex items-center justify-center w-4 h-4 rounded-full border text-[10px] cursor-help muted align-middle ml-1" style="border-color: var(--muted)">i</span></template>
+<script setup lang="ts">
+import { Info } from 'lucide-vue-next'
+defineProps<{ text: string }>()
+</script>
+<template><span v-tooltip.top="text" tabindex="0" class="inline-flex align-middle ml-1 text-muted hover:text-brand-500 cursor-help transition-colors" :aria-label="text"><Info :size="14" /></span></template>

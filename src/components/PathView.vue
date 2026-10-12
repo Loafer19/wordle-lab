@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import AutoComplete from 'primevue/autocomplete'; import Button from 'primevue/button'; import MultiSelect from 'primevue/multiselect'
+import AutoComplete from 'primevue/autocomplete'; import MultiSelect from 'primevue/multiselect'
 import VChart from 'vue-echarts'
-import { baseC, title } from '../lib/charts'
+import { baseC } from '../lib/charts'
+import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'
+import { GitBranch, Shuffle, Route, TrendingDown, ArrowRight } from 'lucide-vue-next'
 import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
 import { STRATEGIES, playOne, patternDigits } from '../lib/wordle'
@@ -20,29 +22,29 @@ function run() {
 }
 watch(precomputed, run, { immediate: true })
 const rand = () => { answer.value = answers.value[Math.floor(Math.random() * answers.value.length)]; run() }
-const opt = computed(() => ({ ...baseC.value, title: title(`Possible answers left after each guess (answer: ${answer.value.toUpperCase()})`), legend: { ...baseC.value.legend, top: 25 }, grid: { top: 70 },
+const opt = computed(() => ({ ...baseC.value, title: { show: false }, legend: { ...baseC.value.legend, top: 0 }, grid: { top: 50, left: 50, right: 20 },
   xAxis: { type: 'category', data: ['start', 'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8'] }, yAxis: { type: 'log', min: 1 },
   series: paths.value.map(p => ({ type: 'line', name: p.name, data: [2315, ...p.steps.map(s => Math.max(1, s.after))] })) }))
 </script>
 <template>
-  <div class="flex flex-col gap-4">
-    <div class="card flex flex-wrap gap-2 items-center">
-      <span class="text-sm">Secret word:</span>
-      <AutoComplete v-model="answer" :suggestions="sugg" @complete="search" @item-select="run" class="w-36" />
-      <Button label="Random" size="small" severity="secondary" @click="rand" />
-      <MultiSelect v-model="sel" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-80" :maxSelectedLabels="2" />
-      <Button label="Show paths" size="small" @click="run" :loading="busy" />
-      <span class="text-xs muted w-full">See exactly how each strategy would play against one secret word: its guesses, the colours it gets, and how many possible answers remain.</span>
-    </div>
-    <div class="card"><VChart :option="opt" style="height: 320px" autoresize /></div>
-    <div class="grid md:grid-cols-2 gap-4">
-      <div v-for="p in paths" :key="p.id" class="card">
-        <div class="font-semibold mb-2">{{ p.name }} — <span :class="p.steps.length > 6 ? 'text-red-500' : 'text-green-500'">{{ p.steps.length }} guesses</span></div>
-        <div v-for="(s, i) in p.steps" :key="i" class="flex gap-3 items-start mb-2">
-          <div class="flex gap-0.5 shrink-0"><div v-for="(d, j) in patternDigits(s.pattern)" :key="j" class="tile !w-8 !h-8 !text-sm" :class="'t' + d">{{ s.guess[j] }}</div></div>
-          <div class="text-xs"><b>{{ s.before }} → {{ s.after }}</b> <span class="muted">{{ s.why }}</span></div>
-        </div>
+  <div class="flex flex-col gap-5">
+    <UiCard title="Decision paths" :icon="GitBranch" subtitle="How each strategy plays against one secret word: guesses, colours, and possible answers left">
+      <div class="flex flex-wrap gap-2 items-center">
+        <AutoComplete v-model="answer" :suggestions="sugg" @complete="search" @item-select="run" inputClass="w-32 uppercase" placeholder="secret" />
+        <UiButton :icon="Shuffle" label="Random" variant="secondary" @click="rand" />
+        <MultiSelect v-model="sel" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-full sm:w-80" :maxSelectedLabels="2" />
+        <UiButton :icon="Route" label="Show paths" @click="run" :loading="busy" />
       </div>
-    </div>
+    </UiCard>
+    <UiCard :title="`Possible answers left after each guess · ${answer.toUpperCase()}`" :icon="TrendingDown"><VChart :option="opt" style="height: 320px" autoresize /></UiCard>
+    <TransitionGroup name="list" tag="div" class="grid md:grid-cols-2 gap-5">
+      <UiCard v-for="p in paths" :key="p.id + answer" interactive :title="p.name">
+        <template #actions><UiBadge :tone="p.steps.length > 6 ? 'danger' : p.steps.length <= 3 ? 'correct' : 'present'">{{ p.steps.length }} guesses</UiBadge></template>
+        <div v-for="(s, i) in p.steps" :key="i" class="flex gap-3 items-start mb-2.5">
+          <div class="flex gap-0.5 shrink-0"><div v-for="(d, j) in patternDigits(s.pattern)" :key="j" class="tile tile-xs reveal" :style="{ '--i': j }" :class="'s' + d">{{ s.guess[j] }}</div></div>
+          <div class="text-caption"><b class="inline-flex items-center gap-1">{{ s.before }}<ArrowRight :size="12" />{{ s.after }}</b> <span class="text-muted">{{ s.why }}</span></div>
+        </div>
+      </UiCard>
+    </TransitionGroup>
   </div>
 </template>
