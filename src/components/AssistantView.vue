@@ -8,11 +8,13 @@ import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
 import { STRATEGIES, filter, digitsToPattern, entropy, feedback, patternDigits, type Suggestion } from '../lib/wordle'
 import InfoTip from './InfoTip.vue'
+import BitsPanel from './BitsPanel.vue'
+import PatternSquares from './PatternSquares.vue'
 import { ANSWERS_HELP } from '../lib/labels'
 
 const stratId = ref('freqbal-cand')
 const steps = ref<{ w: string; d: number[]; sizeBefore: number; sizeAfter: number; sug: string }[]>([])
-const guess = ref(''), digits = ref([0, 0, 0, 0, 0]), err = ref(''), demoMsg = ref(''), demoSecret = ref('')
+const guess = ref(''), digits = ref<number[]>([-1, -1, -1, -1, -1]), err = ref(''), errHint = ref<{ w: string; p: number }[]>([]), demoMsg = ref(''), demoSecret = ref('')
 const cands = computed(() => steps.value.reduce((c, s) => filter(c, s.w, digitsToPattern(s.d)), answers.value))
 const solved = computed(() => steps.value.length > 0 && steps.value[steps.value.length - 1].d.every(d => d === 2))
 const sug = ref<Suggestion | null>(null), busy = ref(false)
@@ -26,27 +28,39 @@ function compute() {
     const pre = precomputed.value.find(r => r.id === s.id)
     if (steps.value.length === 0 && pre && s.id !== 'random') sug.value = { guess: pre.opener, score: 0, why: `Best first word for this strategy (precomputed): "${pre.opener.toUpperCase()}" gives ${entropy(pre.opener, answers.value).toFixed(2)} bits of information on average.` }
     else sug.value = s.pick(cands.value, { answers: answers.value, allowed: allowed.value }, steps.value.length + 1)
-    guess.value = sug.value.guess; digits.value = demoSecret.value ? patternDigits(feedback(guess.value, demoSecret.value)) : [0, 0, 0, 0, 0]; busy.value = false
+    guess.value = sug.value.guess; digits.value = demoSecret.value ? patternDigits(feedback(guess.value, demoSecret.value)) : [-1, -1, -1, -1, -1]; err.value = ''; errHint.value = []; busy.value = false
   }, 10)
 }
 watch([stratId, () => steps.value.length, precomputed], compute, { immediate: true })
 
+let lastApply = 0
+const isCandidate = computed(() => cands.value.includes(guess.value.toLowerCase()))
+function solvedAllGreen() { digits.value = [2, 2, 2, 2, 2]; apply() }
 function apply() {
-  err.value = ''
+  // guard against double-trigger (Enter on a focused button fires click + keydown)
+  if (busy.value || Date.now() - lastApply < 300) return
+  err.value = ''; errHint.value = []
   const w = guess.value.toLowerCase()
   if (w.length !== 5) return (err.value = 'Type a 5-letter word first.')
   if (!allowedSet.value.has(w)) return (err.value = `"${w.toUpperCase()}" is not a valid Wordle guess.`)
+  if (digits.value.some(d => d < 0)) return (err.value = 'Set the colour of every tile first (click each tile until it matches Wordle).')
   const after = filter(cands.value, w, digitsToPattern(digits.value)).length
-  if (after === 0) return (err.value = 'No possible answer matches these colours — double-check the tiles.')
+  if (after === 0) {
+    err.value = 'No possible answer matches these colours — double-check the tiles.'
+    errHint.value = cands.value.slice(0, 4).map(a => ({ w: a, p: feedback(w, a) }))
+    return
+  }
+  lastApply = Date.now()
   steps.value.push({ w, d: [...digits.value], sizeBefore: cands.value.length, sizeAfter: after, sug: sug.value?.guess ?? '' })
 }
 const undo = () => { steps.value.pop(); err.value = '' }
 const reset = () => { stopDemo(); steps.value = []; err.value = ''; demoSecret.value = ''; demoMsg.value = '' }
-const cycle = (i: number) => (digits.value[i] = (digits.value[i] + 1) % 3)
+const cycle = (i: number) => { digits.value[i] = (digits.value[i] + 1) % 3; err.value = ''; errHint.value = [] }
 
 onKeyStroke(e => {
   const tag = (e.target as HTMLElement)?.tagName
   if (tag === 'INPUT' || tag === 'TEXTAREA') { if (e.key === 'Enter') apply(); return }
+  if (tag === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) return // native click handles it
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); return undo() }
   if (e.ctrlKey || e.metaKey || e.altKey) return
   const k = e.key.toLowerCase()
@@ -54,7 +68,7 @@ onKeyStroke(e => {
   else if (k === 'escape') reset()
   else if (k === 'backspace') guess.value = guess.value.slice(0, -1)
   else if (/^[1-5]$/.test(k)) cycle(+k - 1)
-  else if (/^[a-z]$/.test(k)) { guess.value = guess.value.length >= 5 ? k : guess.value + k; digits.value = [0, 0, 0, 0, 0] }
+  else if (/^[a-z]$/.test(k)) { guess.value = guess.value.length >= 5 ? k : guess.value + k; digits.value = [-1, -1, -1, -1, -1] }
 })
 
 // Demo: walks through a sample game automatically
@@ -74,7 +88,7 @@ function demo() {
 onUnmounted(stopDemo)
 const alts = computed(() => { const c = cands.value; if (c.length > 400 || c.length < 2) return []; return c.map(w => ({ w, h: entropy(w, c) })).sort((a, b) => b.h - a.h).slice(0, 6) })
 const howto = ['Type the word you guessed in Wordle — or keep the suggestion and play it there.', 'Click the tiles until they match the colours Wordle showed you: gray → yellow → green.', 'Press Apply. Impossible words are removed and your next guess is suggested.']
-const colourNames = ['gray', 'yellow', 'green']
+const colourNames: Record<number, string> = { [-1]: 'not set', 0: 'gray', 1: 'yellow', 2: 'green' }
 </script>
 <template>
   <div class="flex flex-col gap-5">
@@ -129,14 +143,20 @@ const colourNames = ['gray', 'yellow', 'green']
           </div>
           <div class="flex flex-col items-center gap-3 mt-5">
             <label class="text-body font-semibold" for="guess-in"><span class="text-brand-600">1</span> · Word you entered in Wordle</label>
-            <InputText id="guess-in" v-model="guess" maxlength="5" class="w-44 !text-center uppercase !tracking-[0.3em] !text-lg !font-bold" @update:modelValue="digits = [0, 0, 0, 0, 0]" />
+            <InputText id="guess-in" v-model="guess" maxlength="5" class="w-44 !text-center uppercase !tracking-[0.3em] !text-lg !font-bold" @update:modelValue="digits = [-1, -1, -1, -1, -1]; err = ''; errHint = []" />
             <div class="text-body font-semibold mt-1"><span class="text-brand-600">2</span> · Click tiles to match Wordle's colours</div>
             <div class="flex gap-2">
-              <button v-for="j in 5" :key="j + guess" class="tile cursor-pointer transition-transform duration-150 hover:-translate-y-0.5 active:scale-95" :class="'s' + digits[j - 1]" :aria-label="`Tile ${j}: ${colourNames[digits[j - 1]]}`" v-tooltip.bottom="`${colourNames[digits[j - 1]]} · click or press ${j}`" @click="cycle(j - 1)">{{ guess[j - 1] }}</button>
+              <button v-for="j in 5" :key="j + guess" class="tile cursor-pointer transition-transform duration-150 hover:-translate-y-0.5 active:scale-95" :class="digits[j - 1] < 0 ? 'border-dashed !border-line-strong' : 's' + digits[j - 1]" :aria-label="`Tile ${j}: ${colourNames[digits[j - 1]]}`" v-tooltip.bottom="`${colourNames[digits[j - 1]]} · click or press ${j}`" @click="cycle(j - 1)">{{ guess[j - 1] }}</button>
             </div>
             <div class="flex gap-3 text-caption text-muted"><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-absent"></i>not in word</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-present"></i>wrong spot</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-correct"></i>right spot</span></div>
             <UiButton class="mt-1" size="lg" :icon="Check" label="3 · Apply feedback" @click="apply" />
-            <Transition name="tab"><div v-if="err" class="flex items-center gap-2 text-body text-red-600 dark:text-red-400"><UiIcon :icon="CircleAlert" />{{ err }}</div></Transition>
+            <UiButton v-if="isCandidate" :icon="PartyPopper" label="Solved (all green)" variant="secondary" @click="solvedAllGreen" />
+            <Transition name="tab"><div v-if="err" class="flex flex-col items-center gap-1.5 text-body text-red-600 dark:text-red-400" role="alert">
+              <div class="flex items-center gap-2"><UiIcon :icon="CircleAlert" />{{ err }}</div>
+              <div v-if="errHint.length" class="text-caption text-muted text-center">Hint: for the words still possible, Wordle would show
+                <span v-for="h in errHint" :key="h.w" class="inline-flex items-center gap-1 mx-1"><b class="font-mono uppercase">{{ h.w }}</b><PatternSquares :p="h.p" :size="10" /></span>
+                — one of these should match your screen. A common slip: a yellow letter marked gray, or a letter that appears twice.</div>
+            </div></Transition>
           </div>
         </template>
       </UiCard>
@@ -151,5 +171,6 @@ const colourNames = ['gray', 'yellow', 'green']
         <p v-else class="text-muted">Too many to list — apply a guess first.</p>
       </UiCard>
     </div>
+    <BitsPanel :rows="steps" />
   </div>
 </template>
