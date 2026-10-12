@@ -8,6 +8,7 @@ import { feedback, patternDigits, digitsToPattern, filter, ALL_GREEN } from '../
 import { motion } from '../lib/tokens'
 import InfoTip from './InfoTip.vue'
 import GameKeyboard from './GameKeyboard.vue'
+import BitsPanel from './BitsPanel.vue'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import CountUp from './ui/CountUp.vue'
 import { ANSWERS_HELP } from '../lib/labels'
 const mode = ref<'daily' | 'random'>('daily')
@@ -107,6 +108,7 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
           </div>
         </div>
       </UiCard>
+      <BitsPanel :rows="rows.slice(0, revealed)" />
       <UiCard title="Words still possible" :icon="ListFilter" :subtitle="`${Math.log2(Math.max(1, remaining.length)).toFixed(2)} bits of uncertainty left`">
         <template #actions><UiBadge tone="brand"><CountUp :value="remaining.length" /></UiBadge><InfoTip :text="ANSWERS_HELP" /></template>
         <div v-if="revealed && remaining.length <= 60" class="font-mono text-muted break-words uppercase text-caption leading-6">{{ remaining.join(' ') }}</div>
