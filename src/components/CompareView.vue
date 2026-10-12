@@ -31,27 +31,27 @@ const distOpt = computed(() => ({ ...baseC.value, grid: { left: 50, right: 20, t
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard title="Side-by-side comparison" :icon="GitCompare" :subtitle="`Both strategies play the same ${NA} answers. A 'win' means A needed fewer guesses than B for that word.`">
+    <UiCard :title="$t('Side-by-side comparison')" :icon="GitCompare" :subtitle="$t('Both strategies play the same {n} answers. A “win” means A needed fewer guesses than B for that word.', { n: NA })">
       <div class="grid md:grid-cols-[1fr_auto_1fr] gap-3 items-center">
-        <div><div class="text-caption text-muted mb-1">Strategy A</div><StrategyPicker v-model:id="a" v-model:hard="hardA" /></div>
-        <UiButton :icon="ArrowLeftRight" variant="secondary" ariaLabel="Swap A and B" @click="swap" />
-        <div><div class="text-caption text-muted mb-1">Strategy B</div><StrategyPicker v-model:id="b" v-model:hard="hardB" /></div>
+        <div><div class="text-caption text-muted mb-1">{{ $t('Strategy A') }}</div><StrategyPicker v-model:id="a" v-model:hard="hardA" /></div>
+        <UiButton :icon="ArrowLeftRight" variant="secondary" :ariaLabel="$t('Swap A and B')" @click="swap" />
+        <div><div class="text-caption text-muted mb-1">{{ $t('Strategy B') }}</div><StrategyPicker v-model:id="b" v-model:hard="hardB" /></div>
       </div>
     </UiCard>
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-      <UiCard interactive><div class="text-caption text-muted">A avg</div><div class="text-2xl font-extrabold"><CountUp :value="avgA" :decimals="3" /></div><div class="text-caption truncate">{{ nameOf(a, hardA) }}</div></UiCard>
-      <UiCard interactive><div class="text-caption text-muted">B avg</div><div class="text-2xl font-extrabold"><CountUp :value="avgB" :decimals="3" /></div><div class="text-caption truncate">{{ nameOf(b, hardB) }}</div></UiCard>
-      <UiCard interactive><div class="text-caption text-muted flex items-center gap-1"><Trophy :size="12" />A wins</div><div class="text-2xl font-extrabold text-correct"><CountUp :value="wins" /></div></UiCard>
-      <UiCard interactive><div class="text-caption text-muted">B wins</div><div class="text-2xl font-extrabold text-red-500"><CountUp :value="losses" /></div></UiCard>
-      <UiCard interactive><div class="text-caption text-muted">Ties</div><div class="text-2xl font-extrabold"><CountUp :value="ties" /></div></UiCard>
+      <UiCard interactive><div class="text-caption text-muted">{{ $t('A avg') }}</div><div class="text-2xl font-extrabold"><CountUp :value="avgA" :decimals="3" /></div><div class="text-caption truncate">{{ nameOf(a, hardA) }}</div></UiCard>
+      <UiCard interactive><div class="text-caption text-muted">{{ $t('B avg') }}</div><div class="text-2xl font-extrabold"><CountUp :value="avgB" :decimals="3" /></div><div class="text-caption truncate">{{ nameOf(b, hardB) }}</div></UiCard>
+      <UiCard interactive><div class="text-caption text-muted flex items-center gap-1"><Trophy :size="12" />{{ $t('A wins') }}</div><div class="text-2xl font-extrabold text-correct"><CountUp :value="wins" /></div></UiCard>
+      <UiCard interactive><div class="text-caption text-muted">{{ $t('B wins') }}</div><div class="text-2xl font-extrabold text-red-500"><CountUp :value="losses" /></div></UiCard>
+      <UiCard interactive><div class="text-caption text-muted">{{ $t('Ties') }}</div><div class="text-2xl font-extrabold"><CountUp :value="ties" /></div></UiCard>
     </div>
     <div class="grid lg:grid-cols-2 gap-5">
-      <UiCard title="Per-word difference (A − B)" subtitle="Green = A faster, red = B faster (log scale)"><VChart :option="deltaOpt" style="height: 280px" autoresize /></UiCard>
-      <UiCard title="Guess distributions"><VChart :option="distOpt" style="height: 280px" autoresize /></UiCard>
+      <UiCard :title="$t('Per-word difference (A − B)')" :subtitle="$t('Green = A faster, red = B faster (log scale)')"><VChart :option="deltaOpt" style="height: 280px" autoresize /></UiCard>
+      <UiCard :title="$t('Guess distributions')"><VChart :option="distOpt" style="height: 280px" autoresize /></UiCard>
     </div>
-    <UiCard title="Biggest differences" subtitle="Words where the two strategies disagree most">
+    <UiCard :title="$t('Biggest differences')" :subtitle="$t('Words where the two strategies disagree most')">
       <div class="overflow-x-auto"><table class="text-caption w-full">
-        <thead><tr class="text-muted text-left"><th class="py-1 pr-3 font-medium">word</th><th class="pr-3 font-medium">A</th><th class="pr-3 font-medium">B</th><th class="font-medium">Δ</th></tr></thead>
+        <thead><tr class="text-muted text-left"><th class="py-1 pr-3 font-medium">{{ $t('word') }}</th><th class="pr-3 font-medium">A</th><th class="pr-3 font-medium">B</th><th class="font-medium">Δ</th></tr></thead>
         <TransitionGroup name="list" tag="tbody">
           <tr v-for="r in diffs" :key="r.w" class="border-t border-line hover:bg-surface-2 transition-colors">
             <td class="py-1 pr-3 font-mono uppercase font-semibold">{{ r.w }}</td>

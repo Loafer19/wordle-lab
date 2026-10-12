@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '../lib/i18n'
 import { DEMO_WORD } from '../lib/lang'
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { onKeyStroke } from '@vueuse/core'
@@ -30,7 +31,7 @@ function compute() {
   setTimeout(() => {
     const s = allStrategies.value.find(x => x.id === stratId.value)!
     const pre = precomputed.value.find(r => r.id === s.id)
-    if (steps.value.length === 0 && pre && s.id !== 'random') sug.value = { guess: pre.opener, score: 0, why: `Best first word for this strategy (precomputed): "${pre.opener.toUpperCase()}" gives ${entropy(pre.opener, answers.value).toFixed(2)} bits of information on average.` }
+    if (steps.value.length === 0 && pre && s.id !== 'random') sug.value = { guess: pre.opener, score: 0, why: t('Best first word for this strategy (precomputed): "{w}" gives {b} bits of information on average.', { w: pre.opener.toUpperCase(), b: entropy(pre.opener, answers.value).toFixed(2) }) }
     else sug.value = s.pick(cands.value, { answers: answers.value, allowed: allowed.value }, steps.value.length + 1)
     guess.value = sug.value.guess; digits.value = demoSecret.value ? patternDigits(feedback(guess.value, demoSecret.value)) : [-1, -1, -1, -1, -1]; err.value = ''; errHint.value = []; busy.value = false
   }, 10)
@@ -42,19 +43,19 @@ let lastApply = 0
 const isCandidate = computed(() => cands.value.includes(guess.value.toLowerCase()))
 function solvedAllGreen() { userAction(); digits.value = [2, 2, 2, 2, 2]; apply() }
 /** Any user interaction ends a running demo (otherwise its timer keeps auto-colouring and auto-applying). */
-function userAction() { if (timer !== undefined || demoSecret.value) { stopDemo(); demoSecret.value = ''; demoMsg.value = 'Demo stopped — you are in control now.' } }
+function userAction() { if (timer !== undefined || demoSecret.value) { stopDemo(); demoSecret.value = ''; demoMsg.value = t('Demo stopped — you are in control now.') } }
 function userApply() { userAction(); apply() }
 function apply() {
   // guard against double-trigger (Enter on a focused button fires click + keydown)
   if (busy.value || Date.now() - lastApply < 300) return
   err.value = ''; errHint.value = []
   const w = guess.value.toLowerCase()
-  if (w.length !== 5) return (err.value = 'Type a 5-letter word first.')
+  if (w.length !== 5) return (err.value = t('Type a 5-letter word first.'))
   if (!allowedSet.value.has(w)) return (err.value = `"${w.toUpperCase()}" is not a valid Wordle guess.`)
-  if (digits.value.some(d => d < 0)) return (err.value = 'Set the colour of every tile first (click each tile until it matches Wordle).')
+  if (digits.value.some(d => d < 0)) return (err.value = t('Set the colour of every tile first (click each tile until it matches Wordle).'))
   const after = filter(cands.value, w, digitsToPattern(digits.value)).length
   if (after === 0) {
-    err.value = 'No possible answer matches these colours — double-check the tiles.'
+    err.value = t('No possible answer matches these colours — double-check the tiles.')
     errHint.value = cands.value.slice(0, 4).map(a => ({ w: a, p: feedback(w, a) }))
     return
   }
@@ -90,9 +91,9 @@ function stopDemo() { clearTimeout(timer); timer = undefined }
 function demo() {
   reset()
   demoSecret.value = DEMO_WORD
-  demoMsg.value = `Demo: the secret word is ${DEMO_WORD.toUpperCase()} (pretend you don't know it). Watch: the suggested word is typed, its colours are filled in, then Apply is pressed.`
+  demoMsg.value = t('Demo: the secret word is {w} (pretend you don\'t know it). Watch: the suggested word is typed, its colours are filled in, then Apply is pressed.', { w: DEMO_WORD.toUpperCase() })
   const tick = () => {
-    if (solved.value) { demoMsg.value = `Demo finished: solved in ${steps.value.length} guesses. Press Reset to start your own game.`; demoSecret.value = ''; timer = undefined; return }
+    if (solved.value) { demoMsg.value = t('Demo finished: solved in {n} guesses. Press Reset to start your own game.', { n: steps.value.length }); demoSecret.value = ''; timer = undefined; return }
     if (busy.value) { timer = window.setTimeout(tick, 300); return }
     timer = window.setTimeout(() => { apply(); timer = window.setTimeout(tick, 1800) }, 1800)
   }
@@ -100,14 +101,14 @@ function demo() {
 }
 onUnmounted(stopDemo)
 const alts = computed(() => { const c = cands.value; if (c.length > 400 || c.length < 2) return []; return c.map(w => ({ w, h: entropy(w, c) })).sort((a, b) => b.h - a.h).slice(0, 6) })
-const howto = ['Type the word you guessed in Wordle — or keep the suggestion and play it there.', 'Click the tiles until they match the colours Wordle showed you: gray → yellow → green.', 'Press Apply. Impossible words are removed and your next guess is suggested.']
-const colourNames: Record<number, string> = { [-1]: 'not set', 0: 'gray', 1: 'yellow', 2: 'green' }
+const howto = ['Type the word you guessed in Wordle — or keep the suggestion and play it there.', 'Click the tiles until they match the colours Wordle showed you: gray → yellow → green.', 'Press Apply. Impossible words are removed and your next guess is suggested.'].map(s => t(s))
+const colourNames: Record<number, string> = { [-1]: t('not set'), 0: t('gray'), 1: t('yellow'), 2: t('green') }
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard title="How to use the solver while playing real Wordle" :icon="Lightbulb">
+    <UiCard :title="$t('How to use the solver while playing real Wordle')" :icon="Lightbulb">
       <template #actions>
-        <UiButton :icon="Play" label="Show me an example" @click="demo" />
+        <UiButton :icon="Play" :label="$t('Show me an example')" @click="demo" />
       </template>
       <ol class="grid sm:grid-cols-3 gap-3">
         <li v-for="(h, i) in howto" :key="i" class="flex gap-3 bg-surface-2 rounded-xl p-3">
@@ -116,15 +117,15 @@ const colourNames: Record<number, string> = { [-1]: 'not set', 0: 'gray', 1: 'ye
       </ol>
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption text-muted mt-3">
         <UiIcon :icon="Keyboard" size="xs" />
-        <span>letters = edit word</span><span><kbd>1</kbd>–<kbd>5</kbd> cycle tile</span><span><kbd>Enter</kbd> apply</span><span><kbd>Ctrl</kbd>+<kbd>Z</kbd> undo</span><span><kbd>Esc</kbd> reset</span>
+        <span>{{ $t('letters = edit word') }}</span><span><kbd>1</kbd>–<kbd>5</kbd> {{ $t('cycle tile') }}</span><span><kbd>{{ $t('Enter') }}</kbd> {{ $t('apply') }}</span><span><kbd>Ctrl</kbd>+<kbd>Z</kbd> {{ $t('undo') }}</span><span><kbd>Esc</kbd> {{ $t('reset') }}</span>
       </div>
       <div class="flex flex-wrap gap-2 items-center mt-4 pt-4 border-t border-line">
-        <span class="text-body font-medium">Strategy</span>
+        <span class="text-body font-medium">{{ $t('Strategy') }}</span>
         <Select v-model="stratId" :options="allStrategies" optionLabel="name" optionValue="id" class="w-full sm:w-80" />
         <InfoTip :text="allStrategies.find(s => s.id === stratId)?.desc ?? ''" />
         <div class="flex-1"></div>
-        <UiButton :icon="Undo2" label="Undo" variant="secondary" @click="undo" :disabled="!steps.length" />
-        <UiButton :icon="RotateCcw" label="Reset" variant="secondary" @click="reset" />
+        <UiButton :icon="Undo2" :label="$t('Undo')" variant="secondary" @click="undo" :disabled="!steps.length" />
+        <UiButton :icon="RotateCcw" :label="$t('Reset')" variant="secondary" @click="reset" />
       </div>
     </UiCard>
     <Transition name="tab"><div v-if="demoMsg" class="flex gap-2 items-start rounded-xl border border-brand-500/30 bg-brand-500/10 p-3 text-body"><UiIcon :icon="Info" class="mt-0.5 text-brand-600" />{{ demoMsg }}</div></Transition>
@@ -132,11 +133,11 @@ const colourNames: Record<number, string> = { [-1]: 'not set', 0: 'gray', 1: 'ye
     <div class="grid lg:grid-cols-5 gap-5">
       <UiCard class="lg:col-span-3">
         <div v-if="steps.length" class="mb-5">
-          <div class="flex items-center gap-2 text-caption text-muted mb-2"><UiIcon :icon="History" size="xs" />Your guesses so far</div>
+          <div class="flex items-center gap-2 text-caption text-muted mb-2"><UiIcon :icon="History" size="xs" />{{ $t('Your guesses so far') }}</div>
           <TransitionGroup name="list" tag="div" class="flex flex-col gap-2">
             <div v-for="(s, i) in steps" :key="i + s.w" class="flex items-center gap-3 flex-wrap">
               <div class="flex gap-1"><div v-for="j in 5" :key="j" class="tile tile-sm reveal" :style="{ '--i': j - 1 }" :class="'s' + s.d[j - 1]">{{ s.w[j - 1] }}</div></div>
-              <div class="flex items-center gap-1.5">{{ s.sizeBefore }}<UiIcon :icon="ArrowRight" size="xs" class="text-muted" /><b>{{ s.sizeAfter }}</b> words</div>
+              <div class="flex items-center gap-1.5">{{ s.sizeBefore }}<UiIcon :icon="ArrowRight" size="xs" class="text-muted" /><b>{{ s.sizeAfter }}</b> {{ $t('words') }}</div>
               <UiBadge :tone="s.sizeAfter / s.sizeBefore < 0.1 ? 'correct' : s.sizeAfter / s.sizeBefore < 0.4 ? 'present' : 'neutral'">kept {{ Math.round((100 * s.sizeAfter) / s.sizeBefore) }}%</UiBadge>
             </div>
           </TransitionGroup>
@@ -144,38 +145,38 @@ const colourNames: Record<number, string> = { [-1]: 'not set', 0: 'gray', 1: 'ye
 
         <div v-if="solved" class="text-center py-8">
           <PartyPopper :size="44" class="mx-auto text-brand-500 animate-bounce-win" />
-          <div class="text-2xl font-extrabold mt-3">Solved in {{ steps.length }}!</div>
-          <UiButton class="mt-4" :icon="RotateCcw" label="New game" @click="reset" />
+          <div class="text-2xl font-extrabold mt-3">{{ $t('Solved in {n}!', { n: steps.length }) }}</div>
+          <UiButton class="mt-4" :icon="RotateCcw" :label="$t('New game')" @click="reset" />
         </div>
         <template v-else>
           <div class="rounded-2xl bg-surface-2 p-5 text-center">
-            <div class="text-caption uppercase tracking-wider text-muted font-semibold">Suggested next guess</div>
+            <div class="text-caption uppercase tracking-wider text-muted font-semibold">{{ $t('Suggested next guess') }}</div>
             <div v-if="busy" class="text-display font-black my-3 text-muted animate-pulse">· · ·</div>
             <div v-else-if="sug" :key="sug.guess" class="text-display font-black tracking-[0.25em] uppercase text-brand-600 dark:text-brand-400 my-3 animate-fade-up">{{ sug.guess }}</div>
             <p v-if="sug && !busy" class="text-body text-muted max-w-xl mx-auto">{{ sug.why }}</p>
           </div>
           <div class="flex flex-col items-center gap-3 mt-5">
-            <label class="text-body font-semibold" for="guess-in"><span class="text-brand-600">1</span> · Word you entered in Wordle</label>
+            <label class="text-body font-semibold" for="guess-in"><span class="text-brand-600">1</span> {{ $t('· Word you entered in Wordle') }}</label>
             <InputText id="guess-in" v-model="guess" maxlength="5" class="w-44 !text-center uppercase !tracking-[0.3em] !text-lg !font-bold" @update:modelValue="digits = [-1, -1, -1, -1, -1]; err = ''; errHint = []" />
-            <div class="text-body font-semibold mt-1"><span class="text-brand-600">2</span> · Click tiles to match Wordle's colours</div>
+            <div class="text-body font-semibold mt-1"><span class="text-brand-600">2</span> {{ $t('· Click tiles to match Wordle\'s colours') }}</div>
             <div class="flex gap-2">
-              <button v-for="j in 5" :key="j + guess" data-tile="1" class="tile cursor-pointer transition-transform duration-150 hover:-translate-y-0.5 active:scale-95" :class="digits[j - 1] < 0 ? 'border-dashed !border-line-strong' : 's' + digits[j - 1]" :aria-label="`Tile ${j}: ${colourNames[digits[j - 1]]}`" v-tooltip.bottom="`${colourNames[digits[j - 1]]} · click or press ${j}`" @click="cycle(j - 1)">{{ guess[j - 1] }}</button>
+              <button v-for="j in 5" :key="j + guess" data-tile="1" class="tile cursor-pointer transition-transform duration-150 hover:-translate-y-0.5 active:scale-95" :class="digits[j - 1] < 0 ? 'border-dashed !border-line-strong' : 's' + digits[j - 1]" :aria-label="$t('Tile {j}: {c}', { j, c: colourNames[digits[j - 1]] })" v-tooltip.bottom="$t('{c} · click or press {j}', { j, c: colourNames[digits[j - 1]] })" @click="cycle(j - 1)">{{ guess[j - 1] }}</button>
             </div>
-            <div class="flex gap-3 text-caption text-muted"><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-absent"></i>not in word</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-present"></i>wrong spot</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-correct"></i>right spot</span></div>
-            <UiButton class="mt-1" size="lg" :icon="Check" label="3 · Apply feedback" @click="userApply" />
-            <UiButton v-if="isCandidate" :icon="PartyPopper" label="Solved (all green)" variant="secondary" @click="solvedAllGreen" />
+            <div class="flex gap-3 text-caption text-muted"><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-absent"></i>{{ $t('not in word') }}</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-present"></i>{{ $t('wrong spot') }}</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-correct"></i>{{ $t('right spot') }}</span></div>
+            <UiButton class="mt-1" size="lg" :icon="Check" :label="$t('3 · Apply feedback')" @click="userApply" />
+            <UiButton v-if="isCandidate" :icon="PartyPopper" :label="$t('Solved (all green)')" variant="secondary" @click="solvedAllGreen" />
             <Transition name="tab"><div v-if="err" class="flex flex-col items-center gap-1.5 text-body text-red-600 dark:text-red-400" role="alert">
               <div class="flex items-center gap-2"><UiIcon :icon="CircleAlert" />{{ err }}</div>
-              <div v-if="errHint.length" class="text-caption text-muted text-center">Hint: for the words still possible, Wordle would show
+              <div v-if="errHint.length" class="text-caption text-muted text-center">{{ $t('Hint: for the words still possible, Wordle would show') }}
                 <span v-for="h in errHint" :key="h.w" class="inline-flex items-center gap-1 mx-1"><b class="font-mono uppercase">{{ h.w }}</b><PatternSquares :p="h.p" :size="10" /></span>
-                — one of these should match your screen. A common slip: a yellow letter marked gray, or a letter that appears twice.</div>
+                {{ $t('— one of these should match your screen. A common slip: a yellow letter marked gray, or a letter that appears twice.') }}</div>
             </div></Transition>
           </div>
         </template>
       </UiCard>
 
       <CandidatesCard class="lg:col-span-2" :words="cands" :highlight="sug?.guess">
-        <div v-if="alts.length" class="mt-4"><div class="text-caption text-muted mb-2">Most informative of these (entropy)</div>
+        <div v-if="alts.length" class="mt-4"><div class="text-caption text-muted mb-2">{{ $t('Most informative of these (entropy)') }}</div>
           <TransitionGroup name="list" tag="div" class="flex flex-col gap-1">
             <div v-for="a in alts" :key="a.w" class="flex gap-2 items-center font-mono text-caption"><span class="w-14 uppercase font-semibold">{{ a.w }}</span><div class="h-2.5 rounded-full bg-brand-500 transition-all duration-500" :style="{ width: a.h * 28 + 'px' }"></div><span class="text-muted">{{ a.h.toFixed(2) }} bits</span></div>
           </TransitionGroup></div>

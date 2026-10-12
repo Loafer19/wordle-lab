@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { t } from './lib/i18n'
 import { ref, computed } from 'vue'
-import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, Sparkles, SlidersHorizontal, Network, Waves, Grid2x2, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag } from 'lucide-vue-next'
+import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, Sparkles, SlidersHorizontal, Network, Waves, Grid2x2, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag, Scale, History } from 'lucide-vue-next'
 import { ready } from './lib/words'
 import { isDark, toggleDark } from './lib/theme'
 import { route, href } from './lib/route'
@@ -23,35 +24,36 @@ import SankeyView from './components/SankeyView.vue'
 import TreeView from './components/TreeView.vue'
 import LabView from './components/LabView.vue'
 const sub = {
-  strategies: [{ id: 'simulation', label: 'Simulation', icon: BarChart3, comp: SimView }, { id: 'compare', label: 'Compare', icon: GitCompare, comp: CompareView }, { id: 'lab', label: 'Strategy Lab', icon: Blocks, comp: LabView }],
-  explore: [{ id: 'paths', label: 'Decision paths', icon: GitBranch, comp: PathView }, { id: 'tree', label: 'Tree', icon: Network, comp: TreeView }, { id: 'flow', label: 'Flow', icon: Waves, comp: SankeyView }, { id: 'map', label: 'Answer map', icon: MapIcon, comp: AnswerMapView }],
-  analytics: [{ id: 'letters', label: 'Letters', icon: CaseSensitive, comp: LettersView }, { id: 'patterns', label: 'Patterns', icon: Grid2x2, comp: PatternView }, { id: 'openers', label: 'Openers', icon: Rocket, comp: OpenersView }],
+  strategies: [{ id: 'simulation', label: t('Simulation'), icon: BarChart3, comp: SimView }, { id: 'compare', label: t('Compare'), icon: GitCompare, comp: CompareView }, { id: 'lab', label: t('Strategy Lab'), icon: Blocks, comp: LabView }],
+  explore: [{ id: 'paths', label: t('Decision paths'), icon: GitBranch, comp: PathView }, { id: 'tree', label: t('Tree'), icon: Network, comp: TreeView }, { id: 'flow', label: t('Flow'), icon: Waves, comp: SankeyView }, { id: 'map', label: t('Answer map'), icon: MapIcon, comp: AnswerMapView }],
+  analytics: [{ id: 'letters', label: t('Letters'), icon: CaseSensitive, comp: LettersView }, { id: 'patterns', label: t('Patterns'), icon: Grid2x2, comp: PatternView }, { id: 'openers', label: t('Openers'), icon: Rocket, comp: OpenersView }],
 }
 const tabs = [
-  { id: 'play', label: 'Play', icon: Gamepad2 },
-  { id: 'solver', label: 'Solver', icon: Brain },
-  { id: 'strategies', label: 'Strategies', icon: FlaskConical },
-  { id: 'explore', label: 'Explore', icon: Compass },
-  { id: 'analytics', label: 'Analytics', icon: CaseSensitive },
+  { id: 'play', label: t('Play'), icon: Gamepad2 },
+  { id: 'solver', label: t('Solver'), icon: Brain },
+  { id: 'strategies', label: t('Strategies'), icon: FlaskConical },
+  { id: 'explore', label: t('Explore'), icon: Compass },
+  { id: 'analytics', label: t('Analytics'), icon: CaseSensitive },
 ]
 const loaded = ref(false); ready.then(() => (loaded.value = true))
 const version = __APP_VERSION__, commit = __COMMIT__
-const built = new Date(__BUILD_DATE__).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+const commitUrl = commit && commit !== 'dev' ? `https://github.com/Loafer19/wordle-lab/commit/${commit}` : 'https://github.com/Loafer19/wordle-lab/blob/main/CHANGELOG.md'
+const built = new Date(__BUILD_DATE__).toLocaleDateString(isUA ? 'uk-UA' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 const current = computed(() => route.tab)
 </script>
 <template>
   <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-10">
     <header class="flex items-center gap-2 py-4">
-      <a :href="href('play')" class="flex items-center gap-2 rounded-lg -mx-1 px-1 focus-visible:outline-2 focus-visible:outline-brand-500" aria-label="Wordle Lab home" data-home>
+      <a :href="href('play')" class="flex items-center gap-2 rounded-lg -mx-1 px-1 focus-visible:outline-2 focus-visible:outline-brand-500" :aria-label="$t('Wordle Lab home')" data-home>
         <AppLogo />
-        <span class="text-xl sm:text-2xl font-extrabold tracking-tight ml-1">Wordle Lab</span>
+        <span class="text-xl sm:text-2xl font-extrabold tracking-tight ml-1">{{ $t('Wordle Lab') }}</span>
       </a>
-      <span v-if="isUA" class="text-caption font-bold px-1.5 py-0.5 rounded bg-brand-500/15 text-brand-700 dark:text-brand-400" v-tooltip.bottom="'Ukrainian word lists'">UA</span>
+      <span v-if="isUA" class="text-caption font-bold px-1.5 py-0.5 rounded bg-brand-500/15 text-brand-700 dark:text-brand-400" v-tooltip.bottom="$t('Ukrainian word lists')">UA</span>
       <div class="flex-1"></div>
-      <UiButton variant="ghost" :icon="isDark ? Sun : Moon" :ariaLabel="isDark ? 'Switch to light theme' : 'Switch to dark theme'" v-tooltip.bottom="isDark ? 'Light theme' : 'Dark theme'" @click="toggleDark()" />
+      <UiButton variant="ghost" :icon="isDark ? Sun : Moon" :ariaLabel="isDark ? t('Switch to light theme') : t('Switch to dark theme')" v-tooltip.bottom="isDark ? t('Light theme') : t('Dark theme')" @click="toggleDark()" />
       <SettingsPopover />
     </header>
-    <nav class="sticky top-0 z-10 -mx-3 sm:mx-0 px-3 sm:px-1 py-1.5 bg-bg/85 backdrop-blur border-b border-line mb-5 overflow-x-auto [scrollbar-width:none]" aria-label="Main">
+    <nav class="sticky top-0 z-10 -mx-3 sm:mx-0 px-3 sm:px-1 py-1.5 bg-bg/85 backdrop-blur border-b border-line mb-5 overflow-x-auto [scrollbar-width:none]" :aria-label="$t('Main')">
       <div class="flex gap-1 min-w-max">
         <a v-for="t in tabs" :key="t.id" :href="href(t.id)" :aria-current="current === t.id ? 'page' : undefined" data-tab-link :data-tab="t.id"
           class="relative flex items-center gap-2 px-3 py-2 rounded-lg text-body font-medium transition-colors duration-200"
@@ -68,15 +70,15 @@ const current = computed(() => route.tab)
         <SectionView v-else :key="current" :tab="current" :views="sub[current as keyof typeof sub]" />
       </Transition>
     </main>
-    <footer class="mt-10 pt-6 border-t border-line flex flex-wrap items-center justify-between gap-3 text-caption text-muted">
-      <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span>Wordle Lab · MIT · not affiliated with NYT</span>
-        <a :href="`https://github.com/Loafer19/wordle-lab/releases/tag/v${version}`" target="_blank" rel="noopener" class="inline-flex items-center gap-1 hover:text-fg" data-version><Tag :size="12" />v{{ version }} · updated {{ built }}</a>
-        <a :href="`https://github.com/Loafer19/wordle-lab/commit/${commit}`" target="_blank" rel="noopener" class="font-mono hover:text-fg">{{ commit }}</a>
+    <footer class="mt-10 pt-6 border-t border-line flex flex-wrap items-center justify-between gap-3 text-caption text-muted" data-footer>
+      <span class="flex flex-wrap items-center gap-2" data-footer-left>
+        <span class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface"><Scale :size="13" />{{ $t('Wordle Lab · MIT · not affiliated with NYT') }}</span>
+        <a href="https://t.me/Loafer19" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface hover:bg-surface-2 hover:text-fg transition-colors"><Send :size="13" class="text-brand" />{{ $t('Made by @Loafer19') }}</a>
+        <a href="https://github.com/Loafer19/wordle-lab" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface hover:bg-surface-2 hover:text-fg transition-colors"><Github :size="13" />{{ $t('Source on GitHub') }}</a>
       </span>
-      <span class="flex items-center gap-2">
-        <a href="https://t.me/Loafer19" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line hover:bg-surface-2 hover:text-fg transition-colors"><Send :size="14" class="text-brand" />Made by @Loafer19</a>
-        <a href="https://github.com/Loafer19/wordle-lab" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line hover:bg-surface-2 hover:text-fg transition-colors"><Github :size="14" />Source on GitHub</a>
+      <span class="flex flex-wrap items-center gap-2" data-footer-right>
+        <a :href="`https://github.com/Loafer19/wordle-lab/releases/tag/v${version}`" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface hover:bg-surface-2 hover:text-fg transition-colors font-mono font-semibold !text-brand-700 dark:!text-brand-400 !border-brand-500/30" v-tooltip.top="$t('Release notes')" data-version><Tag :size="13" />v{{ version }}</a>
+        <a :href="commitUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface hover:bg-surface-2 hover:text-fg transition-colors" v-tooltip.top="commit && commit !== 'dev' ? $t('Commit {c}', { c: commit }) : $t('Changelog')" data-updated><History :size="13" />{{ $t('updated {d}', { d: built }) }}</a>
       </span>
     </footer>
   </div>

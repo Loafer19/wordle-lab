@@ -9,7 +9,7 @@ const toggle = (e: Event) => { shown.value = true; op.value.toggle(e) }
 </script>
 <template>
   <span class="inline">
-    <button type="button" class="word-link" :title="`What does ${word.toUpperCase()} mean?`" @click.stop="toggle"><slot>{{ word.toUpperCase() }}</slot></button>
+    <button type="button" class="word-link" :title="$t('What does {w} mean?', { w: word.toUpperCase() })" @click.stop="toggle"><slot>{{ word.toUpperCase() }}</slot></button>
     <Popover ref="op"><WordMeaning v-if="shown" :word="word" compact /></Popover>
   </span>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '../lib/i18n'
 import { ref, computed, onMounted } from 'vue'
 import { onKeyStroke, useLocalStorage, useClipboard } from '@vueuse/core'
 import { RotateCcw, Copy, Check, Trophy, Share2, Clock, CalendarDays, Shuffle, Sparkles, Crown, Star, PartyPopper, ThumbsUp, HeartPulse, Frown, BookOpen, X } from 'lucide-vue-next'
@@ -13,7 +14,7 @@ import SelectButton from 'primevue/selectbutton'
 import { answers, allowed } from '../lib/words'
 import { feedback, patternDigits, digitsToPattern, filter, ALL_GREEN } from '../lib/wordle'
 import { motion } from '../lib/tokens'
-const WIN = [{ t: 'Genius', i: Sparkles }, { t: 'Magnificent', i: Crown }, { t: 'Impressive', i: Star }, { t: 'Splendid', i: PartyPopper }, { t: 'Great', i: ThumbsUp }, { t: 'Phew', i: HeartPulse }]
+const WIN = [{ t: t('Genius'), i: Sparkles }, { t: t('Magnificent'), i: Crown }, { t: t('Impressive'), i: Star }, { t: t('Splendid'), i: PartyPopper }, { t: t('Great'), i: ThumbsUp }, { t: t('Phew'), i: HeartPulse }]
 const banner = ref<{ win: boolean; title: string; sub: string; icon: any } | null>(null), justWon = ref(false)
 const reduced = usePreferredReducedMotion()
 let bannerTimer: number | undefined
@@ -29,7 +30,7 @@ import GameKeyboard from './GameKeyboard.vue'
 import BitsPanel from './BitsPanel.vue'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import CountUp from './ui/CountUp.vue'
 const mode = ref<'daily' | 'random'>('daily')
-const modes = [{ v: 'daily', l: 'Daily', i: CalendarDays }, { v: 'random', l: 'Random', i: Shuffle }]
+const modes = [{ v: 'daily', l: t('Daily'), i: CalendarDays }, { v: 'random', l: t('Random'), i: Shuffle }]
 const answer = ref(''), rows = ref<{ w: string; d: number[] }[]>([]), cur = ref(''), msg = ref(''), hard = useLocalStorage('wl-hard', false), over = ref(false), won = ref(false)
 const revealed = ref(0), shake = ref(false), winRow = ref(-1), activeKey = ref('')
 const stats = useLocalStorage(lang === 'en' ? 'wl-stats' : 'wl-stats-' + lang, { played: 0, wins: 0, streak: 0, best: 0, dist: [0, 0, 0, 0, 0, 0], last: -1 })
@@ -59,8 +60,8 @@ function toast(t: string, sticky = false) { msg.value = t; clearTimeout(msgTimer
 function invalid(t: string) { toast(t); shake.value = false; requestAnimationFrame(() => (shake.value = true)); setTimeout(() => (shake.value = false), 500) }
 function hardViolation(w: string) {
   for (const r of rows.value) for (let i = 0; i < 5; i++) {
-    if (r.d[i] === 2 && w[i] !== r.w[i]) return `Hard mode: letter ${i + 1} must be ${r.w[i].toUpperCase()}`
-    if (r.d[i] === 1 && !w.includes(r.w[i])) return `Hard mode: guess must contain ${r.w[i].toUpperCase()}`
+    if (r.d[i] === 2 && w[i] !== r.w[i]) return t('Hard mode: letter {i} must be {l}', { i: i + 1, l: r.w[i].toUpperCase() })
+    if (r.d[i] === 1 && !w.includes(r.w[i])) return t('Hard mode: guess must contain {l}', { l: r.w[i].toUpperCase() })
   }
   return ''
 }
@@ -73,7 +74,7 @@ function press(k: string) {
   activeKey.value = k; setTimeout(() => activeKey.value === k && (activeKey.value = ''), 120)
   if (over.value || revealed.value < rows.value.length) return
   if (k === 'enter') {
-    if (cur.value.length < 5) return invalid('Not enough letters')
+    if (cur.value.length < 5) return invalid(t('Not enough letters'))
     if (!allowedSet.value.has(cur.value)) return invalid(`${cur.value.toUpperCase()} is not in the word list`)
     if (hard.value) { const v = hardViolation(cur.value); if (v) return invalid(v) }
     const p = feedback(cur.value, answer.value); rows.value.push({ w: cur.value, d: patternDigits(p) }); cur.value = ''
@@ -81,8 +82,8 @@ function press(k: string) {
     const n = rows.value.length
     setTimeout(() => {
       revealed.value = n
-      if (p === ALL_GREEN) { winRow.value = n - 1; finish(true); justWon.value = true; showBanner({ win: true, title: WIN[n - 1].t + '!', sub: `Solved in ${n}/6${hard.value ? ' · hard mode' : ''}`, icon: WIN[n - 1].i }, 4200); setTimeout(celebrate, 4 * 90 + 300) }
-      else if (n >= 6) { finish(false); showBanner({ win: false, title: 'So close', sub: `The word was ${answer.value.toUpperCase()}`, icon: Frown }, 6000) }
+      if (p === ALL_GREEN) { winRow.value = n - 1; finish(true); justWon.value = true; showBanner({ win: true, title: WIN[n - 1].t + '!', sub: t('Solved in {n}/6', { n }) + (hard.value ? ' · ' + t('hard mode') : ''), icon: WIN[n - 1].i }, 4200); setTimeout(celebrate, 4 * 90 + 300) }
+      else if (n >= 6) { finish(false); showBanner({ win: false, title: t('So close'), sub: t('The word was {w}', { w: answer.value.toUpperCase() }), icon: Frown }, 6000) }
     }, revealMs)
   } else if (k === 'back') cur.value = cur.value.slice(0, -1)
   else if (isLetter(k) && cur.value.length < 5) cur.value += k
@@ -101,9 +102,9 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
         <SelectButton v-model="mode" :options="modes" optionLabel="l" optionValue="v" :allowEmpty="false" size="small" @change="newGame">
           <template #option="{ option }"><component :is="option.i" :size="14" /><span>{{ option.l }}</span></template>
         </SelectButton>
-        <UiButton v-if="mode === 'random'" :icon="RotateCcw" label="New game" variant="secondary" @click="newGame" data-newgame />
-        <span v-else class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line bg-surface-2 text-caption text-muted tabular-nums" data-countdown v-tooltip.bottom="'A new daily word every midnight (your local time)'"><Clock :size="14" />Next word in <b class="text-fg">{{ countdown }}</b></span>
-        <span v-if="hard" class="text-caption font-semibold px-2 py-1 rounded-md bg-present/15 text-present" v-tooltip.bottom="'Hard mode is on (change it in Settings)'">Hard</span>
+        <UiButton v-if="mode === 'random'" :icon="RotateCcw" :label="$t('New game')" variant="secondary" @click="newGame" data-newgame />
+        <span v-else class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line bg-surface-2 text-caption text-muted tabular-nums" data-countdown v-tooltip.bottom="$t('A new daily word every midnight (your local time)')"><Clock :size="14" />{{ $t('Next word in') }} <b class="text-fg">{{ countdown }}</b></span>
+        <span v-if="hard" class="text-caption font-semibold px-2 py-1 rounded-md bg-present/15 text-present" v-tooltip.bottom="$t('Hard mode is on (change it in Settings)')">{{ $t('Hard') }}</span>
       </div>
       <div class="h-14 w-full flex items-center justify-center" aria-live="polite">
         <Transition name="banner" mode="out-in">
@@ -111,7 +112,7 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
             :class="banner.win ? 'bg-correct border-correct' : 'bg-absent border-absent'" role="status">
             <span class="grid place-items-center size-8 rounded-lg bg-white/20"><component :is="banner.icon" :size="18" /></span>
             <span class="flex flex-col leading-tight"><b class="text-body">{{ banner.title }}</b><span class="text-caption opacity-90">{{ banner.sub }}</span></span>
-            <button class="p-1 rounded-md hover:bg-white/20" aria-label="Dismiss" @click="banner = null"><X :size="14" /></button>
+            <button class="p-1 rounded-md hover:bg-white/20" :aria-label="$t('Dismiss')" @click="banner = null"><X :size="14" /></button>
           </div>
           <div v-else-if="msg" :key="msg" class="px-4 py-2 rounded-lg bg-fg text-bg text-body font-semibold shadow-lift whitespace-nowrap" role="status">{{ msg }}</div>
         </Transition>
@@ -128,17 +129,17 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
     </div>
     <div class="flex flex-col gap-5 w-full">
       <Transition name="tab">
-        <UiCard v-if="over" title="Word meaning" :icon="BookOpen" :subtitle="won ? 'You found it — here is what it means' : 'Today’s answer'"><WordMeaning :word="answer" /></UiCard>
+        <UiCard v-if="over" :title="$t('Word meaning')" :icon="BookOpen" :subtitle="won ? $t('You found it — here is what it means') : $t('Today’s answer')"><WordMeaning :word="answer" /></UiCard>
       </Transition>
       <Transition name="tab">
-        <UiCard v-if="over" title="Share your result" :icon="Share2">
+        <UiCard v-if="over" :title="$t('Share your result')" :icon="Share2">
           <pre class="text-xl leading-tight font-mono">{{ shareText }}</pre>
-          <UiButton class="mt-3" :icon="copied ? Check : Copy" :label="copied ? 'Copied' : 'Copy result'" @click="copy(shareText)" />
+          <UiButton class="mt-3" :icon="copied ? Check : Copy" :label="copied ? $t('Copied') : $t('Copy result')" @click="copy(shareText)" />
         </UiCard>
       </Transition>
-      <UiCard title="Your stats" :icon="Trophy" subtitle="Saved in this browser">
+      <UiCard :title="$t('Your stats')" :icon="Trophy" :subtitle="$t('Saved in this browser')">
         <div class="grid grid-cols-4 text-center mb-4">
-          <div v-for="s in [{ v: stats.played, l: 'Played' }, { v: winPct, l: 'Win %' }, { v: stats.streak, l: 'Streak' }, { v: stats.best, l: 'Best streak' }]" :key="s.l">
+          <div v-for="s in [{ v: stats.played, l: $t('Played') }, { v: winPct, l: $t('Win %') }, { v: stats.streak, l: $t('Streak') }, { v: stats.best, l: $t('Best streak') }]" :key="s.l">
             <div class="text-3xl font-extrabold"><CountUp :value="s.v" /></div><div class="text-caption text-muted">{{ s.l }}</div>
           </div>
         </div>
@@ -151,8 +152,8 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
         </div>
       </UiCard>
       <BitsPanel :rows="rows.slice(0, revealed)" />
-      <CandidatesCard title="Words still possible" :words="remaining" :started="revealed > 0" :max="80">
-        <template #empty><p class="text-muted">Type a 5-letter word and press <kbd>Enter</kbd>.</p></template>
+      <CandidatesCard :title="$t('Words still possible')" :words="remaining" :started="revealed > 0" :max="80">
+        <template #empty><p class="text-muted">{{ $t('Type a 5-letter word and press') }} <kbd>{{ $t('Enter') }}</kbd>.</p></template>
       </CandidatesCard>
     </div>
   </div>

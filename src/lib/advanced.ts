@@ -1,6 +1,7 @@
 // Advanced solvers + rich simulation (hard mode, decision trees, per-answer stats).
 import { CI, NL } from './alpha'
 import { feedback, filter, buckets, entropy, ALL_GREEN, STRATEGIES, type Strategy, type Ctx, type Pattern } from './wordle'
+import { t } from './i18n'
 
 export const OPTIMUM = { normal: 7920 / 2315, hard: 8122 / 2315 } // 3.4212 / 3.5084 (Selby; Bertsimas & Paskov)
 
@@ -37,10 +38,10 @@ export function twoStepStrategy(K1 = 12, K2 = 150): Strategy {
     id: 'entropy2-all', name: 'Two-step entropy', desc: `Lookahead: maximise H(guess1) + E[max H(guess2)] over the resulting buckets. Prunes to the top ${K1} one-step guesses and ${K2} second-guess candidates per node.`,
     pick(cands, ctx) {
       const n = cands.length
-      if (n <= 2) return { guess: cands[0], score: 0, why: `${n} candidate(s) left — guess one.` }
+      if (n <= 2) return { guess: cands[0], score: 0, why: t('{n} candidate(s) left — guess one.', { n }) }
       const cset = new Set(cands)
       const scored = ctx.allowed.map(w => ({ w, h: entropy(w, cands) + (cset.has(w) ? 1e-9 : 0) })).sort((a, b) => b.h - a.h)
-      if (n <= 3 || scored[0].h >= Math.log2(n) - 1e-9) { const w = scored.find(s => cset.has(s.w) && s.h >= scored[0].h - 1e-6)?.w ?? scored[0].w; return { guess: w, score: scored[0].h, why: `"${w.toUpperCase()}" splits all ${n} candidates perfectly.` } }
+      if (n <= 3 || scored[0].h >= Math.log2(n) - 1e-9) { const w = scored.find(s => cset.has(s.w) && s.h >= scored[0].h - 1e-6)?.w ?? scored[0].w; return { guess: w, score: scored[0].h, why: t('"{w}" splits all {n} candidates perfectly.', { w: w.toUpperCase(), n }) } }
       const top2 = scored.slice(0, K2).map(s => s.w)
       let best = { w: scored[0].w, s: -1, h1: 0, h2: 0 }
       for (const { w, h } of scored.slice(0, K1)) {
@@ -54,7 +55,7 @@ export function twoStepStrategy(K1 = 12, K2 = 150): Strategy {
         const s = h + e2 + (cset.has(w) ? 0.02 : 0)
         if (s > best.s) best = { w, s, h1: h, h2: e2 }
       }
-      return { guess: best.w, score: best.s, why: `"${best.w.toUpperCase()}": ${best.h1.toFixed(2)} bits now + ${best.h2.toFixed(2)} expected bits from the best follow-up = ${(best.h1 + best.h2).toFixed(2)} bits over two guesses (of ${Math.log2(n).toFixed(2)} needed).` }
+      return { guess: best.w, score: best.s, why: t('"{w}": {a} bits now + {b} expected bits from the best follow-up = {c} bits over two guesses (of {d} needed).', { w: best.w.toUpperCase(), a: best.h1.toFixed(2), b: best.h2.toFixed(2), c: (best.h1 + best.h2).toFixed(2), d: Math.log2(n).toFixed(2) }) }
     },
   }
 }

@@ -1,5 +1,6 @@
 // Core Wordle engine + solver strategies. Pure TS: runs in browser, Web Worker and Bun.
 import { CI, NL, L } from './alpha'
+import { t as tr } from './i18n'
 export type Pattern = number // base-3, 0..242; digit i: 0 gray,1 yellow,2 green
 export const ALL_GREEN = 242
 
@@ -73,7 +74,7 @@ function freqStrategy(id: string, name: string, fromAll: boolean, positional: bo
     id, name,
     desc: `Letter-frequency recount (Ruslan). ${balanced ? 'Balanced score f·(n−f) for letters and for letter-at-position: letters in about half the remaining words count most' : positional ? 'Positional+plain' : 'Plain'} frequency, guess from ${fromAll ? 'any allowed word' : 'remaining candidates only'}.`,
     pick(cands, ctx) {
-      if (cands.length <= 2) return { guess: cands[0], score: 1, why: `${cands.length} candidate(s) left — just guess one.` }
+      if (cands.length <= 2) return { guess: cands[0], score: 1, why: tr('{n} candidate(s) left — guess one.', { n: cands.length }) }
       const n = cands.length
       const { overall, pos } = letterFreq(cands)
       // letters present in every candidate carry no information when exploring
@@ -88,7 +89,7 @@ function freqStrategy(id: string, name: string, fromAll: boolean, positional: bo
       const pool = fromAll ? ctx.allowed : cands
       const { best, bs } = bestBy(pool, score, new Set(cands))
       const top = overall.map((f, i) => [L(i), f] as const).filter(x => x[1] < n || !fromAll).sort((a, b) => b[1] - a[1]).slice(0, 7)
-      return { guess: best, score: bs, why: `Top letters among ${n} candidates: ${top.map(([l, f]) => `${l.toUpperCase()}(${f})`).join(' ')}. "${best.toUpperCase()}" covers the most frequent ones (score ${bs}).` }
+      return { guess: best, score: bs, why: tr('Top letters among {n} candidates: {top}. "{w}" covers the most frequent ones (score {s}).', { n, top: top.map(([l, f]) => `${l.toUpperCase()}(${f})`).join(' '), w: best.toUpperCase(), s: bs }) }
     },
   }
 }
@@ -98,7 +99,7 @@ function bucketStrategy(id: string, name: string, desc: string, fromAll: boolean
     id, name, desc,
     pick(cands, ctx) {
       const n = cands.length
-      if (n <= 2) return { guess: cands[0], score: 0, why: `${n} candidate(s) left — guess one.` }
+      if (n <= 2) return { guess: cands[0], score: 0, why: tr('{n} candidate(s) left — guess one.', { n }) }
       const pool = fromAll ? ctx.allowed : cands
       const sc = (w: string) => {
         const b = buckets(w, cands)
@@ -108,9 +109,9 @@ function bucketStrategy(id: string, name: string, desc: string, fromAll: boolean
       }
       const { best, bs } = bestBy(pool, sc, new Set(cands), kind !== 'entropy')
       const why = kind === 'entropy'
-        ? `"${best.toUpperCase()}" gives ${bs.toFixed(2)} bits expected info (max possible log2(${n}) = ${Math.log2(n).toFixed(2)}); expected remaining ≈ ${(n / 2 ** bs).toFixed(1)}.`
-        : kind === 'minimax' ? `"${best.toUpperCase()}" guarantees at most ${bs} candidates remain whatever the feedback.`
-        : `"${best.toUpperCase()}" minimises expected remaining candidates: ${bs.toFixed(1)} of ${n}.`
+        ? tr('"{w}" gives {b} bits expected info (max possible log2({n}) = {m}); expected remaining ≈ {r}.', { w: best.toUpperCase(), b: bs.toFixed(2), n, m: Math.log2(n).toFixed(2), r: (n / 2 ** bs).toFixed(1) })
+        : kind === 'minimax' ? tr('"{w}" guarantees at most {b} candidates remain whatever the feedback.', { w: best.toUpperCase(), b: bs })
+        : tr('"{w}" minimises expected remaining candidates: {b} of {n}.', { w: best.toUpperCase(), b: bs.toFixed(1), n })
       return { guess: best, score: bs, why }
     },
   }
@@ -127,7 +128,7 @@ export const STRATEGIES: Strategy[] = [
   bucketStrategy('minimax-all', 'Minimax worst bucket', 'Minimise the largest remaining group (Knuth Mastermind style).', true, 'minimax'),
   bucketStrategy('expsize-all', 'Min expected size', 'Minimise expected number of remaining candidates (sum of squares of bucket sizes).', true, 'expsize'),
   { id: 'random', name: 'Random candidate', desc: 'Baseline: random word still consistent with feedback.',
-    pick(c) { const g = c[Math.floor(rnd() * c.length)]; return { guess: g, score: 0, why: `Random pick among ${c.length} consistent words.` } } },
+    pick(c) { const g = c[Math.floor(rnd() * c.length)]; return { guess: g, score: 0, why: tr('Random pick among {n} consistent words.', { n: c.length }) } } },
 ]
 
 export interface GameTrace { answer: string; guesses: string[]; sizes: number[] }
@@ -172,7 +173,7 @@ export function playOne(strat: Strategy, ctx: Ctx, answer: string, opener?: stri
   let cands = ctx.answers
   const steps: { guess: string; pattern: Pattern; before: number; after: number; why: string }[] = []
   for (let t = 1; t <= maxTurns; t++) {
-    const s = t === 1 && opener ? { guess: opener, why: `Opener "${opener.toUpperCase()}" (precomputed for this strategy).`, score: 0 } : strat.pick(cands, ctx, t)
+    const s = t === 1 && opener ? { guess: opener, why: tr('Opener "{w}" (precomputed for this strategy).', { w: opener.toUpperCase() }), score: 0 } : strat.pick(cands, ctx, t)
     const p = feedback(s.guess, answer), next = filter(cands, s.guess, p)
     steps.push({ guess: s.guess, pattern: p, before: cands.length, after: next.length, why: s.why })
     if (p === ALL_GREEN) break

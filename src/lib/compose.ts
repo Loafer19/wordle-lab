@@ -2,6 +2,7 @@
 // Turns 1..K ("explore"): guess from ALL valid words with the explore score. Later turns ("exploit"): guess only among possible answers.
 import { buckets, letterFreq, type Strategy, type Ctx } from './wordle'
 import { CI, L } from './alpha'
+import { t } from './i18n'
 
 export type Score = 'entropy' | 'expsize' | 'minimax' | 'freq' | 'freqpos' | 'freqbal'
 export interface Spec {
@@ -35,22 +36,22 @@ function scorer(kind: Score, cands: string[]): (w: string) => number {
 }
 const explain = (kind: Score, cands: string[], g: string, s: number) => {
   const n = cands.length
-  if (kind === 'entropy') return `${s.toFixed(2)} bits expected (≈ ${(n / 2 ** s).toFixed(1)} of ${n} left)`
-  if (kind === 'expsize') return `≈ ${(-s).toFixed(1)} of ${n} expected to remain`
-  if (kind === 'minimax') return `at most ${-s} of ${n} remain whatever the colours`
+  if (kind === 'entropy') return t('{b} bits expected (≈ {r} of {n} left)', { b: s.toFixed(2), r: (n / 2 ** s).toFixed(1), n })
+  if (kind === 'expsize') return t('≈ {r} of {n} expected to remain', { r: (-s).toFixed(1), n })
+  if (kind === 'minimax') return t('at most {r} of {n} remain whatever the colours', { r: -s, n })
   const { overall } = letterFreq(cands)
   const top = overall.map((f, i) => [L(i), f] as const).filter(x => x[1] > 0 && x[1] < n).sort((a, b) => b[1] - a[1]).slice(0, 5)
-  return `covers frequent letters ${top.map(([l, f]) => `${l.toUpperCase()}(${f})`).join(' ')}; score ${Math.round(s)}`
+  return t('covers frequent letters {top}; score {s}', { top: top.map(([l, f]) => `${l.toUpperCase()}(${f})`).join(' '), s: Math.round(s) })
   void g
 }
 export function composeStrategy(sp: Spec): Strategy {
   return {
     id: sp.id, name: sp.name,
-    desc: `${sp.opener ? `Opener ${sp.opener.toUpperCase()}. ` : ''}${sp.exploreTurns ? `Turns 1–${sp.exploreTurns}: any valid word by ${SCORE_LABEL[sp.explore]}. ` : ''}Then possible answers only, by ${SCORE_LABEL[sp.exploit]}.`,
+    desc: (sp.opener ? t('Opener {w}.', { w: sp.opener.toUpperCase() }) + ' ' : '') + (sp.exploreTurns ? t('Turns 1–{k}: any valid word by {s}.', { k: sp.exploreTurns, s: t(SCORE_LABEL[sp.explore]) }) + ' ' : '') + t('Then possible answers only, by {s}.', { s: t(SCORE_LABEL[sp.exploit]) }),
     pick(cands, ctx: Ctx, turn) {
       const n = cands.length
-      if (n <= 2) return { guess: cands[0], score: 0, why: `${n} candidate(s) left — guess one.` }
-      if (turn === 1 && sp.opener && ctx.allowed.includes(sp.opener)) return { guess: sp.opener, score: 0, why: `Fixed opener ${sp.opener.toUpperCase()}.` }
+      if (n <= 2) return { guess: cands[0], score: 0, why: t('{n} candidate(s) left — guess one.', { n }) }
+      if (turn === 1 && sp.opener && ctx.allowed.includes(sp.opener)) return { guess: sp.opener, score: 0, why: t('Fixed opener {w}.', { w: sp.opener.toUpperCase() }) }
       const exploring = turn <= sp.exploreTurns
       const kind = exploring ? sp.explore : sp.exploit
       const allowedSet = exploring ? null : new Set(ctx.allowed)
@@ -61,7 +62,7 @@ export function composeStrategy(sp: Spec): Strategy {
         const s = sc(w)
         if (s > bs || (s === bs && (sp.tie === 'candidate' ? cset.has(w) && !cset.has(best) : w < best))) { bs = s; best = w }
       }
-      return { guess: best, score: bs, why: `${exploring ? `Explore (turn ${turn} of ${sp.exploreTurns}, any word)` : 'Exploit (possible answers only)'}: "${best.toUpperCase()}" — ${explain(kind, cands, best, bs)}.` }
+      return { guess: best, score: bs, why: `${exploring ? t('Explore (turn {k} of {K}, any word)', { k: turn, K: sp.exploreTurns }) : t('Exploit (possible answers only)')}: "${best.toUpperCase()}" — ${explain(kind, cands, best, bs)}.` }
     },
   }
 }

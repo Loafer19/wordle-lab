@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isUA } from '../lib/lang'
 import WordLink from './WordLink.vue'
 import { ref, computed, watch } from 'vue'
 import InputText from 'primevue/inputtext'
@@ -19,29 +20,29 @@ const match = (c: { w: string; g: number }) => (!re.value || re.value.test(c.w))
 const matched = computed(() => cells.value.filter(match))
 const counts = computed(() => [1, 2, 3, 4, 5, 6, 7].map(k => cells.value.filter(c => (k === 7 ? c.g >= 7 : c.g === k)).length))
 const avgMatched = computed(() => (matched.value.length ? matched.value.reduce((a, c) => a + c.g, 0) / matched.value.length : 0))
-const presets = ['?ight', '?ills', '?atch', '?ound', '?aker', 's*', '*er']
+const presets = isUA ? ['с*', 'к*', '*ка', '*ня', '?ора'] : ['?ight', '?ills', '?atch', '?ound', '?aker', 's*', '*er']
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard title="Answer map" :icon="MapIcon" subtitle="Every possible answer as one cell, coloured by how many guesses the strategy needs. Hover a cell to see the word, click to pin it, click the word for its meaning.">
+    <UiCard :title="$t('Answer map')" :icon="MapIcon" :subtitle="$t('Every possible answer as one cell, coloured by how many guesses the strategy needs. Hover a cell to see the word, click to pin it, click the word for its meaning.')">
       <div class="flex flex-wrap items-center gap-3">
         <StrategyPicker v-model:id="id" v-model:hard="hard" />
-        <span class="relative"><Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" /><InputText v-model="q" placeholder="filter: ?ight, s*, *er" size="small" class="!pl-8 w-48" /></span>
+        <span class="relative"><Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" /><InputText v-model="q" :placeholder="isUA ? 'фільтр: с*, *ка, ?ора' : 'filter: ?ight, s*, *er'" size="small" class="!pl-8 w-48" /></span>
         <UiButton v-for="p in presets" :key="p" :label="p" variant="ghost" @click="q = p" />
       </div>
       <div class="flex flex-wrap items-center gap-2 mt-3">
         <button v-for="k in 7" :key="k" class="flex items-center gap-1.5 px-2 py-1 rounded-lg border text-caption transition-colors" :class="minG === k ? 'border-brand-500 bg-brand-500/10' : 'border-line hover:bg-surface-2'" @click="minG = minG === k ? 0 : k">
-          <i class="size-3 rounded-sm" :style="{ background: colors[k] }"></i>{{ k === 7 ? '7+ (fail)' : k }} · {{ counts[k - 1] }}
+          <i class="size-3 rounded-sm" :style="{ background: colors[k] }"></i>{{ k === 7 ? '7+ (' + $t('fail') + ')' : k }} · {{ counts[k - 1] }}
         </button>
-        <span class="text-caption text-muted">click = show only ≥ that many</span>
+        <span class="text-caption text-muted">{{ $t('click = show only ≥ that many') }}</span>
       </div>
     </UiCard>
     <UiCard>
       <div class="flex items-center gap-2 mb-3 h-6 text-body">
         <template v-if="hover"><b class="font-mono uppercase"><WordLink :word="hover.w" /></b><UiBadge :tone="hover.g <= 3 ? 'correct' : hover.g <= 5 ? 'present' : 'danger'">{{ hover.g }} guesses</UiBadge></template>
-        <span v-else class="text-muted">Hover a cell…</span>
+        <span v-else class="text-muted">{{ $t('Hover a cell…') }}</span>
         <div class="flex-1"></div>
-        <UiBadge tone="brand">{{ matched.length }} shown · avg {{ avgMatched.toFixed(2) }}</UiBadge>
+        <UiBadge tone="brand">{{ $t('{n} shown · avg {a}', { n: matched.length, a: avgMatched.toFixed(2) }) }}</UiBadge>
       </div>
       <div class="grid gap-[2px]" style="grid-template-columns: repeat(auto-fill, minmax(11px, 1fr))" @mouseleave="hover = pinned">
         <div v-for="c in cells" :key="c.w" @click="pinned = c" class="aspect-square rounded-[2px] transition-[opacity,transform] duration-200 hover:scale-150 hover:z-10 cursor-pointer" :style="{ background: colors[Math.min(7, c.g)], opacity: match(c) ? 1 : 0.12 }" :title="`${c.w.toUpperCase()}: ${c.g}`" @mouseenter="hover = c"></div>

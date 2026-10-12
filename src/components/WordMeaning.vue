@@ -15,18 +15,18 @@ const play = () => def.value?.au && new Audio(def.value.au).play().catch(() => {
       <BookOpen :size="16" class="text-brand shrink-0" />
       <span class="font-mono font-bold tracking-widest text-lg">{{ word.toUpperCase() }}</span>
       <span v-if="def?.ph" class="text-caption text-muted">{{ def.ph }}</span>
-      <button v-if="def?.au" class="ml-auto p-1 rounded-md hover:bg-surface-2 text-muted hover:text-fg" aria-label="Play pronunciation" @click="play"><Volume2 :size="16" /></button>
+      <button v-if="def?.au" class="ml-auto p-1 rounded-md hover:bg-surface-2 text-muted hover:text-fg" :aria-label="$t('Play pronunciation')" @click="play"><Volume2 :size="16" /></button>
     </div>
-    <div v-if="isUA" class="flex flex-col gap-1.5 text-body"><p class="text-muted text-caption">Ukrainian definitions open in an online dictionary:</p>
+    <div v-if="isUA" class="flex flex-col gap-1.5 text-body"><p class="text-muted text-caption">{{ $t('Ukrainian definitions open in an online dictionary:') }}</p>
       <span class="flex flex-wrap gap-2"><a :href="`https://goroh.pp.ua/Тлумачення/${word}`" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-line hover:bg-surface-2 text-caption">Горох <ExternalLink :size="12" /></a><a :href="`https://sum20ua.com/?wrd=${word}`" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-line hover:bg-surface-2 text-caption">СУМ-20 <ExternalLink :size="12" /></a><a :href="`https://sum.in.ua/?swrd=${word}`" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-line hover:bg-surface-2 text-caption">sum.in.ua <ExternalLink :size="12" /></a></span></div>
-    <div v-else-if="loading" class="flex items-center gap-2 text-caption text-muted"><Loader2 :size="14" class="animate-spin" />Looking up…</div>
+    <div v-else-if="loading" class="flex items-center gap-2 text-caption text-muted"><Loader2 :size="14" class="animate-spin" />{{ $t('Looking up…') }}</div>
     <template v-else-if="def">
       <div v-for="m in def.m.slice(0, compact ? 2 : 3)" :key="m.p" class="flex flex-col gap-1">
         <div class="flex items-start gap-2"><UiBadge tone="neutral">{{ m.p }}</UiBadge><span class="text-body leading-snug">{{ m.d }}</span></div>
         <p v-if="m.e" class="text-caption text-muted italic pl-1 border-l-2 border-[var(--c-border)] ml-1">“{{ m.e }}”</p>
       </div>
     </template>
-    <p v-else class="text-caption text-muted">No dictionary entry found for this word (many valid Wordle guesses are rare or plural forms).</p>
-    <a v-if="!isUA" :href="`https://www.merriam-webster.com/dictionary/${word}`" target="_blank" rel="noopener" class="text-caption text-brand inline-flex items-center gap-1 hover:underline">More on Merriam-Webster <ExternalLink :size="12" /></a>
+    <p v-else class="text-caption text-muted">{{ $t('No dictionary entry found for this word (many valid Wordle guesses are rare or plural forms).') }}</p>
+    <a v-if="!isUA" :href="`https://www.merriam-webster.com/dictionary/${word}`" target="_blank" rel="noopener" class="text-caption text-brand inline-flex items-center gap-1 hover:underline">{{ $t('More on Merriam-Webster') }} <ExternalLink :size="12" /></a>
   </div>
 </template>

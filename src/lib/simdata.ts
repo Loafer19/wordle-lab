@@ -4,10 +4,11 @@ import type { RichResult, TreeNode } from './advanced'
 export type Summary = Omit<RichResult, 'guesses' | 'sizes' | 'tree'>
 export interface Full { guesses: number[]; sizes: number[][]; tree: TreeNode }
 export const simIndex = shallowRef<Summary[]>([])
-export const simReady = fetch(base + 'sim/index.json').then(r => (r.ok ? r.json() : [])).then(j => (simIndex.value = j)).catch(() => {})
+export const simReady = fetch(base + 'sim/index.json').then(r => (r.ok ? r.json() : [])).then((j: Summary[]) => (simIndex.value = j.map(s => ({ ...s, name: t(s.name) })))).catch(() => {})
 const cache = new Map<string, Promise<Full>>()
 import { customs, isCustom } from './custom'
 import { answers, allowed, ready } from './words'
+import { t } from './i18n'
 /** Run a saved custom strategy in a worker (whole answer list) and return the same shape as precomputed sims. */
 function simulateCustom(id: string): Promise<Full> {
   const [base, mode] = id.split('@'), spec = customs.value.find(c => c.id === base)

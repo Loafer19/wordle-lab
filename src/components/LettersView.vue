@@ -30,10 +30,10 @@ const heatOpt = computed(() => { const data: number[][] = []; let max = 0
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard title="Word list" :icon="BookOpen">
+    <UiCard :title="$t('Word list')" :icon="BookOpen">
       <div class="flex items-center gap-3 flex-wrap"><SelectButton v-model="src" :options="opts" optionLabel="label" optionValue="value" :allowEmpty="false" size="small" /><span class="text-caption text-muted max-w-xl">{{ src === 'answers' ? ANSWERS_HELP : ALLOWED_HELP }}</span></div>
     </UiCard>
-    <UiCard title="Letter frequency" :icon="CaseSensitive" subtitle="% of words containing each letter · Ruslan's top-7 highlighted"><VChart :option="overallOpt" style="height: 340px" autoresize /></UiCard>
-    <UiCard title="Positional frequency" :icon="Grid3x3" subtitle="Number of words with the letter at each position"><VChart :option="heatOpt" style="height: 720px" autoresize /></UiCard>
+    <UiCard data-letters-chart :data-nonzero="order.filter(o => o.v > 0).length" :data-total="letters.length" :title="$t('Letter frequency')" :icon="CaseSensitive" :subtitle="$t('% of words containing each letter · Ruslan\'s top-7 highlighted')"><VChart :option="overallOpt" style="height: 340px" autoresize /></UiCard>
+    <UiCard :title="$t('Positional frequency')" :icon="Grid3x3" :subtitle="$t('Number of words with the letter at each position')"><VChart :option="heatOpt" style="height: 720px" autoresize /></UiCard>
   </div>
 </template>

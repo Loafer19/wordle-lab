@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '../lib/i18n'
 import { FAMOUS_OPENERS, NA, META, isUA } from '../lib/lang'
 import { ref, computed } from 'vue'
 import VChart from 'vue-echarts'
@@ -27,17 +28,17 @@ const bucketOpt = computed(() => { const b = buckets(pick.value, answers.value);
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard title="Opening words by expected information" :icon="Rocket" :subtitle="`Bits gained on average over the ${NA} possible answers · click a bar to inspect it`">
+    <UiCard :title="$t('Opening words by expected information')" :icon="Rocket" :subtitle="$t('Bits gained on average over the {n} possible answers · click a bar to inspect it', { n: NA })">
       <template #actions>
-        <InputText v-model="custom" maxlength="5" placeholder="add word" size="small" class="w-28 uppercase" @keyup.enter="add" /><UiButton :icon="Plus" ariaLabel="Add word" variant="secondary" @click="add" />
+        <InputText v-model="custom" maxlength="5" :placeholder="$t('add word')" size="small" class="w-28 uppercase" @keyup.enter="add" /><UiButton :icon="Plus" :ariaLabel="$t('Add word')" variant="secondary" @click="add" />
       </template>
       <VChart :option="opt" style="height: 560px" autoresize @click="(e: any) => (pick = e.name.toLowerCase())" />
     </UiCard>
-    <UiCard :title="`Feedback patterns for ${pick.toUpperCase()}`" :icon="ChartColumn" :subtitle="`How the ${NA} answers split into colour patterns; flatter = more informative`"><VChart :option="bucketOpt" style="height: 320px" autoresize /></UiCard>
-    <UiCard title="What the numbers mean" :icon="Sigma">
-      <p class="text-muted">Entropy H = −Σ p(pattern)·log₂ p(pattern). Each bit halves the candidate set on average; log₂({{ NA }}) ≈ {{ Math.log2(META.answers).toFixed(2) }} bits must be gained in total. A good opener yields ~5.9 bits, leaving ≈ 2315/2^5.9 ≈ 39 words.</p>
+    <UiCard :title="t('Feedback patterns for {w}', { w: pick.toUpperCase() })" :icon="ChartColumn" :subtitle="t('How the {n} answers split into colour patterns; flatter = more informative', { n: NA })"><VChart :option="bucketOpt" style="height: 320px" autoresize /></UiCard>
+    <UiCard :title="$t('What the numbers mean')" :icon="Sigma">
+      <p class="text-muted">{{ t('Entropy H = −Σ p(pattern)·log₂ p(pattern). Each bit halves the candidate set on average; log₂({n}) ≈ {b} bits must be gained in total. A good opener yields ~5.9 bits, leaving ≈ {n}/2^5.9 ≈ {r} words.', { n: NA, b: Math.log2(META.answers).toFixed(2), r: Math.round(META.answers / 2 ** 5.9) }) }}</p>
       <div class="overflow-x-auto mt-3"><table class="font-mono text-caption w-full max-w-md">
-        <thead><tr class="text-muted text-left"><th class="py-1 pr-4 font-medium">word</th><th class="pr-4 font-medium">bits</th><th class="pr-4 font-medium">patterns</th><th class="font-medium">worst bucket</th></tr></thead>
+        <thead><tr class="text-muted text-left"><th class="py-1 pr-4 font-medium">{{ $t('word') }}</th><th class="pr-4 font-medium">{{ $t('bits') }}</th><th class="pr-4 font-medium">{{ $t('patterns') }}</th><th class="font-medium">{{ $t('worst bucket') }}</th></tr></thead>
         <tbody><tr v-for="d in data" :key="d.w" class="border-t border-line hover:bg-surface-2 transition-colors cursor-pointer" @click="pick = d.w"><td class="py-1 pr-4 uppercase font-semibold">{{ d.w }}</td><td class="pr-4">{{ d.h.toFixed(3) }}</td><td class="pr-4">{{ d.nz }}</td><td>{{ d.mx }}</td></tr></tbody>
       </table></div>
     </UiCard>

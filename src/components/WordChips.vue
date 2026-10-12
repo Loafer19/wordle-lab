@@ -8,7 +8,7 @@ withDefaults(defineProps<{ words: string[]; max?: number; highlight?: string }>(
     <li v-for="w in words.slice(0, max)" :key="w">
       <WordLink :word="w" class="chip" :class="w === highlight && 'chip-hi'" />
     </li>
-    <li v-if="words.length > max" key="__more" class="chip chip-more">+{{ (words.length - max).toLocaleString() }} more</li>
+    <li v-if="words.length > max" key="__more" class="chip chip-more">{{ $t('+{n} more', { n: (words.length - max).toLocaleString() }) }}</li>
   </TransitionGroup>
 </template>
 <style scoped>
