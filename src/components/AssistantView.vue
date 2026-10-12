@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { onKeyStroke } from '@vueuse/core'
-import Select from 'primevue/select'; import Button from 'primevue/button'; import InputText from 'primevue/inputtext'; import Message from 'primevue/message'
+import Select from 'primevue/select'; import InputText from 'primevue/inputtext'
+import { Play, Undo2, RotateCcw, Check, PartyPopper, Lightbulb, Keyboard, ListFilter, History, CircleAlert, Info, ArrowRight } from 'lucide-vue-next'
+import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import UiIcon from './ui/UiIcon.vue'; import CountUp from './ui/CountUp.vue'
 import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
 import { STRATEGIES, filter, digitsToPattern, entropy, feedback, patternDigits, type Suggestion } from '../lib/wordle'
@@ -71,70 +73,83 @@ function demo() {
 }
 onUnmounted(stopDemo)
 const alts = computed(() => { const c = cands.value; if (c.length > 400 || c.length < 2) return []; return c.map(w => ({ w, h: entropy(w, c) })).sort((a, b) => b.h - a.h).slice(0, 6) })
+const howto = ['Type the word you guessed in Wordle — or keep the suggestion and play it there.', 'Click the tiles until they match the colours Wordle showed you: gray → yellow → green.', 'Press Apply. Impossible words are removed and your next guess is suggested.']
 const colourNames = ['gray', 'yellow', 'green']
 </script>
 <template>
-  <div class="flex flex-col gap-4">
-    <div class="card">
-      <div class="font-semibold mb-2">How to use the solver while playing real Wordle</div>
-      <ol class="grid sm:grid-cols-3 gap-3 text-sm">
-        <li class="sub rounded-lg p-3"><b class="text-green-500">1.</b> Type the word you guessed in Wordle (or keep the suggested one and play it there).</li>
-        <li class="sub rounded-lg p-3"><b class="text-green-500">2.</b> Click the tiles until they match the colours Wordle showed you: gray → yellow → green.</li>
-        <li class="sub rounded-lg p-3"><b class="text-green-500">3.</b> Press <b>Apply</b>. The solver removes impossible words and suggests your next guess.</li>
+  <div class="flex flex-col gap-5">
+    <UiCard title="How to use the solver while playing real Wordle" :icon="Lightbulb">
+      <template #actions>
+        <UiButton :icon="Play" label="Show me an example" @click="demo" />
+      </template>
+      <ol class="grid sm:grid-cols-3 gap-3">
+        <li v-for="(h, i) in howto" :key="i" class="flex gap-3 bg-surface-2 rounded-xl p-3">
+          <span class="grid place-items-center size-6 shrink-0 rounded-full bg-brand-600 text-white text-caption font-bold">{{ i + 1 }}</span><span>{{ h }}</span>
+        </li>
       </ol>
-      <div class="text-xs muted mt-2">Keyboard: type letters = edit word · <kbd>1</kbd>–<kbd>5</kbd> = cycle tile colour · <kbd>Enter</kbd> = Apply · <kbd>Backspace</kbd> = delete letter · <kbd>Ctrl+Z</kbd> = undo · <kbd>Esc</kbd> = reset</div>
-      <div class="flex flex-wrap gap-2 items-center mt-3">
-        <span class="text-sm">Strategy:</span>
-        <Select v-model="stratId" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-72" />
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption text-muted mt-3">
+        <UiIcon :icon="Keyboard" size="xs" />
+        <span>letters = edit word</span><span><kbd>1</kbd>–<kbd>5</kbd> cycle tile</span><span><kbd>Enter</kbd> apply</span><span><kbd>Ctrl</kbd>+<kbd>Z</kbd> undo</span><span><kbd>Esc</kbd> reset</span>
+      </div>
+      <div class="flex flex-wrap gap-2 items-center mt-4 pt-4 border-t border-line">
+        <span class="text-body font-medium">Strategy</span>
+        <Select v-model="stratId" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-full sm:w-80" />
         <InfoTip :text="STRATEGIES.find(s => s.id === stratId)?.desc ?? ''" />
         <div class="flex-1"></div>
-        <Button label="▶ Show me an example" size="small" severity="help" @click="demo" />
-        <Button label="Undo" size="small" severity="secondary" @click="undo" :disabled="!steps.length" />
-        <Button label="Reset" size="small" severity="secondary" @click="reset" />
+        <UiButton :icon="Undo2" label="Undo" variant="secondary" @click="undo" :disabled="!steps.length" />
+        <UiButton :icon="RotateCcw" label="Reset" variant="secondary" @click="reset" />
       </div>
-    </div>
-    <Message v-if="demoMsg" severity="info">{{ demoMsg }}</Message>
+    </UiCard>
+    <Transition name="tab"><div v-if="demoMsg" class="flex gap-2 items-start rounded-xl border border-brand-500/30 bg-brand-500/10 p-3 text-body"><UiIcon :icon="Info" class="mt-0.5 text-brand-600" />{{ demoMsg }}</div></Transition>
 
-    <div class="grid lg:grid-cols-5 gap-4">
-      <div class="card lg:col-span-3 flex flex-col gap-4">
-        <div v-if="steps.length" class="flex flex-col gap-2">
-          <div class="text-sm muted">Your guesses so far</div>
-          <div v-for="(s, i) in steps" :key="i" class="flex items-center gap-3 flex-wrap">
-            <div class="flex gap-1"><div v-for="j in 5" :key="j" class="tile !w-10 !h-10 !text-lg" :class="'t' + s.d[j - 1]">{{ s.w[j - 1] }}</div></div>
-            <div class="text-sm">{{ s.sizeBefore }} → <b>{{ s.sizeAfter }}</b> possible words <span class="muted">(kept {{ Math.round((100 * s.sizeAfter) / s.sizeBefore) }}%)</span></div>
-          </div>
+    <div class="grid lg:grid-cols-5 gap-5">
+      <UiCard class="lg:col-span-3">
+        <div v-if="steps.length" class="mb-5">
+          <div class="flex items-center gap-2 text-caption text-muted mb-2"><UiIcon :icon="History" size="xs" />Your guesses so far</div>
+          <TransitionGroup name="list" tag="div" class="flex flex-col gap-2">
+            <div v-for="(s, i) in steps" :key="i + s.w" class="flex items-center gap-3 flex-wrap">
+              <div class="flex gap-1"><div v-for="j in 5" :key="j" class="tile tile-sm reveal" :style="{ '--i': j - 1 }" :class="'s' + s.d[j - 1]">{{ s.w[j - 1] }}</div></div>
+              <div class="flex items-center gap-1.5">{{ s.sizeBefore }}<UiIcon :icon="ArrowRight" size="xs" class="text-muted" /><b>{{ s.sizeAfter }}</b> words</div>
+              <UiBadge :tone="s.sizeAfter / s.sizeBefore < 0.1 ? 'correct' : s.sizeAfter / s.sizeBefore < 0.4 ? 'present' : 'neutral'">kept {{ Math.round((100 * s.sizeAfter) / s.sizeBefore) }}%</UiBadge>
+            </div>
+          </TransitionGroup>
         </div>
 
-        <div v-if="solved" class="text-center py-6"><div class="text-4xl">🎉</div><div class="text-xl font-bold mt-2">Solved in {{ steps.length }}!</div><Button class="mt-3" label="New game" @click="reset" /></div>
+        <div v-if="solved" class="text-center py-8">
+          <PartyPopper :size="44" class="mx-auto text-brand-500 animate-bounce-win" />
+          <div class="text-2xl font-extrabold mt-3">Solved in {{ steps.length }}!</div>
+          <UiButton class="mt-4" :icon="RotateCcw" label="New game" @click="reset" />
+        </div>
         <template v-else>
-          <div class="sub rounded-xl p-4 text-center">
-            <div class="text-sm muted">Suggested next guess</div>
-            <div v-if="busy" class="text-3xl font-bold my-3 animate-pulse">thinking…</div>
-            <div v-else-if="sug" class="text-5xl font-black tracking-[0.3em] uppercase text-green-500 my-2">{{ sug.guess }}</div>
-            <div v-if="sug && !busy" class="text-sm max-w-xl mx-auto">{{ sug.why }}</div>
+          <div class="rounded-2xl bg-surface-2 p-5 text-center">
+            <div class="text-caption uppercase tracking-wider text-muted font-semibold">Suggested next guess</div>
+            <div v-if="busy" class="text-display font-black my-3 text-muted animate-pulse">· · ·</div>
+            <div v-else-if="sug" :key="sug.guess" class="text-display font-black tracking-[0.25em] uppercase text-brand-600 dark:text-brand-400 my-3 animate-fade-up">{{ sug.guess }}</div>
+            <p v-if="sug && !busy" class="text-body text-muted max-w-xl mx-auto">{{ sug.why }}</p>
           </div>
-          <div class="flex flex-col items-center gap-3">
-            <div class="text-sm font-semibold">Step 1 – the word you entered in Wordle:</div>
-            <InputText v-model="guess" maxlength="5" class="w-40 text-center uppercase tracking-widest text-lg" @update:modelValue="digits = [0, 0, 0, 0, 0]" />
-            <div class="text-sm font-semibold">Step 2 – click tiles to match Wordle's colours:</div>
+          <div class="flex flex-col items-center gap-3 mt-5">
+            <label class="text-body font-semibold" for="guess-in"><span class="text-brand-600">1</span> · Word you entered in Wordle</label>
+            <InputText id="guess-in" v-model="guess" maxlength="5" class="w-44 !text-center uppercase !tracking-[0.3em] !text-lg !font-bold" @update:modelValue="digits = [0, 0, 0, 0, 0]" />
+            <div class="text-body font-semibold mt-1"><span class="text-brand-600">2</span> · Click tiles to match Wordle's colours</div>
             <div class="flex gap-2">
-              <button v-for="j in 5" :key="j" class="tile cursor-pointer hover:scale-105" :class="'t' + digits[j - 1]" :title="`Tile ${j}: ${colourNames[digits[j - 1]]} (click or press ${j})`" @click="cycle(j - 1)">{{ guess[j - 1] }}</button>
+              <button v-for="j in 5" :key="j + guess" class="tile cursor-pointer transition-transform duration-150 hover:-translate-y-0.5 active:scale-95" :class="'s' + digits[j - 1]" :aria-label="`Tile ${j}: ${colourNames[digits[j - 1]]}`" v-tooltip.bottom="`${colourNames[digits[j - 1]]} · click or press ${j}`" @click="cycle(j - 1)">{{ guess[j - 1] }}</button>
             </div>
-            <div class="text-xs muted">Gray = letter not in word · Yellow = in word, wrong spot · Green = right spot</div>
-            <Button label="Step 3 – Apply feedback  ⏎" size="large" @click="apply" />
-            <Message v-if="err" severity="error" size="small">{{ err }}</Message>
+            <div class="flex gap-3 text-caption text-muted"><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-absent"></i>not in word</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-present"></i>wrong spot</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-correct"></i>right spot</span></div>
+            <UiButton class="mt-1" size="lg" :icon="Check" label="3 · Apply feedback" @click="apply" />
+            <Transition name="tab"><div v-if="err" class="flex items-center gap-2 text-body text-red-600 dark:text-red-400"><UiIcon :icon="CircleAlert" />{{ err }}</div></Transition>
           </div>
         </template>
-      </div>
+      </UiCard>
 
-      <div class="card lg:col-span-2 text-sm">
-        <div class="font-semibold">Possible answers left: {{ cands.length }}<InfoTip :text="ANSWERS_HELP" /></div>
-        <div class="muted text-xs mb-2">{{ Math.log2(Math.max(1, cands.length)).toFixed(2) }} bits of uncertainty</div>
-        <div v-if="alts.length" class="mb-3"><div class="muted mb-1">Most informative of these (entropy):</div>
-          <div v-for="a in alts" :key="a.w" class="flex gap-2 items-center font-mono"><span class="w-14 uppercase">{{ a.w }}</span><div class="bg-sky-500 h-3 rounded" :style="{ width: a.h * 30 + 'px' }"></div><span class="text-xs">{{ a.h.toFixed(2) }} bits</span></div></div>
-        <div v-if="cands.length <= 150" class="font-mono muted break-words leading-relaxed">{{ cands.join(' ') }}</div>
-        <div v-else class="muted">Too many to list; apply a guess first.</div>
-      </div>
+      <UiCard class="lg:col-span-2" title="Possible answers left" :icon="ListFilter" :subtitle="`${Math.log2(Math.max(1, cands.length)).toFixed(2)} bits of uncertainty`">
+        <template #actions><UiBadge tone="brand"><CountUp :value="cands.length" /></UiBadge><InfoTip :text="ANSWERS_HELP" /></template>
+        <div v-if="alts.length" class="mb-4"><div class="text-caption text-muted mb-2">Most informative of these (entropy)</div>
+          <TransitionGroup name="list" tag="div" class="flex flex-col gap-1">
+            <div v-for="a in alts" :key="a.w" class="flex gap-2 items-center font-mono text-caption"><span class="w-14 uppercase font-semibold">{{ a.w }}</span><div class="h-2.5 rounded-full bg-brand-500 transition-all duration-500" :style="{ width: a.h * 28 + 'px' }"></div><span class="text-muted">{{ a.h.toFixed(2) }} bits</span></div>
+          </TransitionGroup></div>
+        <div v-if="cands.length <= 150" class="font-mono text-muted break-words uppercase text-caption leading-6">{{ cands.join(' ') }}</div>
+        <p v-else class="text-muted">Too many to list — apply a guess first.</p>
+      </UiCard>
     </div>
   </div>
 </template>
