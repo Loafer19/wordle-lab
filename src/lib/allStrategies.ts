@@ -6,6 +6,7 @@ import { answers } from './words'
 import { isUA } from './lang'
 import { PRESET_STRATEGIES, composeStrategy } from './compose'
 import { customs } from './custom'
+import { STAGED_STRATEGIES } from './staged'
 import { t } from './i18n'
 
 /** Index an optimal tree by the exact candidate set reaching each node → guess. Falls back to two-step when the user left the tree. */
@@ -34,5 +35,5 @@ if (!isUA) fetch(import.meta.env.BASE_URL + 'optimal-tree.json').then(r => r.jso
   await wait()
   extra.value = [treeLookupStrategy('optimal', 'Optimal tree (SALET)', t.normal, answers.value, two), treeLookupStrategy('optimal-hard', 'Optimal tree (SALET, hard mode)', t.hard, answers.value, two), two]
 }).catch(() => {})
-export const allStrategies = computed(() => [...extra.value, ...PRESET_STRATEGIES, ...customs.value.map(composeStrategy), ...STRATEGIES].map(s => (s.id.startsWith('custom:') ? s : { ...s, name: t(s.name), desc: t(s.desc) })))
+export const allStrategies = computed(() => [...extra.value, ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...customs.value.map(composeStrategy), ...STRATEGIES].map(s => (s.id.startsWith('custom:') ? s : { ...s, name: t(s.name), desc: t(s.desc) })))
 void filter

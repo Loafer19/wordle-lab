@@ -3,6 +3,7 @@
 // prints a table with the gap to the proven optimum and writes public/sim/*.json, public/results.json, public/opener-pairs.json.
 import { STRATEGIES, type Strategy } from '../src/lib/wordle'
 import { PRESET_STRATEGIES } from '../src/lib/compose'
+import { STAGED_STRATEGIES } from '../src/lib/staged'
 import { simulateEx, simulatePair, twoStepStrategy, parseSelbyTree, verifyTree, OPTIMUM, type RichResult } from '../src/lib/advanced'
 const root = new URL('..', import.meta.url).pathname
 const args0 = process.argv.slice(2), LANG = args0.includes('--lang') ? args0[args0.indexOf('--lang') + 1] : 'en'
@@ -11,7 +12,7 @@ const rd = async (p: string) => (await Bun.file(root + p).text()).split(/\s+/).f
 const answers = await rd(D + 'answers.txt'), allowed = await rd(D + 'allowed.txt')
 const ctx = { answers, allowed }
 const args = args0, ids = args.filter((a, i) => !a.startsWith('--') && args[i - 1] !== '--lang')
-const noHard = args.includes('--no-hard'), noPairs = args.includes('--no-pairs')
+const merge = args.includes('--merge'), noHard = args.includes('--no-hard'), noPairs = args.includes('--no-pairs')
 console.log(`answers=${answers.length} allowed=${allowed.length}`)
 
 // optimal trees (Alex Selby, github.com/alex1770/wordle)
@@ -23,13 +24,13 @@ if (trees) for (const m of ['normal', 'hard'] as const) { const e = verifyTree(t
 if (trees) await Bun.write(root + 'public/optimal-tree.json', JSON.stringify(trees))
 
 const optimal: Strategy = { id: 'optimal', name: 'Optimal tree (SALET)', desc: 'Provably optimal decision tree (Selby / Bertsimas–Paskov), loaded from alex1770/wordle.', pick: c => ({ guess: c[0], score: 0, why: '' }) }
-const all: Strategy[] = [...(trees ? [optimal] : []), twoStepStrategy(), ...PRESET_STRATEGIES, ...STRATEGIES].filter(s => !ids.length || ids.includes(s.id))
+const all: Strategy[] = [...(trees ? [optimal] : []), twoStepStrategy(), ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...STRATEGIES].filter(s => !ids.length || ids.includes(s.id))
 const results: RichResult[] = []
 for (const s of all) for (const hard of noHard ? [false] : [false, true]) {
   const r = simulateEx(s, ctx, { hard, tree: s.id === 'optimal' && trees ? trees[hard ? 'hard' : 'normal'] : undefined })
   results.push(r)
   console.log(`done ${r.id.padEnd(20)} avg ${r.avg.toFixed(4)} (${(r.ms / 1000).toFixed(1)}s)`)
-  if (!ids.length) await Bun.write(`${root}${P}sim/${r.id.replace('@', '_')}.json`, JSON.stringify({ guesses: r.guesses, sizes: r.sizes, tree: r.tree }))
+  if (!ids.length || merge) await Bun.write(`${root}${P}sim/${r.id.replace('@', '_')}.json`, JSON.stringify({ guesses: r.guesses, sizes: r.sizes, tree: r.tree }))
 }
 const summary = (r: RichResult) => { const { guesses, sizes, tree, ...rest } = r; void guesses; void sizes; void tree; return rest }
 for (const mode of ['normal', 'hard'] as const) {
@@ -42,6 +43,12 @@ for (const mode of ['normal', 'hard'] as const) {
     const d = [1, 2, 3, 4, 5, 6].map(i => String(r.dist[i] ?? 0).padStart(4)).join(' ') + ' ' + String(r.dist.slice(7).reduce((a, b) => a + b, 0)).padStart(4)
     console.log([r.name.padEnd(38), r.opener.toUpperCase().padEnd(6), r.avg.toFixed(3).padStart(6), ('+' + r.gap.toFixed(3)).padStart(6), (r.failRate * 100).toFixed(2).padStart(5), String(r.worst).padStart(5), d].join(' | '))
   }
+}
+if (merge && ids.length) {
+  const idx = (await Bun.file(root + P + 'sim/index.json').json() as { id: string }[]).filter(r => !results.some(x => x.id === r.id)).concat(results.map(summary) as never)
+  await Bun.write(root + P + 'sim/index.json', JSON.stringify(idx))
+  await Bun.write(root + P + 'results.json', JSON.stringify(idx.filter(r => !r.id.includes('@'))))
+  console.log('merged', results.length, 'results into', P + 'sim/index.json')
 }
 if (!ids.length) {
   await Bun.write(root + P + 'sim/index.json', JSON.stringify(results.map(summary)))

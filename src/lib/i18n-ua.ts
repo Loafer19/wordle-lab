@@ -332,5 +332,15 @@ const UA: Record<string, string> = {
   "Type the word you guessed in Wordle — or keep the suggestion and play it there.": "Введіть слово, яке ви назвали у Wordle, — або залиште підказку і зіграйте її там.",
   "Click the tiles until they match the colours Wordle showed you: gray → yellow → green.": "Клацайте плитки, доки вони не збіжуться з кольорами Wordle: сірий → жовтий → зелений.",
   "Press Apply. Impossible words are removed and your next guess is suggested.": "Натисніть «Застосувати». Неможливі слова відкинуться, і з’явиться наступна підказка.",
+  "Ruslan staged (coverage until ≤3 left)": "Поетапна Руслана (покриття, доки не лишиться ≤3)",
+  "Ruslan staged (2 coverage turns + cluster splitter)": "Поетапна Руслана (2 ходи покриття + розбивач кластерів)",
+  "Ruslan staged: turns 1–{k} cover letters present in about half the remaining answers (no repeats, positional bonus{pair}); then a cluster splitter breaks traps like _ATCH; then possible answers only (balanced letters{trap}).": "Поетапна Руслана: ходи 1–{k} покривають літери, що є приблизно в половині можливих відповідей (без повторів, бонус за позицію{pair}); далі розбивач кластерів ламає пастки на кшталт _АРКА; далі лише можливі відповіді (збалансовані літери{trap}).",
+  ", joint letter presence": ", спільна присутність літер",
+  ", pair-aware": ", з урахуванням пар літер",
+  " + trap penalty": " + штраф за пастки",
+  "Coverage (turn {k}): \"{w}\" covers letters present in about half of the {n} answers: {top}.": "Покриття (хід {k}): «{w}» покриває літери, що є приблизно в половині з {n} відповідей: {top}.",
+  "Cluster splitter: {m} answers look like {shape} ({ls}); \"{w}\" tests the most of those letters at once.": "Розбивач кластерів: {m} відповідей мають вигляд {shape} ({ls}); «{w}» перевіряє найбільше з цих літер одразу.",
+  "Possible answers only: \"{w}\" best balances the letters {top}{trap}.": "Лише можливі відповіді: «{w}» найкраще збалансовує літери {top}{trap}.",
+  " and breaks the biggest look-alike group": " і розбиває найбільшу групу схожих слів",
 }
 export default UA

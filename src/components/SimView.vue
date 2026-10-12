@@ -16,9 +16,11 @@ import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
 import { STRATEGIES, type SimResult } from '../lib/wordle'
 import { t } from '../lib/i18n'
+import { STAGED_STRATEGIES } from '../lib/staged'
+const SIM_STRATS = [...STAGED_STRATEGIES, ...STRATEGIES].map(s => ({ ...s, name: t(s.name) }))
 const results = ref<Record<string, SimResult>>({}), progress = ref<Record<string, number>>({})
 watch(precomputed, p => { for (const r of p) results.value[r.id] = r }, { immediate: true })
-const selected = ref(STRATEGIES.map(s => s.id))
+const selected = ref(SIM_STRATS.map(s => s.id))
 function run() {
   for (const id of selected.value) {
     const w = new Worker(new URL('../lib/sim.worker.ts', import.meta.url), { type: 'module' })
@@ -42,7 +44,7 @@ const shrinkOpt = computed(() => ({ ...baseC.value, title: { show: false }, lege
     <GapView v-if="!isUA" />
     <UiCard :title="$t('Strategy simulation')" :icon="FlaskConical" :subtitle="$t('Each strategy plays all {n} possible answers. “Any word” variants may guess from all {v} valid guesses.', { n: NA, v: NV })">
       <div class="flex flex-wrap items-center gap-3">
-        <MultiSelect v-model="selected" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-full sm:w-96" :maxSelectedLabels="3" />
+        <MultiSelect v-model="selected" :options="SIM_STRATS" optionLabel="name" optionValue="id" class="w-full sm:w-96" :maxSelectedLabels="3" />
         <UiButton :icon="Cpu" :label="$t('Re-run in Web Workers')" @click="run" :loading="Object.keys(progress).length > 0" />
         <span class="text-caption text-muted">{{ $t('Preloaded from') }} <code>public/results.json</code> (<code>bun run simulate</code>{{ $t('). Two-step entropy (~16 s CPU) and the optimal SALET tree (a loaded proof, not a search) are precomputed only — see the gap table above.') }}</span>
       </div>
