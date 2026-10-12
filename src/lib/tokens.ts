@@ -4,3 +4,6 @@ export const brand = { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee
 export const chartPalette = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#64748b', '#14b8a6']
 export const ruslanColor = '#f59e0b', ruslanBestColor = '#ef4444', otherColor = '#3b82f6'
 export const motion = { fast: 120, base: 200, slow: 450, flipStagger: 120, flip: 500 }
+export const danger = '#ef4444'
+/** colour per number of guesses (index 1..7, 7 = fail) for answer map / compare */
+export const guessScale = ['', '#047857', '#10b981', '#6ee7b7', '#facc15', '#f97316', '#ef4444', '#7f1d1d']

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import VChart from 'vue-echarts'
+import GapView from './GapView.vue'
+import { simReady } from '../lib/simdata'
+void simReady
 import DataTable from 'primevue/datatable'; import Column from 'primevue/column'; import ProgressBar from 'primevue/progressbar'; import MultiSelect from 'primevue/multiselect'
 import { baseC } from '../lib/charts'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'
@@ -34,6 +37,7 @@ const shrinkOpt = computed(() => ({ ...baseC.value, title: { show: false }, lege
 </script>
 <template>
   <div class="flex flex-col gap-5">
+    <GapView />
     <UiCard title="Strategy simulation" :icon="FlaskConical" subtitle="Each strategy plays all 2,315 possible answers. 'Any word' variants may guess from all 12,972 valid guesses.">
       <div class="flex flex-wrap items-center gap-3">
         <MultiSelect v-model="selected" :options="STRATEGIES" optionLabel="name" optionValue="id" class="w-full sm:w-96" :maxSelectedLabels="3" />
