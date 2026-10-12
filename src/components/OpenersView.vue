@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import VChart from 'vue-echarts'
+import PairHeatmap from './PairHeatmap.vue'
 import InputText from 'primevue/inputtext'
 import { baseC } from '../lib/charts'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'
@@ -39,5 +40,6 @@ const bucketOpt = computed(() => { const b = buckets(pick.value, answers.value);
         <tbody><tr v-for="d in data" :key="d.w" class="border-t border-line hover:bg-surface-2 transition-colors cursor-pointer" @click="pick = d.w"><td class="py-1 pr-4 uppercase font-semibold">{{ d.w }}</td><td class="pr-4">{{ d.h.toFixed(3) }}</td><td class="pr-4">{{ d.nz }}</td><td>{{ d.mx }}</td></tr></tbody>
       </table></div>
     </UiCard>
+    <PairHeatmap />
   </div>
 </template>
