@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useEventListener } from '@vueuse/core'
-import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, BookOpen, Sparkles, SlidersHorizontal, Network, Waves, Grid2x2, Map as MapIcon, GitCompare } from 'lucide-vue-next'
+import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, BookOpen, Sparkles, SlidersHorizontal, Network, Waves, Grid2x2, Map as MapIcon, GitCompare, Send, Github } from 'lucide-vue-next'
 import { ready } from './lib/words'
 import { isDark, toggleDark } from './lib/theme'
 import { ANSWERS_HELP, ALLOWED_HELP, ANSWERS_LABEL, ALLOWED_LABEL } from './lib/labels'
@@ -68,5 +68,12 @@ const showWords = ref(false)
     <main v-else>
       <Transition name="tab" mode="out-in"><component :is="tabs.find(t => t.id === tab)!.comp" :key="tab" /></Transition>
     </main>
+    <footer class="max-w-6xl mx-auto px-4 py-8 mt-6 border-t border-line flex flex-wrap items-center justify-between gap-3 text-caption text-muted">
+      <span>Wordle Lab · open source, MIT · not affiliated with NYT</span>
+      <span class="flex items-center gap-2">
+        <a href="https://t.me/Loafer19" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line hover:bg-surface-2 hover:text-fg transition-colors"><Send :size="14" class="text-brand" />Made by @Loafer19</a>
+        <a href="https://github.com/Loafer19/wordle-lab" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line hover:bg-surface-2 hover:text-fg transition-colors"><Github :size="14" />Source on GitHub</a>
+      </span>
+    </footer>
   </div>
 </template>
