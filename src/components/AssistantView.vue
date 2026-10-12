@@ -32,10 +32,14 @@ function compute() {
   }, 10)
 }
 watch([stratId, () => steps.value.length, precomputed], compute, { immediate: true })
+watch(stratId, () => userAction())
 
 let lastApply = 0
 const isCandidate = computed(() => cands.value.includes(guess.value.toLowerCase()))
-function solvedAllGreen() { digits.value = [2, 2, 2, 2, 2]; apply() }
+function solvedAllGreen() { userAction(); digits.value = [2, 2, 2, 2, 2]; apply() }
+/** Any user interaction ends a running demo (otherwise its timer keeps auto-colouring and auto-applying). */
+function userAction() { if (timer !== undefined || demoSecret.value) { stopDemo(); demoSecret.value = ''; demoMsg.value = 'Demo stopped — you are in control now.' } }
+function userApply() { userAction(); apply() }
 function apply() {
   // guard against double-trigger (Enter on a focused button fires click + keydown)
   if (busy.value || Date.now() - lastApply < 300) return
@@ -53,14 +57,19 @@ function apply() {
   lastApply = Date.now()
   steps.value.push({ w, d: [...digits.value], sizeBefore: cands.value.length, sizeAfter: after, sug: sug.value?.guess ?? '' })
 }
-const undo = () => { steps.value.pop(); err.value = '' }
+const undo = () => { userAction(); steps.value.pop(); err.value = '' }
 const reset = () => { stopDemo(); steps.value = []; err.value = ''; demoSecret.value = ''; demoMsg.value = '' }
-const cycle = (i: number) => { digits.value[i] = (digits.value[i] + 1) % 3; err.value = ''; errHint.value = [] }
+const cycle = (i: number) => { userAction(); digits.value[i] = (digits.value[i] + 1) % 3; err.value = ''; errHint.value = [] }
 
 onKeyStroke(e => {
   const tag = (e.target as HTMLElement)?.tagName
-  if (tag === 'INPUT' || tag === 'TEXTAREA') { if (e.key === 'Enter') apply(); return }
-  if (tag === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) return // native click handles it
+  if (['Shift', 'Control', 'Alt', 'Meta', 'Tab'].includes(e.key)) return
+  if (tag === 'INPUT' || tag === 'TEXTAREA') { if (e.key === 'Enter') userApply(); else userAction(); return }
+  // Enter on a focused tile = apply (not cycle the tile); Enter/Space on other buttons = their native click
+  if (tag === 'BUTTON' && e.key === 'Enter' && (e.target as HTMLElement).dataset.tile) { e.preventDefault(); return userApply() }
+  if (tag === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) return
+  if (tag === 'DIV' && (e.target as HTMLElement).closest('[role=listbox],[role=combobox]')) return
+  userAction()
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); return undo() }
   if (e.ctrlKey || e.metaKey || e.altKey) return
   const k = e.key.toLowerCase()
@@ -79,7 +88,7 @@ function demo() {
   demoSecret.value = 'knoll'
   demoMsg.value = 'Demo: the secret word is KNOLL (pretend you don\'t know it). Watch: the suggested word is typed, its colours are filled in, then Apply is pressed.'
   const tick = () => {
-    if (solved.value) { demoMsg.value = `Demo finished: solved in ${steps.value.length} guesses. Press Reset to start your own game.`; demoSecret.value = ''; return }
+    if (solved.value) { demoMsg.value = `Demo finished: solved in ${steps.value.length} guesses. Press Reset to start your own game.`; demoSecret.value = ''; timer = undefined; return }
     if (busy.value) { timer = window.setTimeout(tick, 300); return }
     timer = window.setTimeout(() => { apply(); timer = window.setTimeout(tick, 1800) }, 1800)
   }
@@ -146,10 +155,10 @@ const colourNames: Record<number, string> = { [-1]: 'not set', 0: 'gray', 1: 'ye
             <InputText id="guess-in" v-model="guess" maxlength="5" class="w-44 !text-center uppercase !tracking-[0.3em] !text-lg !font-bold" @update:modelValue="digits = [-1, -1, -1, -1, -1]; err = ''; errHint = []" />
             <div class="text-body font-semibold mt-1"><span class="text-brand-600">2</span> · Click tiles to match Wordle's colours</div>
             <div class="flex gap-2">
-              <button v-for="j in 5" :key="j + guess" class="tile cursor-pointer transition-transform duration-150 hover:-translate-y-0.5 active:scale-95" :class="digits[j - 1] < 0 ? 'border-dashed !border-line-strong' : 's' + digits[j - 1]" :aria-label="`Tile ${j}: ${colourNames[digits[j - 1]]}`" v-tooltip.bottom="`${colourNames[digits[j - 1]]} · click or press ${j}`" @click="cycle(j - 1)">{{ guess[j - 1] }}</button>
+              <button v-for="j in 5" :key="j + guess" data-tile="1" class="tile cursor-pointer transition-transform duration-150 hover:-translate-y-0.5 active:scale-95" :class="digits[j - 1] < 0 ? 'border-dashed !border-line-strong' : 's' + digits[j - 1]" :aria-label="`Tile ${j}: ${colourNames[digits[j - 1]]}`" v-tooltip.bottom="`${colourNames[digits[j - 1]]} · click or press ${j}`" @click="cycle(j - 1)">{{ guess[j - 1] }}</button>
             </div>
             <div class="flex gap-3 text-caption text-muted"><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-absent"></i>not in word</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-present"></i>wrong spot</span><span class="flex items-center gap-1"><i class="size-3 rounded-sm bg-correct"></i>right spot</span></div>
-            <UiButton class="mt-1" size="lg" :icon="Check" label="3 · Apply feedback" @click="apply" />
+            <UiButton class="mt-1" size="lg" :icon="Check" label="3 · Apply feedback" @click="userApply" />
             <UiButton v-if="isCandidate" :icon="PartyPopper" label="Solved (all green)" variant="secondary" @click="solvedAllGreen" />
             <Transition name="tab"><div v-if="err" class="flex flex-col items-center gap-1.5 text-body text-red-600 dark:text-red-400" role="alert">
               <div class="flex items-center gap-2"><UiIcon :icon="CircleAlert" />{{ err }}</div>
