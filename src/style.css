@@ -1,0 +1,5 @@
+@import "tailwindcss";
+body { @apply bg-zinc-950 text-zinc-100 min-h-screen; font-family: system-ui, sans-serif; }
+.tile { @apply w-12 h-12 sm:w-14 sm:h-14 border-2 border-zinc-700 flex items-center justify-center text-2xl font-bold uppercase select-none; }
+.t0 { @apply bg-zinc-700 border-zinc-700; } .t1 { @apply bg-yellow-500 border-yellow-500; } .t2 { @apply bg-green-600 border-green-600; }
+.card { @apply bg-zinc-900 rounded-xl p-4 border border-zinc-800; }
