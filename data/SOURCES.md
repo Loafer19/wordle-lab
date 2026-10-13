@@ -11,3 +11,4 @@
 ## data/ua/optimal/
 `kotra.normal.json` (proven-optimal average, 5805/1717 = 3.3809) and `kotra.max5.json` (best average with ≤5 guesses, 5806/1717)
 were computed by us with `scripts/ua-optimal/solver.c` (exact search, see `scripts/ua-optimal/README.md`). Format: `{g, n, c: {pattern: node}}`.
+`karst.hard.json` (proven-optimal average in hard mode, 5930/1717 = 3.4537, worst 7) — same solver with `WL_HARD=1`.

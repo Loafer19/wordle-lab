@@ -13,8 +13,16 @@ import { t } from './i18n'
 export const EN_TREE_DESC = 'Provably optimal decision tree (Alex Selby; Bertsimas & Paskov): average 3.4212 normal / 3.5084 hard. If your guesses leave the tree, it falls back to two-step entropy.'
 export const UA_TREE_DESC = 'Proven-optimal Ukrainian decision tree from our exact search (opener КОТРА): average 3.3809 (5805/1717), worst case 6. If your guesses leave the tree, it falls back to two-step entropy.'
 export const UA_TREE5_DESC = 'Best possible average with a 5-guess guarantee (exact search, opener КОТРА): 3.3815 (5806/1717). A 4-guess guarantee is impossible in UA. Falls back to two-step entropy off the tree.'
+export const UA_TREEH_DESC = 'Proven-optimal Ukrainian hard-mode decision tree (every guess reuses all revealed hints) from our exact search, opener КАРСТ: average 3.4537 (5930/1717), worst case 7. If your guesses leave the tree, it falls back to two-step entropy.'
+/** Average number of guesses of a decision tree over the answers it covers. */
+export function treeAvg(tree: TreeNode) {
+  let sum = 0
+  const go = (n: TreeNode, d: number) => { const kids = Object.values(n.c ?? {}); const below = kids.reduce((s, c) => s + c.n, 0); sum += (n.n - below) * d; for (const c of kids) go(c, d + 1) }
+  go(tree, 1); return sum / tree.n
+}
 export function treeLookupStrategy(id: string, name: string, tree: TreeNode, all: string[], fallback: Strategy, desc = EN_TREE_DESC): Strategy {
   const map = new Map<string, string>()
+  const avg = treeAvg(tree)
   const walk = (node: TreeNode, cands: string[]) => {
     map.set(cands.join(','), node.g)
     const groups = new Map<number, string[]>()
@@ -26,6 +34,7 @@ export function treeLookupStrategy(id: string, name: string, tree: TreeNode, all
     id, name, desc,
     pick(cands, ctx, turn) {
       const g = map.get(cands.join(','))
+      if (g && turn === 1 && cands.length === all.length) return { guess: g, score: avg, why: t('Opening move of the optimal decision tree: "{w}". Following this tree over all {n} answers takes {a} guesses on average (see the strategy description for how it was proven). Each next move is read from the tree for the exact set of answers still possible.', { w: g.toUpperCase(), n: all.length, a: avg.toFixed(4) }) }
       if (g) return { guess: g, score: 0, why: t('Optimal decision tree says "{w}" for these {n} possible answers (minimises the total number of guesses over all of them).', { w: g.toUpperCase(), n: cands.length }) }
       const s = fallback.pick(cands, ctx, turn); return { ...s, why: t('Off the optimal tree (an earlier guess differed) — falling back to two-step entropy.') + ' ' + s.why }
     },
@@ -33,11 +42,14 @@ export function treeLookupStrategy(id: string, name: string, tree: TreeNode, all
 }
 const two = twoStepStrategy()
 export const extra = shallowRef<Strategy[]>([two])
+/** Loaded optimal trees of this language (normal / hard / max5) — used by the coach. */
+export const optimalTrees = shallowRef<{ normal?: TreeNode; hard?: TreeNode; max5?: TreeNode }>({})
 fetch(base + 'optimal-tree.json').then(r => r.json()).then(async (t: { normal: TreeNode; hard?: TreeNode; max5?: TreeNode }) => {
   const wait = () => new Promise<void>(r => { const i = setInterval(() => { if (answers.value.length) { clearInterval(i); r() } }, 50) })
   await wait()
+  optimalTrees.value = t
   extra.value = isUA
-    ? [treeLookupStrategy('optimal', 'Optimal tree (UA)', t.normal, answers.value, two, UA_TREE_DESC), treeLookupStrategy('optimal-max5', 'Optimal tree (UA, ≤5 guesses)', t.max5!, answers.value, two, UA_TREE5_DESC), two]
+    ? [treeLookupStrategy('optimal', 'Optimal tree (UA)', t.normal, answers.value, two, UA_TREE_DESC), treeLookupStrategy('optimal-max5', 'Optimal tree (UA, ≤5 guesses)', t.max5!, answers.value, two, UA_TREE5_DESC), ...(t.hard ? [treeLookupStrategy('optimal-hard', 'Optimal tree (UA, hard)', t.hard, answers.value, two, UA_TREEH_DESC)] : []), two]
     : [treeLookupStrategy('optimal', 'Optimal tree (SALET)', t.normal, answers.value, two), treeLookupStrategy('optimal-hard', 'Optimal tree (SALET, hard mode)', t.hard!, answers.value, two), two]
 }).catch(() => {})
 export const allStrategies = computed(() => [...extra.value, ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...customs.value.map(composeStrategy), ...STRATEGIES].map(s => (s.id.startsWith('custom:') ? s : { ...s, name: t(s.name), desc: t(s.desc) })))

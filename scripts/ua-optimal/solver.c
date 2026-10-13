@@ -1,4 +1,4 @@
-// Exact Wordle decision-tree solver (normal mode, min total guesses), Selby-style DFS with memo + bounds.
+// Exact Wordle decision-tree solver (normal or hard mode: WL_HARD=1 + codes file as argv[ANSIDX+..] via WL_CODES), min total guesses, Selby-style DFS with memo + bounds.
 // gcc -O3 -march=native -fopenmp solver.c -o solver
 // ./solver MAT WORDS ANSIDX mode args...
 //   rank                      : print entropy / one-level bound for every guess
@@ -18,6 +18,14 @@
 typedef uint16_t u16;
 static int NG, NA; static uint8_t *M; static char (*W)[16]; static int *ansIdx; static int *isAnsOf; // isAnsOf[g] = answer idx or -1
 static int K_TOP = 0, T_SIZE = 1 << 30;
+// ---- hard mode (NYT rules as the app's hardValid): greens stay in place, revealed letters reused with multiplicity ----
+#define NLET 64
+static int HARD = 0; static uint8_t (*CODE)[5]; static uint8_t (*LC)[NLET];
+typedef struct { uint8_t gr[5]; uint8_t mn[NLET]; } Cons;
+static Cons C0;
+static inline int hvalid(const Cons *k, int g) { if (!HARD) return 1; for (int i = 0; i < 5; i++) if (k->gr[i] != 255 && CODE[g][i] != k->gr[i]) return 0; for (int c = 0; c < NLET; c++) if (k->mn[c] > LC[g][c]) return 0; return 1; }
+static inline void hchild(const Cons *k, int g, int p, Cons *o) { *o = *k; if (!HARD) return; uint8_t need[NLET] = {0}; for (int i = 0; i < 5; i++) { int d = p % 3; p /= 3; if (d == 2) o->gr[i] = CODE[g][i]; if (d) need[CODE[g][i]]++; } for (int c = 0; c < NLET; c++) if (need[c] > o->mn[c]) o->mn[c] = need[c]; }
+static inline uint64_t hcons(const Cons *k) { if (!HARD) return 0; uint64_t h = 0xcbf29ce484222325ULL; for (int i = 0; i < 5; i++) { h ^= k->gr[i]; h *= 0x100000001B3ULL; } for (int c = 0; c < NLET; c++) if (k->mn[c]) { h ^= (uint64_t)(c * 16 + k->mn[c]); h *= 0x100000001B3ULL; } return h; }
 static inline int lbk(int k, int d) { if (k == 0) return 0; if (d <= 0) return INF; if (k == 1) return 1; if (d == 1) return INF; return 2 * k - 1; }
 typedef struct { uint64_t h; int32_t val; int16_t best; uint8_t d, exact; } Ent;
 #define MEMO_BITS 22
@@ -27,9 +35,9 @@ static Ent *mlook(Ctx *c, uint64_t h) { return &c->t[h & ((1ULL << MEMO_BITS) - 
 typedef struct { int lb; int g; } GC;
 static int cmpgc(const void *a, const void *b) { const GC *x = a, *y = b; return x->lb != y->lb ? x->lb - y->lb : x->g - y->g; }
 static int cmpint_desc(const void *a, const void *b) { return *(const int *)b - *(const int *)a; }
-int solve(Ctx *c, const u16 *S, int n, int d, int beta, int *bestg);
+int solve(Ctx *c, const u16 *S, int n, int d, int beta, int *bestg, const Cons *k);
 // evaluate guess g on S fully with bound beta; returns cost (exact if < beta)
-static int evalg(Ctx *c, const u16 *S, int n, int d, int g, int lbg, int beta) {
+static int evalg(Ctx *c, const u16 *S, int n, int d, int g, int lbg, int beta, const Cons *k0) {
   const uint8_t *row = M + (size_t)g * NA;
   int cnt[243] = {0}; for (int i = 0; i < n; i++) cnt[row[S[i]]]++;
   int start[244]; start[0] = 0; for (int p = 0; p < 243; p++) start[p + 1] = start[p] + cnt[p];
@@ -40,12 +48,13 @@ static int evalg(Ctx *c, const u16 *S, int n, int d, int g, int lbg, int beta) {
   int cost = lbg;
   for (int i = 0; i < no && cost < beta; i++) {
     int p = order[i] & 255, k = cnt[p], lk = lbk(k, d - 1), bg;
-    int sub = solve(c, buf + start[p], k, d - 1, beta - cost + lk, &bg);
+    Cons ck; hchild(k0, g, p, &ck);
+    int sub = solve(c, buf + start[p], k, d - 1, beta - cost + lk, &bg, &ck);
     cost += sub - lk;
   }
   free(buf); return cost;
 }
-int solve(Ctx *c, const u16 *S, int n, int d, int beta, int *bestg) {
+int solve(Ctx *c, const u16 *S, int n, int d, int beta, int *bestg, const Cons *k) {
   *bestg = -1;
   if (n == 0) return 0;
   if (d <= 0) return INF;
@@ -55,10 +64,11 @@ int solve(Ctx *c, const u16 *S, int n, int d, int beta, int *bestg) {
   // in-set perfect splitter → 2n-1 (optimal)
   for (int i = 0; i < n; i++) { int g = ansIdx[S[i]]; const uint8_t *row = M + (size_t)g * NA; uint8_t seen[243] = {0}; int ok = 1; for (int j = 0; j < n; j++) { if (seen[row[S[j]]]++) { ok = 0; break; } } if (ok) { *bestg = g; return 2 * n - 1; } }
   if (n == 2) { *bestg = ansIdx[S[0]]; return 3; }
-  uint64_t h = hset(S, n, d); Ent *e = mlook(c, h); int memlb = 0;
+  uint64_t h = hset(S, n, d) ^ hcons(k); h |= 1; Ent *e = mlook(c, h); int memlb = 0;
   if (e->h == h && e->d == d) { c->hits++; if (e->exact) { *bestg = e->best; return e->val; } if (e->val >= beta) return e->val; memlb = e->val; }
   GC *gl = malloc(sizeof(GC) * NG); int ng = 0; int perfectOut = -1;
   for (int g = 0; g < NG; g++) {
+    if (HARD && !hvalid(k, g)) continue;
     const uint8_t *row = M + (size_t)g * NA; int cnt[243] = {0}; int mx = 0;
     if (d == 2) { int bad = 0; for (int i = 0; i < n; i++) if (++cnt[row[S[i]]] > 1) { bad = 1; break; } if (bad) continue; mx = 1; } // d=2: only perfect splitters can work
     else for (int i = 0; i < n; i++) { int v = ++cnt[row[S[i]]]; if (v > mx) mx = v; }
@@ -79,7 +89,7 @@ int solve(Ctx *c, const u16 *S, int n, int d, int beta, int *bestg) {
   for (int i = 0; i < lim; i++) {
     int ub = best < beta ? best : beta;
     if (gl[i].lb >= ub) { if (gl[i].lb < lbmin) lbmin = gl[i].lb; break; }
-    int cst = evalg(c, S, n, d, gl[i].g, gl[i].lb, ub);
+    int cst = evalg(c, S, n, d, gl[i].g, gl[i].lb, ub, k);
     if (cst < best && cst < beta) { best = cst; bg = gl[i].g; if (best <= nodeLB) break; }
     else if (cst < lbmin) lbmin = cst;
   }
@@ -92,13 +102,13 @@ store_lb_nodelb:
 static int findw(const char *w) { for (int g = 0; g < NG; g++) if (!strcmp(W[g], w)) return g; return -1; }
 static Ctx *newctx(void) { Ctx *c = calloc(1, sizeof(Ctx)); c->t = calloc(1ULL << MEMO_BITS, sizeof(Ent)); return c; }
 static int dist[16];
-static void tree(Ctx *c, FILE *f, const u16 *S, int n, int d, int g, int depth) {
-  if (g < 0) { int r = solve(c, S, n, d, INF, &g); (void)r; }
+static void tree(Ctx *c, FILE *f, const u16 *S, int n, int d, int g, int depth, const Cons *k) {
+  if (g < 0) { int r = solve(c, S, n, d, INF, &g, k); (void)r; }
   fprintf(f, "{\"g\":\"%s\",\"n\":%d", W[g], n);
   const uint8_t *row = M + (size_t)g * NA; u16 *buf = malloc(sizeof(u16) * n); int first = 1;
   for (int i = 0; i < n; i++) if (row[S[i]] == GREEN) dist[depth]++;
-  for (int p = 0; p < GREEN; p++) { int k = 0; for (int i = 0; i < n; i++) if (row[S[i]] == p) buf[k++] = S[i]; if (!k) continue;
-    fprintf(f, "%s\"%d\":", first ? ",\"c\":{" : ",", p); first = 0; tree(c, f, buf, k, d - 1, -1, depth + 1); }
+  for (int p = 0; p < GREEN; p++) { int kk = 0; for (int i = 0; i < n; i++) if (row[S[i]] == p) buf[kk++] = S[i]; if (!kk) continue;
+    fprintf(f, "%s\"%d\":", first ? ",\"c\":{" : ",", p); first = 0; Cons ck; hchild(k, g, p, &ck); tree(c, f, buf, kk, d - 1, -1, depth + 1, &ck); }
   if (!first) fprintf(f, "}");
   fprintf(f, "}"); free(buf);
 }
@@ -108,6 +118,9 @@ int main(int argc, char **argv) {
   W = malloc(16 * NG); f = fopen(argv[2], "r"); for (int g = 0; g < NG; g++) { fscanf(f, "%15s", W[g]); } fclose(f);
   ansIdx = malloc(sizeof(int) * NA); f = fopen(argv[3], "r"); for (int a = 0; a < NA; a++) fscanf(f, "%d", &ansIdx[a]); fclose(f);
   const char *mode = argv[4];
+  memset(&C0, 0, sizeof C0); memset(C0.gr, 255, 5);
+  if (getenv("WL_HARD") && atoi(getenv("WL_HARD"))) { HARD = 1; CODE = malloc(5 * NG); LC = calloc(NG, NLET); f = fopen(getenv("WL_CODES"), "r");
+    for (int g = 0; g < NG; g++) for (int i = 0; i < 5; i++) { int x; fscanf(f, "%d", &x); CODE[g][i] = x; LC[g][x]++; } fclose(f); fprintf(stderr, "hard mode on\n"); }
   u16 *ALL = malloc(sizeof(u16) * NA); for (int a = 0; a < NA; a++) ALL[a] = a;
   if (!strcmp(mode, "rank")) {
     for (int g = 0; g < NG; g++) { const uint8_t *row = M + (size_t)g * NA; int cnt[243] = {0}; for (int a = 0; a < NA; a++) cnt[row[a]]++;
@@ -122,7 +135,8 @@ int main(int argc, char **argv) {
     for (int wi = 0; wi < nw; wi++) {
       int g0 = findw(ws[wi]); const uint8_t *r0 = M + (size_t)g0 * NA; long tot = NA; u16 *buf = malloc(2 * NA);
       for (int p = 0; p < GREEN; p++) { int k = 0; for (int a = 0; a < NA; a++) if (r0[a] == p) buf[k++] = a; if (!k) continue; if (k <= 2) { tot += 2 * k - 1; continue; }
-        int best = INF; for (int g = 0; g < NG; g++) { const uint8_t *row = M + (size_t)g * NA; int cnt[243] = {0}; for (int i = 0; i < k; i++) cnt[row[buf[i]]]++; int lb = k; for (int q = 0; q < GREEN; q++) if (cnt[q]) lb += (cnt[q] == 1 ? 1 : 2 * cnt[q] - 1); if (lb < best) best = lb; }
+        Cons ck; hchild(&C0, g0, p, &ck);
+        int best = INF; for (int g = 0; g < NG; g++) { if (!hvalid(&ck, g)) continue; const uint8_t *row = M + (size_t)g * NA; int cnt[243] = {0}; for (int i = 0; i < k; i++) cnt[row[buf[i]]]++; int lb = k; for (int q = 0; q < GREEN; q++) if (cnt[q]) lb += (cnt[q] == 1 ? 1 : 2 * cnt[q] - 1); if (lb < best) best = lb; }
         tot += best; }
       printf("LB2 %s %ld\n", ws[wi], tot); fflush(stdout); free(buf);
     }
@@ -133,8 +147,8 @@ int main(int argc, char **argv) {
     if (!strcmp(mode, "tree")) {
       int g0 = findw(argv[8]); Ctx *c = newctx(); int bg; const uint8_t *r0 = M + (size_t)g0 * NA;
       int cnt[243] = {0}; for (int a = 0; a < NA; a++) cnt[r0[a]]++; int lb = NA; for (int p = 0; p < GREEN; p++) lb += lbk(cnt[p], D - 1);
-      int tot = evalg(c, ALL, NA, D, g0, lb, INF); (void)bg;
-      FILE *o = fopen(argv[9], "w"); memset(dist, 0, sizeof dist); tree(c, o, ALL, NA, D, g0, 1); fclose(o);
+      int tot = evalg(c, ALL, NA, D, g0, lb, INF, &C0); (void)bg;
+      FILE *o = fopen(argv[9], "w"); memset(dist, 0, sizeof dist); tree(c, o, ALL, NA, D, g0, 1, &C0); fclose(o);
       int wst = 0; long s = 0; for (int i = 0; i < 16; i++) if (dist[i]) { wst = i; s += (long)i * dist[i]; }
       printf("TREE %s total %d (check %ld) avg %.5f worst %d dist", argv[8], tot, s, (double)tot / NA, wst); for (int i = 1; i <= wst; i++) printf(" %d", dist[i]); printf("\n");
       return 0;
@@ -150,7 +164,7 @@ int main(int argc, char **argv) {
         struct timespec t0, t1; clock_gettime(CLOCK_MONOTONIC, &t0);
         const uint8_t *r0 = M + (size_t)g0 * NA; int cnt[243] = {0}; for (int a = 0; a < NA; a++) cnt[r0[a]]++; int lb = NA; for (int p = 0; p < GREEN; p++) lb += lbk(cnt[p], D - 1);
         int b = gbest; long n0 = c->nodes;
-        int tot = evalg(c, ALL, NA, D, g0, lb, b);
+        int tot = evalg(c, ALL, NA, D, g0, lb, b, &C0);
         clock_gettime(CLOCK_MONOTONIC, &t1);
         #pragma omp critical
         { if (tot < gbest) gbest = tot; printf("RES %s %d %s lb1=%d avg=%.5f nodes=%ld t=%.1fs\n", ws[wi], tot, tot < b ? "exact" : "lb", lb, (double)tot / NA, c->nodes - n0, (t1.tv_sec - t0.tv_sec) + (t1.tv_nsec - t0.tv_nsec) / 1e9); fflush(stdout); }

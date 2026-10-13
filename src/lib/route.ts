@@ -1,7 +1,7 @@
 // Tiny hash router: #tab=<section>&view=<sub-view>. Real <a href> links, back/forward, legacy tab hashes redirected.
 import { reactive } from 'vue'
 export const SECTIONS: Record<string, string[]> = {
-  play: [], solver: [],
+  play: [], solver: [], coach: [],
   strategies: ['simulation', 'compare', 'lab'],
   explore: ['paths', 'tree', 'flow', 'map'],
   analytics: ['letters', 'patterns', 'openers'],

@@ -27,8 +27,12 @@ function celebrate() {
   setTimeout(() => { confetti({ ...o, particleCount: 45, angle: 60, spread: 55, origin: { x: 0, y: 0.7 } }); confetti({ ...o, particleCount: 45, angle: 120, spread: 55, origin: { x: 1, y: 0.7 } }) }, 250)
 }
 import GameKeyboard from './GameKeyboard.vue'
+import CoachReport from './CoachReport.vue'
+import { useCoach } from '../lib/useCoach'
+import { formatGame } from '../lib/coach'
+import { href } from '../lib/route'
 import BitsPanel from './BitsPanel.vue'
-import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import CountUp from './ui/CountUp.vue'
+import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import CountUp from './ui/CountUp.vue'
 const mode = ref<'daily' | 'random'>('daily')
 const modes = [{ v: 'daily', l: t('Daily'), i: CalendarDays }, { v: 'random', l: t('Random'), i: Shuffle }]
 const answer = ref(''), rows = ref<{ w: string; d: number[] }[]>([]), cur = ref(''), msg = ref(''), hard = useLocalStorage('wl-hard', false), over = ref(false), won = ref(false)
@@ -49,7 +53,7 @@ function newGame() {
     const last = rows.value.at(-1); if (last && last.w === answer.value) { over.value = won.value = true; winRow.value = rows.value.length - 1 } else if (rows.value.length >= 6) over.value = true
   }
 }
-const now = useNow({ interval: 1000 })
+const now = useNow()
 const countdown = computed(() => { const t = new Date(now.value); const next = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1); const s = Math.max(0, Math.floor((+next - +t) / 1000)); return [s / 3600, (s / 60) % 60, s % 60].map(x => String(Math.floor(x)).padStart(2, '0')).join(':') })
 let lastDay = dayIndex()
 setInterval(() => { if (mode.value === 'daily' && dayIndex() !== lastDay) { lastDay = dayIndex(); newGame() } }, 5000)
@@ -92,6 +96,10 @@ onKeyStroke(e => { if (e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLEl
 const grid = computed(() => Array.from({ length: 6 }, (_, i) => rows.value[i] ? { ...rows.value[i], state: 'done' } : i === rows.value.length ? { w: cur.value.padEnd(5), d: null, state: 'cur' } : { w: '     ', d: null, state: 'empty' }))
 const shareText = computed(() => `Wordle Lab ${mode.value === 'daily' ? '#' + dayIndex() : '(random)'} ${won.value ? rows.value.length : 'X'}/6${hard.value ? '*' : ''}\n` + rows.value.map(r => r.d.map(d => ['⬛', '🟨', '🟩'][d]).join('')).join('\n'))
 const { copy, copied } = useClipboard()
+// Coach: analyse the finished game (daily or random) once it is over
+const coachGame = computed(() => (over.value && revealed.value === rows.value.length ? rows.value.map(r => ({ w: r.w, d: [...r.d] })) : null))
+const { result: coach, busy: coachBusy, progress: coachProgress } = useCoach(coachGame, hard)
+const openInCoach = () => { localStorage.setItem('wl-coach-text-' + lang, formatGame(rows.value)); location.hash = href('coach') }
 const maxDist = computed(() => Math.max(1, ...stats.value.dist))
 const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.value.wins) / stats.value.played) : 0))
 </script>
@@ -136,6 +144,12 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
           <pre class="text-xl leading-tight font-mono">{{ shareText }}</pre>
           <UiButton class="mt-3" :icon="copied ? Check : Copy" :label="copied ? $t('Copied') : $t('Copy result')" @click="copy(shareText)" />
         </UiCard>
+      </Transition>
+      <Transition name="tab">
+        <div v-if="over" class="flex flex-col gap-2" data-play-coach>
+          <CoachReport :result="coach" :busy="coachBusy" :progress="coachProgress" :title="$t('Coach: your game')" />
+          <button type="button" class="self-end text-caption text-muted hover:text-fg underline underline-offset-2 cursor-pointer" @click="openInCoach">{{ $t('Open in the Coach tab') }}</button>
+        </div>
       </Transition>
       <UiCard :title="$t('Your stats')" :icon="Trophy" :subtitle="$t('Saved in this browser')">
         <div class="grid grid-cols-4 text-center mb-4">

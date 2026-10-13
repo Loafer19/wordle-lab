@@ -24,8 +24,8 @@ const maxBits = computed(() => Math.max(6, ...stats.value.flatMap(s => [s.exp, s
       <div v-for="(s, i) in stats" :key="i + s.w" class="text-caption">
         <div class="flex items-center gap-2 mb-1">
           <b class="font-mono uppercase">{{ s.w }}</b><span class="text-muted">{{ s.before }} → {{ s.after }}</span><div class="flex-1"></div>
-          <UiBadge v-if="s.luck > 0.5" tone="correct"><Sparkles :size="11" />lucky +{{ s.luck.toFixed(2) }}</UiBadge>
-          <UiBadge v-else-if="s.luck < -0.5" tone="danger"><TrendingDown :size="11" />unlucky {{ s.luck.toFixed(2) }}</UiBadge>
+          <UiBadge v-if="s.luck > 0.5" tone="correct"><Sparkles :size="11" />{{ $t('lucky') }} +{{ s.luck.toFixed(2) }}</UiBadge>
+          <UiBadge v-else-if="s.luck < -0.5" tone="danger"><TrendingDown :size="11" />{{ $t('unlucky') }} {{ s.luck.toFixed(2) }}</UiBadge>
           <UiBadge v-else>{{ $t('as expected') }}</UiBadge>
         </div>
         <div class="flex items-center gap-2"><span class="w-14 text-muted">{{ $t('expected') }}</span><div class="flex-1 h-2 rounded-full bg-surface-2 overflow-hidden"><div class="h-full rounded-full bg-absent transition-all duration-700 ease-out" :style="{ width: (100 * s.exp) / maxBits + '%' }"></div></div><span class="w-16 text-right tabular-nums">{{ s.exp.toFixed(2) }} bits</span></div>

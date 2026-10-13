@@ -4,18 +4,17 @@ import { DEMO_WORD } from '../lib/lang'
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { onKeyStroke } from '@vueuse/core'
 import Select from 'primevue/select'; import InputText from 'primevue/inputtext'
-import { Play, Undo2, RotateCcw, Check, PartyPopper, Lightbulb, Keyboard, ListFilter, History, CircleAlert, Info, ArrowRight } from 'lucide-vue-next'
+import { Play, Undo2, RotateCcw, Check, PartyPopper, Lightbulb, Keyboard, History, CircleAlert, Info, ArrowRight } from 'lucide-vue-next'
 import { allStrategies } from '../lib/allStrategies'
 import CandidatesCard from './CandidatesCard.vue'
 import { gameKey } from '../lib/lang'
-import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import UiIcon from './ui/UiIcon.vue'; import CountUp from './ui/CountUp.vue'
+import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import UiIcon from './ui/UiIcon.vue'
 import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
 import { filter, digitsToPattern, entropy, feedback, patternDigits, type Suggestion } from '../lib/wordle'
 import InfoTip from './InfoTip.vue'
 import BitsPanel from './BitsPanel.vue'
 import PatternSquares from './PatternSquares.vue'
-import { ANSWERS_HELP } from '../lib/labels'
 
 const stratId = ref('freqbal-cand')
 const steps = ref<{ w: string; d: number[]; sizeBefore: number; sizeAfter: number; sug: string }[]>([])
@@ -31,7 +30,7 @@ function compute() {
   setTimeout(() => {
     const s = allStrategies.value.find(x => x.id === stratId.value)!
     const pre = precomputed.value.find(r => r.id === s.id)
-    if (steps.value.length === 0 && pre && s.id !== 'random') sug.value = { guess: pre.opener, score: 0, why: t('Best first word for this strategy (precomputed): "{w}" gives {b} bits of information on average.', { w: pre.opener.toUpperCase(), b: entropy(pre.opener, answers.value).toFixed(2) }) }
+    if (steps.value.length === 0 && pre && s.id !== 'random' && !s.id.startsWith('optimal')) sug.value = { guess: pre.opener, score: 0, why: t('Best first word for this strategy (precomputed): "{w}" gives {b} bits of information on average.', { w: pre.opener.toUpperCase(), b: entropy(pre.opener, answers.value).toFixed(2) }) }
     else sug.value = s.pick(cands.value, { answers: answers.value, allowed: allowed.value }, steps.value.length + 1)
     guess.value = sug.value.guess; digits.value = demoSecret.value ? patternDigits(feedback(guess.value, demoSecret.value)) : [-1, -1, -1, -1, -1]; err.value = ''; errHint.value = []; busy.value = false
   }, 10)

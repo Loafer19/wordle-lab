@@ -138,7 +138,7 @@ export interface RichResult {
   avgSizes: number[]
   tree: TreeNode
 }
-export interface SimOpts { hard?: boolean; tree?: TreeNode; opener?: string; answers?: string[]; maxTurns?: number; onProgress?: (f: number) => void }
+export interface SimOpts { optimum?: { normal: number; hard: number }; hard?: boolean; tree?: TreeNode; opener?: string; answers?: string[]; maxTurns?: number; onProgress?: (f: number) => void }
 
 export function simulateEx(strat: Strategy, ctx: Ctx, o: SimOpts = {}): RichResult {
   const t0 = performance.now(), maxTurns = o.maxTurns ?? 12
@@ -181,7 +181,7 @@ export function simulateEx(strat: Strategy, ctx: Ctx, o: SimOpts = {}): RichResu
   const avgSizes = Array.from({ length: maxLen }, (_, i) => sizes.reduce((a, s) => a + (s[i] ?? 0), 0) / N)
   return {
     id: strat.id + (o.hard ? '@hard' : ''), name: strat.name + (o.hard ? ' [hard]' : ''), mode: o.hard ? 'hard' : 'normal',
-    avg, failRate: guesses.filter(k => k > 6).length / N, worst, dist, opener: root.g, gap: avg - (o.hard ? OPTIMUM.hard : OPTIMUM.normal),
+    avg, failRate: guesses.filter(k => k > 6).length / N, worst, dist, opener: root.g, gap: Math.max(0, avg - (o.hard ? (o.optimum ?? OPTIMUM).hard : (o.optimum ?? OPTIMUM).normal)),
     ms: performance.now() - t0, worstWords: targets.filter((_, i) => guesses[i] === worst).slice(0, 8), guesses, sizes, avgSizes, tree: root,
   }
 }

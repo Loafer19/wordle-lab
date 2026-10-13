@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { NA, NV, isUA } from '../lib/lang'
+import { NA, NV, isUA, lang } from '../lib/lang'
+import { OPTIMA } from '../lib/optimum'
 import { ref, computed, watch } from 'vue'
 import VChart from 'vue-echarts'
 import GapView from './GapView.vue'
@@ -35,13 +36,13 @@ const labels = ['1', '2', '3', '4', '5', '6', '7+']
 const d7 = (r: SimResult) => [1, 2, 3, 4, 5, 6].map(i => r.dist[i] ?? 0).concat(r.dist.slice(7).reduce((a, b) => a + b, 0))
 const distOpt = computed(() => ({ ...baseC.value, title: { show: false }, legend: { ...baseC.value.legend, top: 0 }, grid: { top: 50, left: 50, right: 20 }, xAxis: { type: 'category', data: labels }, yAxis: { type: 'value' }, series: list.value.map(r => ({ type: 'bar', name: r.name, data: d7(r) })) }))
 const avgOpt = computed(() => ({ ...baseC.value, title: { show: false }, grid: { left: 10, right: 50, top: 10, bottom: 20, containLabel: true }, xAxis: { type: 'value', min: 3, max: Math.max(4.4, ...list.value.map(r => r.avg)) }, yAxis: { type: 'category', data: list.value.map(r => r.name).reverse() },
-  series: [{ type: 'bar', data: list.value.map(r => +r.avg.toFixed(3)).reverse(), label: { show: true, position: 'right', color: fg.value }, itemStyle: { color: (p: any) => colorFor(p.name), borderRadius: [0, 4, 4, 0] }, markLine: { symbol: 'none', lineStyle: { type: 'dashed', color: tile.correct }, data: [{ xAxis: 3.4212 }] } }] }))
+  series: [{ type: 'bar', data: list.value.map(r => +r.avg.toFixed(3)).reverse(), label: { show: true, position: 'right', color: fg.value }, itemStyle: { color: (p: any) => colorFor(p.name), borderRadius: [0, 4, 4, 0] }, markLine: { symbol: 'none', lineStyle: { type: 'dashed', color: tile.correct }, data: [{ xAxis: +OPTIMA[lang].normal.toFixed(4) }] } }] }))
 const shrinkOpt = computed(() => ({ ...baseC.value, title: { show: false }, legend: { ...baseC.value.legend, top: 0 }, grid: { top: 50, left: 50, right: 20 }, xAxis: { type: 'category', data: [1, 2, 3, 4, 5, 6].map(i => t('turn {n}', { n: i })) }, yAxis: { type: 'log', min: 0.01 },
   series: list.value.map(r => ({ type: 'line', name: r.name, data: r.avgSizes.slice(0, 6).map(v => +Math.max(v, 0.01).toFixed(2)) })) }))
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <GapView v-if="!isUA" />
+    <GapView />
     <UiCard :title="$t('Strategy simulation')" :icon="FlaskConical" :subtitle="$t('Each strategy plays all {n} possible answers. “Any word” variants may guess from all {v} valid guesses.', { n: NA, v: NV })">
       <div class="flex flex-wrap items-center gap-3">
         <MultiSelect v-model="selected" :options="SIM_STRATS" optionLabel="name" optionValue="id" class="w-full sm:w-96" :maxSelectedLabels="3" />
@@ -60,7 +61,7 @@ const shrinkOpt = computed(() => ({ ...baseC.value, title: { show: false }, lege
         <Column :header="$t('Hardest words')"><template #body="{ data }"><span class="font-mono text-caption uppercase text-muted">{{ data.worstWords.slice(0, 4).join(' ') }}</span></template></Column>
       </DataTable>
     </UiCard>
-    <UiCard :title="$t('Average guesses')" :icon="BarChart3" :subtitle="$t('Lower is better · dashed line = proven optimum 3.4212 (SALET)')"><VChart :option="avgOpt" style="height: 380px" autoresize /></UiCard>
+    <UiCard :title="$t('Average guesses')" :icon="BarChart3" :subtitle="isUA ? $t('Lower is better · dashed line = proven UA optimum 3.3809 (КОТРА)') : $t('Lower is better · dashed line = proven optimum 3.4212 (SALET)')"><VChart :option="avgOpt" style="height: 380px" autoresize /></UiCard>
     <UiCard :title="$t('Guess-count distribution')" :icon="ChartColumn"><VChart :option="distOpt" style="height: 400px" autoresize /></UiCard>
     <UiCard :title="$t('Candidate set shrinking per turn')" :icon="TrendingDown" :subtitle="$t('Average possible answers left before each guess (solved games count as 0, log scale)')"><VChart :option="shrinkOpt" style="height: 380px" autoresize /></UiCard>
   </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { t } from './lib/i18n'
 import { ref, computed } from 'vue'
-import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, Sparkles, SlidersHorizontal, Network, Waves, Grid2x2, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag, Scale, History } from 'lucide-vue-next'
+import { Gamepad2, Brain, BarChart3, GitBranch, CaseSensitive, Rocket, Sun, Moon, Sparkles, Network, Waves, Grid2x2, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag, Scale, History, GraduationCap } from 'lucide-vue-next'
 import { ready } from './lib/words'
 import { isDark, toggleDark } from './lib/theme'
 import { route, href } from './lib/route'
@@ -23,6 +23,7 @@ import PatternView from './components/PatternView.vue'
 import SankeyView from './components/SankeyView.vue'
 import TreeView from './components/TreeView.vue'
 import LabView from './components/LabView.vue'
+import CoachView from './components/CoachView.vue'
 const sub = {
   strategies: [{ id: 'simulation', label: t('Simulation'), icon: BarChart3, comp: SimView }, { id: 'compare', label: t('Compare'), icon: GitCompare, comp: CompareView }, { id: 'lab', label: t('Strategy Lab'), icon: Blocks, comp: LabView }],
   explore: [{ id: 'paths', label: t('Decision paths'), icon: GitBranch, comp: PathView }, { id: 'tree', label: t('Tree'), icon: Network, comp: TreeView }, { id: 'flow', label: t('Flow'), icon: Waves, comp: SankeyView }, { id: 'map', label: t('Answer map'), icon: MapIcon, comp: AnswerMapView }],
@@ -31,6 +32,7 @@ const sub = {
 const tabs = [
   { id: 'play', label: t('Play'), icon: Gamepad2 },
   { id: 'solver', label: t('Solver'), icon: Brain },
+  { id: 'coach', label: t('Coach'), icon: GraduationCap },
   { id: 'strategies', label: t('Strategies'), icon: FlaskConical },
   { id: 'explore', label: t('Explore'), icon: Compass },
   { id: 'analytics', label: t('Analytics'), icon: CaseSensitive },
@@ -67,6 +69,7 @@ const current = computed(() => route.tab)
       <Transition name="tab" mode="out-in">
         <PlayView v-if="current === 'play'" key="play" />
         <AssistantView v-else-if="current === 'solver'" key="solver" />
+        <CoachView v-else-if="current === 'coach'" key="coach" />
         <SectionView v-else :key="current" :tab="current" :views="sub[current as keyof typeof sub]" />
       </Transition>
     </main>

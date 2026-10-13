@@ -18,7 +18,7 @@ test('Ukrainian UI: tabs, settings, footer and html lang are translated', async 
   try {
     expect(await p.evaluate(() => document.documentElement.lang)).toBe('uk')
     const tabs = await p.locator('a[data-tab-link]').allInnerTexts()
-    expect(tabs.map(s => s.trim())).toEqual(['Гра', 'Розв’язувач', 'Стратегії', 'Дослідження', 'Аналітика'])
+    expect(tabs.map(s => s.trim())).toEqual(['Гра', 'Розв’язувач', 'Тренер', 'Стратегії', 'Дослідження', 'Аналітика'])
     expect(await p.locator('[data-countdown]').innerText()).toContain('Наступне слово через')
     expect(await p.locator('[data-updated]').innerText()).toContain('оновлено')
     await p.click('[data-settings]'); await p.waitForTimeout(300)

@@ -5,6 +5,7 @@ import { STRATEGIES, type Strategy } from '../src/lib/wordle'
 import { PRESET_STRATEGIES } from '../src/lib/compose'
 import { STAGED_STRATEGIES } from '../src/lib/staged'
 import { simulateEx, simulatePair, twoStepStrategy, parseSelbyTree, verifyTree, OPTIMUM, type RichResult, type TreeNode } from '../src/lib/advanced'
+import { OPTIMA } from '../src/lib/optimum'
 const root = new URL('..', import.meta.url).pathname
 const args0 = process.argv.slice(2), LANG = args0.includes('--lang') ? args0[args0.indexOf('--lang') + 1] : 'en'
 const D = LANG === 'en' ? 'data/' : `data/${LANG}/`, P = LANG === 'en' ? 'public/' : `public/${LANG}/`
@@ -16,13 +17,14 @@ const merge = args.includes('--merge'), noHard = args.includes('--no-hard'), noP
 console.log(`answers=${answers.length} allowed=${allowed.length}`)
 
 // optimal trees (Alex Selby, github.com/alex1770/wordle)
-// UA: our own exact trees (scripts/ua-optimal/solver.c, see data/SOURCES.md): 'normal' = min average, 'max5' = min average with ≤5 guesses.
+// UA: our own exact trees (scripts/ua-optimal/solver.c, see data/SOURCES.md): 'normal' = min average, 'max5' = min average with ≤5 guesses, 'hard' = min average in hard mode (WL_HARD=1).
 const trees: Record<string, TreeNode> | null = LANG === 'en' ? {
   normal: parseSelbyTree(await Bun.file(root + 'data/optimal/salet.easy.origwords.tree').text()),
   hard: parseSelbyTree(await Bun.file(root + 'data/optimal/salet.hard.origwordlist.tree').text()),
 } : LANG === 'ua' ? {
   normal: await Bun.file(root + 'data/ua/optimal/kotra.normal.json').json(),
   max5: await Bun.file(root + 'data/ua/optimal/kotra.max5.json').json(),
+  hard: await Bun.file(root + 'data/ua/optimal/karst.hard.json').json(),
 } : null
 if (trees) for (const m of Object.keys(trees)) { const e = verifyTree(trees[m], answers, m === 'hard'); console.log(`verify optimal ${m} tree: ${e.length ? e.length + ' ERRORS ' + e.slice(0, 3) : 'OK'}`); if (e.length) process.exit(1) }
 if (trees) await Bun.write(root + P + 'optimal-tree.json', JSON.stringify(trees))
@@ -31,12 +33,12 @@ const treeStrats: Strategy[] = !trees ? [] : LANG === 'en'
   ? [{ id: 'optimal', name: 'Optimal tree (SALET)', desc: 'Provably optimal decision tree (Selby / Bertsimas–Paskov), loaded from alex1770/wordle.', pick: c => ({ guess: c[0], score: 0, why: '' }) }]
   : [{ id: 'optimal', name: 'Optimal tree (UA)', desc: 'Proven-optimal UA decision tree (КОТРА, exact search).', pick: c => ({ guess: c[0], score: 0, why: '' }) },
      { id: 'optimal-max5', name: 'Optimal tree (UA, ≤5 guesses)', desc: 'Best average with a 5-guess guarantee (КОТРА, exact search).', pick: c => ({ guess: c[0], score: 0, why: '' }) }]
-const treeFor = (id: string, hard: boolean) => !trees ? undefined : LANG === 'en' ? (id === 'optimal' ? trees[hard ? 'hard' : 'normal'] : undefined) : hard ? undefined : ({ optimal: trees.normal, 'optimal-max5': trees.max5 } as Record<string, TreeNode>)[id]
+const treeFor = (id: string, hard: boolean) => !trees ? undefined : LANG === 'en' ? (id === 'optimal' ? trees[hard ? 'hard' : 'normal'] : undefined) : hard ? (id === 'optimal' ? trees.hard : undefined) : ({ optimal: trees.normal, 'optimal-max5': trees.max5 } as Record<string, TreeNode>)[id]
 const all: Strategy[] = [...treeStrats, twoStepStrategy(), ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...STRATEGIES].filter(s => !ids.length || ids.includes(s.id))
 const results: RichResult[] = []
 for (const s of all) for (const hard of noHard ? [false] : [false, true]) {
-  if (LANG !== 'en' && hard && s.id.startsWith('optimal')) continue // UA trees are normal-mode only
-  const r = simulateEx(s, ctx, { hard, tree: treeFor(s.id, hard) })
+  if (LANG !== 'en' && hard && s.id === 'optimal-max5') continue // the ≤5 UA tree is normal-mode only (hard: 'optimal' uses the КАРСТ hard tree)
+  const r = simulateEx(s, ctx, { hard, tree: treeFor(s.id, hard), optimum: OPTIMA[LANG as 'en' | 'ua'] ?? OPTIMUM })
   results.push(r)
   console.log(`done ${r.id.padEnd(20)} avg ${r.avg.toFixed(4)} (${(r.ms / 1000).toFixed(1)}s)`)
   if (!ids.length || merge) await Bun.write(`${root}${P}sim/${r.id.replace('@', '_')}.json`, JSON.stringify({ guesses: r.guesses, sizes: r.sizes, tree: r.tree }))
@@ -45,7 +47,7 @@ const summary = (r: RichResult) => { const { guesses, sizes, tree, ...rest } = r
 for (const mode of ['normal', 'hard'] as const) {
   const rs = results.filter(r => r.mode === mode).sort((a, b) => a.avg - b.avg)
   if (!rs.length) continue
-  console.log(`\n=== ${mode.toUpperCase()} MODE (optimum ${OPTIMUM[mode].toFixed(4)}) ===`)
+  console.log(`\n=== ${mode.toUpperCase()} MODE (optimum ${(OPTIMA[LANG as 'en' | 'ua'] ?? OPTIMUM)[mode].toFixed(4)}) ===`)
   console.log(['Strategy'.padEnd(38), 'Opener', '  Avg ', '  Gap ', 'Fail%', 'Worst', '   1    2    3    4    5    6   >6'].join(' | '))
   console.log('-'.repeat(112))
   for (const r of rs) {

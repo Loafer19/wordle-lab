@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { t } from '../lib/i18n'
 // Shared "possible answers left" card (Play + Solver): count badge, bits of uncertainty, wrapped clickable chips.
 import { computed } from 'vue'
 import { ListFilter } from 'lucide-vue-next'

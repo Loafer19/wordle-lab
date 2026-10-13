@@ -6,25 +6,29 @@ import { Target } from 'lucide-vue-next'
 import { baseC } from '../lib/charts'
 import { tile, otherColor, ruslanColor } from '../lib/tokens'
 import { simIndex } from '../lib/simdata'
-import { OPTIMUM } from '../lib/advanced'
+import { OPTIMA, gapTo } from '../lib/optimum'
+import { lang, isUA } from '../lib/lang'
+const O = OPTIMA[lang]
 import UiCard from './ui/UiCard.vue'; import UiBadge from './ui/UiBadge.vue'
 const rows = computed(() => {
+  // gaps are recomputed against this language's optimum (stored values may predate the UA optimum)
+  const fix = <T extends { avg: number }>(s: T, hard: boolean) => ({ ...s, gap: gapTo(s.avg, lang, hard) })
   const normal = simIndex.value.filter(s => s.mode === 'normal').sort((a, b) => a.avg - b.avg)
-  return normal.map(n => ({ ...n, hard: simIndex.value.find(h => h.id === n.id + '@hard') }))
+  return normal.map(n => { const h = simIndex.value.find(x => x.id === n.id + '@hard'); return { ...fix(n, false), hard: h ? fix(h, true) : undefined } })
 })
 const opt = computed(() => ({
   ...baseC.value, legend: { ...baseC.value.legend, top: 0 }, grid: { left: 10, right: 40, top: 40, bottom: 20, containLabel: true },
   tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
   xAxis: { type: 'value', name: t('gap to optimum (guesses)') }, yAxis: { type: 'category', data: rows.value.map(r => t(r.name)).reverse() },
   series: [
-    { type: 'bar', name: t('Normal (optimum {v})', { v: OPTIMUM.normal.toFixed(4) }), data: rows.value.map(r => +r.gap.toFixed(4)).reverse(), itemStyle: { color: otherColor, borderRadius: [0, 4, 4, 0] } },
-    { type: 'bar', name: t('Hard (optimum {v})', { v: OPTIMUM.hard.toFixed(4) }), data: rows.value.map(r => +(r.hard?.gap ?? 0).toFixed(4)).reverse(), itemStyle: { color: ruslanColor, borderRadius: [0, 4, 4, 0] } },
+    { type: 'bar', name: t('Normal (optimum {v})', { v: O.normal.toFixed(4) }), data: rows.value.map(r => +r.gap.toFixed(4)).reverse(), itemStyle: { color: otherColor, borderRadius: [0, 4, 4, 0] } },
+    { type: 'bar', name: t('Hard (optimum {v})', { v: O.hard.toFixed(4) }), data: rows.value.map(r => +(r.hard?.gap ?? 0).toFixed(4)).reverse(), itemStyle: { color: ruslanColor, borderRadius: [0, 4, 4, 0] } },
   ],
 }))
 const tone = (g: number) => (g < 0.001 ? 'correct' : g < 0.1 ? 'brand' : g < 0.25 ? 'present' : 'danger') as any
 </script>
 <template>
-  <UiCard :title="$t('Gap to the proven optimum · normal vs hard mode')" :icon="Target" :subtitle="$t('Optimal decision trees: {a} normal, {b} hard (SALET; Selby, Bertsimas & Paskov). Hard mode: revealed hints must be reused.', { a: OPTIMUM.normal.toFixed(4), b: OPTIMUM.hard.toFixed(4) })">
+  <UiCard :title="$t('Gap to the proven optimum · normal vs hard mode')" :icon="Target" :subtitle="isUA ? $t('UA optimal decision trees from our exact search: {a} normal (КОТРА), {b} hard ({h}). Hard mode: revealed hints must be reused.', { a: O.normal.toFixed(4), b: O.hard.toFixed(4), h: O.hardOpener }) : $t('Optimal decision trees: {a} normal, {b} hard (SALET; Selby, Bertsimas & Paskov). Hard mode: revealed hints must be reused.', { a: O.normal.toFixed(4), b: O.hard.toFixed(4) })">
     <div class="overflow-x-auto mb-4"><table class="text-caption w-full">
       <thead><tr class="text-muted text-left"><th class="py-1 pr-3 font-medium">{{ $t('Strategy') }}</th><th class="pr-3 font-medium">{{ $t('Normal avg') }}</th><th class="pr-3 font-medium">{{ $t('gap') }}</th><th class="pr-3 font-medium">{{ $t('fail') }}</th><th class="pr-3 font-medium">{{ $t('worst') }}</th><th class="pr-3 font-medium">{{ $t('Hard avg') }}</th><th class="pr-3 font-medium">{{ $t('gap') }}</th><th class="pr-3 font-medium">{{ $t('fail') }}</th><th class="font-medium">{{ $t('worst') }}</th></tr></thead>
       <tbody><tr v-for="r in rows" :key="r.id" class="border-t border-line hover:bg-surface-2 transition-colors">

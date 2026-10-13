@@ -13,3 +13,6 @@ await Bun.write(`/tmp/wl-${lang}.words`, allowed.join('\n') + '\n')
 // answer index in allowed list
 await Bun.write(`/tmp/wl-${lang}.ansidx`, answers.map(a => allowed.indexOf(a)).join('\n') + '\n')
 console.log(allowed.length, answers.length, 'done')
+// letter codes (alpha.ts CI) of every allowed word, 5 per line — for the hard-mode solver (WL_CODES)
+import { CI } from '../../src/lib/alpha'
+await Bun.write(`/tmp/wl-${lang}.codes`, allowed.map(w => [...w].map(ch => CI[ch.charCodeAt(0)]).join(' ')).join('\n') + '\n')
