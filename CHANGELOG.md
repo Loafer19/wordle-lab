@@ -2,9 +2,21 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
-## Unreleased — exp/ua-optimal
-- UA: proven-optimal decision tree (exact Selby-style search, `scripts/ua-optimal/`): opener КОТРА, 5805/1717 = 3.3809 avg (worst 6); best with ≤5 guesses 5806/1717 = 3.3815; a 4-guess guarantee is impossible.
-- New strategies 'Optimal tree (UA)' and 'Optimal tree (UA, ≤5 guesses)'; UA default best strategy is now the optimal tree.
+## [1.3.0] - 2026-10-13
+
+### Added
+- **Coach mode:** after every Play game (daily and random, EN and UA) a per-guess review: candidates before → after, actual vs expected bits, the best guess by entropy (hard-mode legal in hard mode) and the optimal-tree move while on the tree, each with expected bits and answers left, a luck indicator (Δ bits and the share of outcomes that would have left more), a skill score, and plain-language tips (reused grey letters, a yellow letter in the same spot, leaving a known green, cluster traps, when a non-candidate would help, guess a candidate when ≤2 remain). Runs in a Web Worker.
+- **Coach tab:** paste or type any game, e.g. `ARISE(⬜⬜⬜🟨⬜) CLOTH(⬜⬜🟩🟨⬜)`, `arise 00010` or `arise bbbyb`, with examples and a hard-mode switch. Fully translated in UA, mobile friendly.
+- **UA proven-optimal trees** (exact Selby-style search, `scripts/ua-optimal/`): opener КОТРА, 5805/1717 = 3.3809 (worst 6); best with ≤5 guesses 5806/1717 = 3.3815; a 4-guess guarantee is impossible. Strategies 'Optimal tree (UA)' and 'Optimal tree (UA, ≤5 guesses)'; the UA default best strategy is now the optimal tree.
+- **UA hard-mode optimal tree:** the solver now supports hard mode (`WL_HARD=1`, the app's hard rules). Proven optimum 5930/1717 = 3.4537 with opener КАРСТ (2 words need 7 guesses). New strategy 'Optimal tree (UA, hard)', simulated as `optimal@hard`.
+- **Ruslan staged letter strategies** (coverage → cluster splitter → candidates), with sweeps and EN/UA simulations.
+- Second-step information analysis: `docs/analysis-second-step.md`, `scripts/analysis/`.
+- Tests: unit tests for coach analysis/parsing, the UA hard tree and per-language gaps; e2e tests for the Coach tab and the post-game coach (EN/UA, mobile), Solver tree explanations and the UA gap table.
+
+### Fixed
+- Solver: an optimal-tree strategy's first guess (КОТРА, КАРСТ, SALET) now shows the optimal-tree explanation instead of the generic "best first word (precomputed)" text (EN + UA).
+- Gap tables and the "Average guesses" optimum line compare UA strategies with the UA optimum (3.3809 normal / 3.4537 hard) instead of the EN one (3.4212); the gap table is now shown in UA too, and gaps are never negative.
+- Untranslated "lucky/unlucky" badges in the information panel.
 
 ## [1.2.0] - 2026-10-12
 

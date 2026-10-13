@@ -23,6 +23,7 @@
 | | |
 |---|---|
 | 🎮 **Play** | Daily word with a countdown to the next one, or random games. Hard mode, flip, bounce and confetti animations, stats, a shareable emoji grid, and the **word's meaning** after each game. |
+| 🎓 **Coach** | Per-guess analysis after every game and for any pasted game: bits gained vs expected, the best move by entropy and by the optimal tree, luck, and plain-language tips. |
 | 🧭 **Solver** | Type your guess, tap the tiles to match your colours, and get the next best word with a plain-English reason. Undo, a demo mode, keyboard shortcuts, and the provably optimal tree. |
 | 🧪 **Strategies** | **Simulation** of every strategy on every answer (Web Workers), a head-to-head **Compare**, and the **Strategy Lab**: build a strategy from blocks (opener, explore turns, scoring, tie-breaker), see live results against the best known strategy, and save it for use in Solver, Compare, Tree and more. |
 | 🧭 **Explore** | **Decision paths** for any secret word, the optimal decision **Tree**, a **Flow** sankey of how the answer set shrinks, and an **Answer map** of how hard each word is. |
@@ -39,42 +40,67 @@ Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can
 <tr><td><img src="docs/readme/dark-lab.png" alt="Strategy Lab"/></td><td><img src="docs/readme/dark-openers.png" alt="Openers"/></td></tr>
 </table>
 
-## 🏁 Strategy results (all 2,315 answers, normal mode)
+## 🏁 Strategy results
 
-| Strategy | Avg guesses | Failures (>6) | Idea |
-|---|---:|---:|---|
-| **Optimal tree (SALET)** | **3.4212** | 0 | Alex Selby's proven-optimal decision tree |
-| Two-step entropy | 3.446 | 0 | Maximise the information from this guess *and* the best next one |
-| Entropy (any word) | 3.465 | 0 | Maximise the expected information (bits) |
-| Expected size | 3.481 | – | Minimise the expected number of answers left |
-| Minimax | 3.573 | – | Minimise the worst-case group size |
-| Ruslan balanced f·(n−f) | 3.599 | 0.56% | Letter frequency weighted f·(n−f) |
-| Entropy (candidates only) | 3.599 | 0.48% | Entropy, but only guessing possible answers |
-| Explore 1 → candidates | 3.618 | 0.48% | 1 entropy turn with any word, then entropy on candidates |
-| Ruslan positional | 3.622 | – | Letter frequency per position |
-| Ruslan freq | 3.684 | – | Plain letter frequency |
-| Random candidate | 4.091 | – | Baseline |
+Every strategy plays every answer. *Hard* = Wordle hard mode (revealed letters must be reused, greens stay in place). Fail = needed more than 6 guesses.
 
-Hard mode: optimal 3.5084, two-step 3.553, entropy 3.603, Explore 1 3.618, Explore 2 3.632. Best opener pair: **SLATE + HUMID** (3.633).
-Regenerate everything with `bun run simulate` (`--lang ua` for Ukrainian).
+### 🇬🇧 English (2,315 answers, 12,972 guesses)
+
+| Strategy | Opener | Normal | Fail | Hard | Fail (hard) |
+|---|---|---:|---:|---:|---:|
+| **Optimal tree (SALET)** — Selby, proven | SALET | **3.4212** | 0 | **3.5084** | 0 |
+| Two-step entropy | SLATE | 3.446 | 0 | 3.553 | 0.30% |
+| Max entropy (any word) | SOARE | 3.465 | 0 | 3.603 | 0.30% |
+| Min expected size | ROATE | 3.481 | 0 | 3.597 | 0.22% |
+| Explore 2 → candidates (Ruslan balanced) | SOARE | 3.515 | 0.35% | 3.632 | 0.65% |
+| Ruslan staged (2 coverage turns + cluster splitter) | STARE | 3.527 | 0.09% | 3.629 | 0.52% |
+| Ruslan staged (coverage until ≤3 left) | STARE | 3.531 | 0 | 3.646 | 0.65% |
+| Minimax worst bucket | ARISE | 3.573 | 0 | 3.676 | 0.65% |
+| Ruslan balanced f·(n−f) (candidates) | SLATE | 3.599 | 0.56% | 3.599 | 0.56% |
+| Max entropy (candidates) | RAISE | 3.599 | 0.48% | 3.599 | 0.48% |
+| Explore 1 → candidates | SOARE | 3.618 | 0.48% | 3.618 | 0.48% |
+| Ruslan positional (candidates) | STARE | 3.622 | 0.65% | 3.622 | 0.65% |
+| Ruslan freq (candidates) | ALERT | 3.684 | 0.95% | 3.684 | 0.95% |
+| Random candidate | – | 4.091 | 1.30% | 4.066 | 1.68% |
+
+Best opener pair: **SLATE + HUMID** (3.633). Regenerate everything with `bun run simulate` (`--lang ua` for Ukrainian).
 
 ### 🇺🇦 Ukrainian (1,717 answers, 7,158 guesses)
 
-| Strategy | Normal | Hard |
-|---|---:|---:|
-| Max entropy (any word) | **3.396** | 3.488 |
-| Min expected size | 3.409 | 3.503 |
-| Two-step entropy | 3.418 | 3.497 |
-| Explore 2 → candidates | 3.433 | 3.514 |
-| Max entropy (candidates) | 3.487 | **3.487** |
-| Explore 1 → candidates | 3.493 | 3.493 |
-| Minimax | 3.502 | 3.569 |
-| Ruslan positional | 3.551 | 3.551 |
-| Ruslan balanced f·(n−f) | 3.593 | 3.593 |
-| Ruslan freq | 3.649 | 3.649 |
-| Random candidate | 4.134 | 4.070 |
+The UA optima are **our own exact results** (`scripts/ua-optimal/`, a Selby-style exhaustive search in C; proofs modulo 64-bit memo hash collisions):
 
-The best Ukrainian opener is **КОТРА**.
+| Tree | Opener | Total / avg | Worst | Status |
+|---|---|---:|---:|---|
+| **Optimal tree (UA)** | КОТРА | 5805 / **3.3809** | 6 | proven optimal (only КОТРА reaches 5805) |
+| Optimal tree (UA, ≤5 guesses) | КОТРА | 5806 / 3.3815 | 5 | proven optimal under the 5-guess cap; a 4-guess guarantee is impossible |
+| **Optimal tree (UA, hard)** | КАРСТ | 5930 / **3.4537** | 7 (2 words) | proven optimal average in hard mode; 117 other openers can only tie (bound 5930) |
+
+| Strategy | Opener | Normal | Fail | Hard | Fail (hard) |
+|---|---|---:|---:|---:|---:|
+| **Optimal tree (UA)** / **(UA, hard)** | КОТРА / КАРСТ | **3.3809** | 0 | **3.4537** | 0.12% |
+| Optimal tree (UA, ≤5 guesses) | КОТРА | 3.3815 | 0 | – | – |
+| Max entropy (any word) | КОТРА | 3.396 | 0 | 3.488 | 0.29% |
+| Min expected size | КОТРА | 3.409 | 0 | 3.503 | 0.29% |
+| Two-step entropy | КОТРА | 3.418 | 0 | 3.497 | 0.23% |
+| Explore 2 → candidates (Ruslan balanced) | КОТРА | 3.433 | 0.29% | 3.514 | 0.41% |
+| Max entropy (candidates) | КОСАР | 3.487 | 0.29% | 3.487 | 0.29% |
+| Ruslan staged (2 coverage turns + cluster splitter) | НОРКА | 3.490 | 0.12% | 3.575 | 0.47% |
+| Ruslan staged (coverage until ≤3 left) | НОРКА | 3.493 | 0 | 3.643 | 1.28% |
+| Explore 1 → candidates | КОТРА | 3.493 | 0.35% | 3.493 | 0.35% |
+| Minimax worst bucket | КРОНА | 3.502 | 0 | 3.569 | 0.58% |
+| Ruslan positional (candidates) | НОРКА | 3.551 | 0.52% | 3.551 | 0.52% |
+| Ruslan balanced f·(n−f) (candidates) | НОРКА | 3.593 | 0.93% | 3.593 | 0.93% |
+| Ruslan freq (candidates) | АКТОР | 3.649 | 0.76% | 3.649 | 0.76% |
+| Random candidate | – | 4.134 | 2.27% | 4.070 | 1.75% |
+
+Gap tables in the app compare each language with its own optimum (EN 3.4212 / 3.5084, UA 3.3809 / 3.4537).
+How much the second guess matters: [docs/analysis-second-step.md](docs/analysis-second-step.md) (scripts in `scripts/analysis/`).
+
+## 🎓 Coach
+
+After every Play game (daily or random, EN and UA) the **Coach** reviews each guess: candidates before → after, the bits you actually gained versus the bits that guess was expected to give, the best guess by entropy (hard-mode legal in hard mode) and the optimal-tree move while you are still on the tree, each with its expected bits and expected answers left, a luck indicator, and short tips: reused grey letters, a yellow letter put back in the same spot, cluster traps (many look-alike candidates, so a probe word is better), when a non-candidate would have helped, and when to just guess one of the last candidates. The **Coach tab** analyses any game you paste, e.g. `ARISE(⬜⬜⬜🟨⬜) CLOTH(⬜⬜🟩🟨⬜)` or `arise 00010`.
+
+<img src="docs/screenshots/round10/en-coach-tab.png" alt="Coach" width="720"/>
 
 ## 🧮 How it works
 
