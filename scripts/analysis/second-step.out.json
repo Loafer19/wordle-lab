@@ -1,0 +1,2196 @@
+{
+ "NA": 2315,
+ "NG": 12972,
+ "maxBits": 11.1767964781476,
+ "topEntropyOpeners": [
+  [
+   "soare",
+   5.886
+  ],
+  [
+   "roate",
+   5.883
+  ],
+  [
+   "raise",
+   5.878
+  ],
+  [
+   "raile",
+   5.866
+  ],
+  [
+   "reast",
+   5.865
+  ],
+  [
+   "slate",
+   5.856
+  ],
+  [
+   "crate",
+   5.835
+  ],
+  [
+   "salet",
+   5.835
+  ],
+  [
+   "irate",
+   5.831
+  ],
+  [
+   "trace",
+   5.831
+  ]
+ ],
+ "openers": {
+  "salet": {
+   "H1": 5.835,
+   "buckets": 148,
+   "adaptiveExpected2": 10.017,
+   "candidateOnlyExpected2": 9.762,
+   "bestFixedSecond": [
+    [
+     "corni",
+     3.666
+    ],
+    [
+     "orcin",
+     3.644
+    ],
+    [
+     "proin",
+     3.621
+    ],
+    [
+     "prion",
+     3.621
+    ],
+    [
+     "porin",
+     3.601
+    ]
+   ],
+   "step2RealizedMean": 4.182,
+   "step2RealizedSD": 1.49,
+   "step2Hist": [
+    [
+     0,
+     1.5
+    ],
+    [
+     1,
+     4.1
+    ],
+    [
+     2,
+     13.4
+    ],
+    [
+     3,
+     26.9
+    ],
+    [
+     4,
+     24.6
+    ],
+    [
+     5,
+     17.1
+    ],
+    [
+     6,
+     10
+    ],
+    [
+     7,
+     2.4
+    ]
+   ],
+   "realized2Mean": 10.017,
+   "realized2SD": 1.186,
+   "realized2P10": 8.18,
+   "realized2P50": 10.18,
+   "realized2Hist": [
+    [
+     7,
+     5.5
+    ],
+    [
+     8,
+     17.1
+    ],
+    [
+     9,
+     17.5
+    ],
+    [
+     10,
+     19
+    ],
+    [
+     11,
+     41
+    ]
+   ],
+   "pctSingletonAfter2": 41,
+   "pctSolvedBy2": 3.41,
+   "bestSecond_pctCandidate": 25.4,
+   "bestSecond_pctNonCandStrictlyBetter": 74.6,
+   "bestSecond_avgUnseenLetters": 4.11,
+   "bestSecond_pctRepeatedLetters": 11,
+   "corrWithH2": {
+    "unseenLetters": 0.571,
+    "distinctLetters": 0.235,
+    "isCandidate": 0.11,
+    "splitScore": 0.849,
+    "samples": 103776
+   },
+   "largestBuckets": [
+    {
+     "p": 0,
+     "pattern": "⬜⬜⬜⬜⬜",
+     "n": 221,
+     "surprisal1": 3.39,
+     "best": "cornu",
+     "bestIsCandidate": false,
+     "H2": 5.651,
+     "maxPossibleH2": 7.788,
+     "candOnlyH2": 5.569,
+     "subBuckets": 71
+    },
+    {
+     "p": 27,
+     "pattern": "⬜⬜⬜\ud83d⬜",
+     "n": 165,
+     "surprisal1": 3.81,
+     "best": "drone",
+     "bestIsCandidate": true,
+     "H2": 5.273,
+     "maxPossibleH2": 7.366,
+     "candOnlyH2": 5.273,
+     "subBuckets": 58
+    },
+    {
+     "p": 54,
+     "pattern": "⬜⬜⬜\udfe8⬜",
+     "n": 107,
+     "surprisal1": 4.44,
+     "best": "nidor",
+     "bestIsCandidate": false,
+     "H2": 4.715,
+     "maxPossibleH2": 6.741,
+     "candOnlyH2": 4.436,
+     "subBuckets": 40
+    },
+    {
+     "p": 3,
+     "pattern": "⬜\ud83d⬜⬜⬜",
+     "n": 102,
+     "surprisal1": 4.5,
+     "best": "brond",
+     "bestIsCandidate": false,
+     "H2": 5.155,
+     "maxPossibleH2": 6.672,
+     "candOnlyH2": 5.065,
+     "subBuckets": 48
+    },
+    {
+     "p": 9,
+     "pattern": "⬜⬜\ud83d⬜⬜",
+     "n": 99,
+     "surprisal1": 4.55,
+     "best": "courd",
+     "bestIsCandidate": false,
+     "H2": 4.965,
+     "maxPossibleH2": 6.629,
+     "candOnlyH2": 4.79,
+     "subBuckets": 43
+    },
+    {
+     "p": 81,
+     "pattern": "⬜⬜⬜⬜\ud83d",
+     "n": 86,
+     "surprisal1": 4.75,
+     "best": "north",
+     "bestIsCandidate": true,
+     "H2": 5.082,
+     "maxPossibleH2": 6.426,
+     "candOnlyH2": 5.082,
+     "subBuckets": 42
+    },
+    {
+     "p": 30,
+     "pattern": "⬜\ud83d⬜\ud83d⬜",
+     "n": 83,
+     "surprisal1": 4.8,
+     "best": "beard",
+     "bestIsCandidate": true,
+     "H2": 4.736,
+     "maxPossibleH2": 6.375,
+     "candOnlyH2": 4.736,
+     "subBuckets": 36
+    },
+    {
+     "p": 6,
+     "pattern": "⬜\udfe8⬜⬜⬜",
+     "n": 82,
+     "surprisal1": 4.82,
+     "best": "corny",
+     "bestIsCandidate": false,
+     "H2": 4.866,
+     "maxPossibleH2": 6.358,
+     "candOnlyH2": 4.127,
+     "subBuckets": 40
+    }
+   ],
+   "efficiency": 0.783
+  },
+  "soare": {
+   "H1": 5.886,
+   "buckets": 127,
+   "adaptiveExpected2": 9.994,
+   "candidateOnlyExpected2": 9.605,
+   "bestFixedSecond": [
+    [
+     "clint",
+     3.747
+    ],
+    [
+     "clipt",
+     3.625
+    ],
+    [
+     "glint",
+     3.561
+    ],
+    [
+     "flint",
+     3.491
+    ],
+    [
+     "linty",
+     3.479
+    ]
+   ],
+   "step2RealizedMean": 4.108,
+   "step2RealizedSD": 1.404,
+   "step2Hist": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     3.3
+    ],
+    [
+     2,
+     16.7
+    ],
+    [
+     3,
+     27.3
+    ],
+    [
+     4,
+     25.9
+    ],
+    [
+     5,
+     17.7
+    ],
+    [
+     6,
+     6
+    ],
+    [
+     7,
+     2.2
+    ]
+   ],
+   "realized2Mean": 9.994,
+   "realized2SD": 1.193,
+   "realized2P10": 8.37,
+   "realized2P50": 10.18,
+   "realized2Hist": [
+    [
+     6,
+     0.9
+    ],
+    [
+     7,
+     6.2
+    ],
+    [
+     8,
+     14
+    ],
+    [
+     9,
+     21
+    ],
+    [
+     10,
+     18.1
+    ],
+    [
+     11,
+     39.8
+    ]
+   ],
+   "pctSingletonAfter2": 39.8,
+   "pctSolvedBy2": 1.9,
+   "bestSecond_pctCandidate": 2.8,
+   "bestSecond_pctNonCandStrictlyBetter": 97.2,
+   "bestSecond_avgUnseenLetters": 4.04,
+   "bestSecond_pctRepeatedLetters": 24.2,
+   "corrWithH2": {
+    "unseenLetters": 0.541,
+    "distinctLetters": 0.212,
+    "isCandidate": 0.111,
+    "splitScore": 0.833,
+    "samples": 107019
+   },
+   "largestBuckets": [
+    {
+     "p": 0,
+     "pattern": "⬜⬜⬜⬜⬜",
+     "n": 183,
+     "surprisal1": 3.66,
+     "best": "clint",
+     "bestIsCandidate": false,
+     "H2": 5.509,
+     "maxPossibleH2": 7.516,
+     "candOnlyH2": 5.245,
+     "subBuckets": 65
+    },
+    {
+     "p": 9,
+     "pattern": "⬜⬜\ud83d⬜⬜",
+     "n": 138,
+     "surprisal1": 4.07,
+     "best": "clint",
+     "bestIsCandidate": false,
+     "H2": 5.171,
+     "maxPossibleH2": 7.109,
+     "candOnlyH2": 4.807,
+     "subBuckets": 52
+    },
+    {
+     "p": 81,
+     "pattern": "⬜⬜⬜⬜\ud83d",
+     "n": 120,
+     "surprisal1": 4.27,
+     "best": "denet",
+     "bestIsCandidate": false,
+     "H2": 5.392,
+     "maxPossibleH2": 6.907,
+     "candOnlyH2": 5.018,
+     "subBuckets": 52
+    },
+    {
+     "p": 108,
+     "pattern": "⬜⬜⬜\ud83d\ud83d",
+     "n": 117,
+     "surprisal1": 4.31,
+     "best": "direr",
+     "bestIsCandidate": false,
+     "H2": 4.433,
+     "maxPossibleH2": 6.87,
+     "candOnlyH2": 4.402,
+     "subBuckets": 35
+    },
+    {
+     "p": 6,
+     "pattern": "⬜\udfe8⬜⬜⬜",
+     "n": 87,
+     "surprisal1": 4.73,
+     "best": "culty",
+     "bestIsCandidate": false,
+     "H2": 4.448,
+     "maxPossibleH2": 6.443,
+     "candOnlyH2": 3.865,
+     "subBuckets": 33
+    },
+    {
+     "p": 162,
+     "pattern": "⬜⬜⬜⬜\udfe8",
+     "n": 79,
+     "surprisal1": 4.87,
+     "best": "guilt",
+     "bestIsCandidate": false,
+     "H2": 5.068,
+     "maxPossibleH2": 6.304,
+     "candOnlyH2": 4.536,
+     "subBuckets": 41
+    },
+    {
+     "p": 90,
+     "pattern": "⬜⬜\ud83d⬜\ud83d",
+     "n": 68,
+     "surprisal1": 5.09,
+     "best": "canal",
+     "bestIsCandidate": false,
+     "H2": 4.589,
+     "maxPossibleH2": 6.087,
+     "candOnlyH2": 4.501,
+     "subBuckets": 32
+    },
+    {
+     "p": 2,
+     "pattern": "\udfe8⬜⬜⬜⬜",
+     "n": 63,
+     "surprisal1": 5.2,
+     "best": "thilk",
+     "bestIsCandidate": false,
+     "H2": 4.894,
+     "maxPossibleH2": 5.977,
+     "candOnlyH2": 4.426,
+     "subBuckets": 35
+    }
+   ],
+   "efficiency": 0.776
+  },
+  "crane": {
+   "H1": 5.743,
+   "buckets": 142,
+   "adaptiveExpected2": 9.977,
+   "candidateOnlyExpected2": 9.699,
+   "bestFixedSecond": [
+    [
+     "toils",
+     3.826
+    ],
+    [
+     "spilt",
+     3.776
+    ],
+    [
+     "slipt",
+     3.773
+    ],
+    [
+     "doilt",
+     3.77
+    ],
+    [
+     "sluit",
+     3.763
+    ]
+   ],
+   "step2RealizedMean": 4.234,
+   "step2RealizedSD": 1.522,
+   "step2Hist": [
+    [
+     0,
+     1.3
+    ],
+    [
+     1,
+     5.1
+    ],
+    [
+     2,
+     10.7
+    ],
+    [
+     3,
+     28
+    ],
+    [
+     4,
+     27.5
+    ],
+    [
+     5,
+     15.2
+    ],
+    [
+     6,
+     8.4
+    ],
+    [
+     7,
+     2.3
+    ],
+    [
+     8,
+     1.6
+    ]
+   ],
+   "realized2Mean": 9.977,
+   "realized2SD": 1.282,
+   "realized2P10": 8.01,
+   "realized2P50": 10.18,
+   "realized2Hist": [
+    [
+     6,
+     3.3
+    ],
+    [
+     7,
+     4.1
+    ],
+    [
+     8,
+     16.7
+    ],
+    [
+     9,
+     16.4
+    ],
+    [
+     10,
+     18.1
+    ],
+    [
+     11,
+     41.5
+    ]
+   ],
+   "pctSingletonAfter2": 41.5,
+   "pctSolvedBy2": 3.07,
+   "bestSecond_pctCandidate": 11.7,
+   "bestSecond_pctNonCandStrictlyBetter": 88.3,
+   "bestSecond_avgUnseenLetters": 4.16,
+   "bestSecond_pctRepeatedLetters": 22.3,
+   "corrWithH2": {
+    "unseenLetters": 0.516,
+    "distinctLetters": 0.179,
+    "isCandidate": 0.099,
+    "splitScore": 0.817,
+    "samples": 97290
+   },
+   "largestBuckets": [
+    {
+     "p": 0,
+     "pattern": "⬜⬜⬜⬜⬜",
+     "n": 263,
+     "surprisal1": 3.14,
+     "best": "slipt",
+     "bestIsCandidate": false,
+     "H2": 5.678,
+     "maxPossibleH2": 8.039,
+     "candOnlyH2": 5.64,
+     "subBuckets": 83
+    },
+    {
+     "p": 9,
+     "pattern": "⬜⬜\ud83d⬜⬜",
+     "n": 134,
+     "surprisal1": 4.11,
+     "best": "toils",
+     "bestIsCandidate": false,
+     "H2": 5.138,
+     "maxPossibleH2": 7.066,
+     "candOnlyH2": 5.061,
+     "subBuckets": 50
+    },
+    {
+     "p": 81,
+     "pattern": "⬜⬜⬜⬜\ud83d",
+     "n": 127,
+     "surprisal1": 4.19,
+     "best": "sleet",
+     "bestIsCandidate": true,
+     "H2": 5.35,
+     "maxPossibleH2": 6.989,
+     "candOnlyH2": 5.35,
+     "subBuckets": 56
+    },
+    {
+     "p": 84,
+     "pattern": "⬜\ud83d⬜⬜\ud83d",
+     "n": 122,
+     "surprisal1": 4.25,
+     "best": "sleet",
+     "bestIsCandidate": false,
+     "H2": 4.171,
+     "maxPossibleH2": 6.931,
+     "candOnlyH2": 4.092,
+     "subBuckets": 32
+    },
+    {
+     "p": 162,
+     "pattern": "⬜⬜⬜⬜\udfe8",
+     "n": 102,
+     "surprisal1": 4.5,
+     "best": "toils",
+     "bestIsCandidate": false,
+     "H2": 5.229,
+     "maxPossibleH2": 6.672,
+     "candOnlyH2": 4.543,
+     "subBuckets": 48
+    },
+    {
+     "p": 3,
+     "pattern": "⬜\ud83d⬜⬜⬜",
+     "n": 90,
+     "surprisal1": 4.68,
+     "best": "shout",
+     "bestIsCandidate": false,
+     "H2": 5.248,
+     "maxPossibleH2": 6.492,
+     "candOnlyH2": 5.054,
+     "subBuckets": 50
+    },
+    {
+     "p": 12,
+     "pattern": "⬜\ud83d\ud83d⬜⬜",
+     "n": 65,
+     "surprisal1": 5.15,
+     "best": "lorry",
+     "bestIsCandidate": false,
+     "H2": 4.324,
+     "maxPossibleH2": 6.022,
+     "candOnlyH2": 4.205,
+     "subBuckets": 28
+    },
+    {
+     "p": 108,
+     "pattern": "⬜⬜⬜\ud83d\ud83d",
+     "n": 58,
+     "surprisal1": 5.32,
+     "best": "timon",
+     "bestIsCandidate": false,
+     "H2": 4.42,
+     "maxPossibleH2": 5.858,
+     "candOnlyH2": 4.274,
+     "subBuckets": 26
+    }
+   ],
+   "efficiency": 0.779
+  },
+  "trace": {
+   "H1": 5.831,
+   "buckets": 150,
+   "adaptiveExpected2": 10.014,
+   "candidateOnlyExpected2": 9.731,
+   "bestFixedSecond": [
+    [
+     "noils",
+     3.687
+    ],
+    [
+     "loins",
+     3.681
+    ],
+    [
+     "lions",
+     3.657
+    ],
+    [
+     "linos",
+     3.646
+    ],
+    [
+     "solid",
+     3.635
+    ]
+   ],
+   "step2RealizedMean": 4.184,
+   "step2RealizedSD": 1.477,
+   "step2Hist": [
+    [
+     0,
+     1.4
+    ],
+    [
+     1,
+     4.3
+    ],
+    [
+     2,
+     11.7
+    ],
+    [
+     3,
+     28.2
+    ],
+    [
+     4,
+     25.4
+    ],
+    [
+     5,
+     20
+    ],
+    [
+     6,
+     7.7
+    ],
+    [
+     7,
+     1.3
+    ]
+   ],
+   "realized2Mean": 10.014,
+   "realized2SD": 1.224,
+   "realized2P10": 8.18,
+   "realized2P50": 10.18,
+   "realized2Hist": [
+    [
+     6,
+     1.2
+    ],
+    [
+     7,
+     4.3
+    ],
+    [
+     8,
+     16.8
+    ],
+    [
+     9,
+     18.2
+    ],
+    [
+     10,
+     17.6
+    ],
+    [
+     11,
+     41.9
+    ]
+   ],
+   "pctSingletonAfter2": 41.9,
+   "pctSolvedBy2": 3.24,
+   "bestSecond_pctCandidate": 11.5,
+   "bestSecond_pctNonCandStrictlyBetter": 88.5,
+   "bestSecond_avgUnseenLetters": 3.97,
+   "bestSecond_pctRepeatedLetters": 20.8,
+   "corrWithH2": {
+    "unseenLetters": 0.539,
+    "distinctLetters": 0.208,
+    "isCandidate": 0.102,
+    "splitScore": 0.814,
+    "samples": 87561
+   },
+   "largestBuckets": [
+    {
+     "p": 0,
+     "pattern": "⬜⬜⬜⬜⬜",
+     "n": 246,
+     "surprisal1": 3.23,
+     "best": "soily",
+     "bestIsCandidate": false,
+     "H2": 5.673,
+     "maxPossibleH2": 7.943,
+     "candOnlyH2": 5.459,
+     "subBuckets": 75
+    },
+    {
+     "p": 9,
+     "pattern": "⬜⬜\ud83d⬜⬜",
+     "n": 127,
+     "surprisal1": 4.19,
+     "best": "sonly",
+     "bestIsCandidate": false,
+     "H2": 5.2,
+     "maxPossibleH2": 6.989,
+     "candOnlyH2": 5.031,
+     "subBuckets": 52
+    },
+    {
+     "p": 81,
+     "pattern": "⬜⬜⬜⬜\ud83d",
+     "n": 123,
+     "surprisal1": 4.23,
+     "best": "wedel",
+     "bestIsCandidate": false,
+     "H2": 5.092,
+     "maxPossibleH2": 6.943,
+     "candOnlyH2": 4.961,
+     "subBuckets": 47
+    },
+    {
+     "p": 84,
+     "pattern": "⬜\ud83d⬜⬜\ud83d",
+     "n": 113,
+     "surprisal1": 4.36,
+     "best": "lines",
+     "bestIsCandidate": false,
+     "H2": 4.091,
+     "maxPossibleH2": 6.82,
+     "candOnlyH2": 3.95,
+     "subBuckets": 32
+    },
+    {
+     "p": 1,
+     "pattern": "\ud83d⬜⬜⬜⬜",
+     "n": 113,
+     "surprisal1": 4.36,
+     "best": "hoist",
+     "bestIsCandidate": true,
+     "H2": 5.135,
+     "maxPossibleH2": 6.82,
+     "candOnlyH2": 5.135,
+     "subBuckets": 45
+    },
+    {
+     "p": 162,
+     "pattern": "⬜⬜⬜⬜\udfe8",
+     "n": 104,
+     "surprisal1": 4.48,
+     "best": "sling",
+     "bestIsCandidate": false,
+     "H2": 5.182,
+     "maxPossibleH2": 6.7,
+     "candOnlyH2": 4.463,
+     "subBuckets": 46
+    },
+    {
+     "p": 3,
+     "pattern": "⬜\ud83d⬜⬜⬜",
+     "n": 64,
+     "surprisal1": 5.18,
+     "best": "durrs",
+     "bestIsCandidate": false,
+     "H2": 4.72,
+     "maxPossibleH2": 6,
+     "candOnlyH2": 4.669,
+     "subBuckets": 32
+    },
+    {
+     "p": 12,
+     "pattern": "⬜\ud83d\ud83d⬜⬜",
+     "n": 61,
+     "surprisal1": 5.25,
+     "best": "lorry",
+     "bestIsCandidate": false,
+     "H2": 4.403,
+     "maxPossibleH2": 5.931,
+     "candOnlyH2": 4.115,
+     "subBuckets": 28
+    }
+   ],
+   "efficiency": 0.783
+  },
+  "roate": {
+   "H1": 5.883,
+   "buckets": 126,
+   "adaptiveExpected2": 9.987,
+   "candidateOnlyExpected2": 9.73,
+   "bestFixedSecond": [
+    [
+     "sling",
+     3.521
+    ],
+    [
+     "clips",
+     3.514
+    ],
+    [
+     "linds",
+     3.476
+    ],
+    [
+     "blins",
+     3.46
+    ],
+    [
+     "limns",
+     3.459
+    ]
+   ],
+   "step2RealizedMean": 4.104,
+   "step2RealizedSD": 1.371,
+   "step2Hist": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     3.3
+    ],
+    [
+     2,
+     17.3
+    ],
+    [
+     3,
+     23.4
+    ],
+    [
+     4,
+     30.5
+    ],
+    [
+     5,
+     15.3
+    ],
+    [
+     6,
+     8.2
+    ],
+    [
+     7,
+     1
+    ]
+   ],
+   "realized2Mean": 9.987,
+   "realized2SD": 1.163,
+   "realized2P10": 8.37,
+   "realized2P50": 10.18,
+   "realized2Hist": [
+    [
+     7,
+     5.7
+    ],
+    [
+     8,
+     16.4
+    ],
+    [
+     9,
+     21.1
+    ],
+    [
+     10,
+     18
+    ],
+    [
+     11,
+     38.9
+    ]
+   ],
+   "pctSingletonAfter2": 38.9,
+   "pctSolvedBy2": 2.33,
+   "bestSecond_pctCandidate": 22.2,
+   "bestSecond_pctNonCandStrictlyBetter": 77.8,
+   "bestSecond_avgUnseenLetters": 3.89,
+   "bestSecond_pctRepeatedLetters": 28.9,
+   "corrWithH2": {
+    "unseenLetters": 0.505,
+    "distinctLetters": 0.204,
+    "isCandidate": 0.101,
+    "splitScore": 0.815,
+    "samples": 119991
+   },
+   "largestBuckets": [
+    {
+     "p": 0,
+     "pattern": "⬜⬜⬜⬜⬜",
+     "n": 195,
+     "surprisal1": 3.57,
+     "best": "slimy",
+     "bestIsCandidate": true,
+     "H2": 5.493,
+     "maxPossibleH2": 7.607,
+     "candOnlyH2": 5.493,
+     "subBuckets": 62
+    },
+    {
+     "p": 9,
+     "pattern": "⬜⬜\ud83d⬜⬜",
+     "n": 112,
+     "surprisal1": 4.37,
+     "best": "canal",
+     "bestIsCandidate": true,
+     "H2": 4.947,
+     "maxPossibleH2": 6.807,
+     "candOnlyH2": 4.947,
+     "subBuckets": 49
+    },
+    {
+     "p": 81,
+     "pattern": "⬜⬜⬜⬜\ud83d",
+     "n": 106,
+     "surprisal1": 4.45,
+     "best": "lenes",
+     "bestIsCandidate": false,
+     "H2": 5.117,
+     "maxPossibleH2": 6.728,
+     "candOnlyH2": 4.927,
+     "subBuckets": 44
+    },
+    {
+     "p": 82,
+     "pattern": "\ud83d⬜⬜⬜\ud83d",
+     "n": 102,
+     "surprisal1": 4.5,
+     "best": "feued",
+     "bestIsCandidate": false,
+     "H2": 4.394,
+     "maxPossibleH2": 6.672,
+     "candOnlyH2": 4.279,
+     "subBuckets": 32
+    },
+    {
+     "p": 162,
+     "pattern": "⬜⬜⬜⬜\udfe8",
+     "n": 83,
+     "surprisal1": 4.8,
+     "best": "sling",
+     "bestIsCandidate": false,
+     "H2": 5.055,
+     "maxPossibleH2": 6.375,
+     "candOnlyH2": 4.412,
+     "subBuckets": 41
+    },
+    {
+     "p": 18,
+     "pattern": "⬜⬜\udfe8⬜⬜",
+     "n": 71,
+     "surprisal1": 5.03,
+     "best": "slick",
+     "bestIsCandidate": false,
+     "H2": 4.927,
+     "maxPossibleH2": 6.15,
+     "candOnlyH2": 4.499,
+     "subBuckets": 36
+    },
+    {
+     "p": 6,
+     "pattern": "⬜\udfe8⬜⬜⬜",
+     "n": 71,
+     "surprisal1": 5.03,
+     "best": "lungs",
+     "bestIsCandidate": false,
+     "H2": 4.302,
+     "maxPossibleH2": 6.15,
+     "candOnlyH2": 3.977,
+     "subBuckets": 29
+    },
+    {
+     "p": 3,
+     "pattern": "⬜\ud83d⬜⬜⬜",
+     "n": 66,
+     "surprisal1": 5.13,
+     "best": "snool",
+     "bestIsCandidate": false,
+     "H2": 4.821,
+     "maxPossibleH2": 6.044,
+     "candOnlyH2": 4.663,
+     "subBuckets": 34
+    }
+   ],
+   "efficiency": 0.775
+  },
+  "raise": {
+   "H1": 5.878,
+   "buckets": 132,
+   "adaptiveExpected2": 9.957,
+   "candidateOnlyExpected2": 9.652,
+   "bestFixedSecond": [
+    [
+     "cloth",
+     3.523
+    ],
+    [
+     "clout",
+     3.513
+    ],
+    [
+     "count",
+     3.485
+    ],
+    [
+     "poult",
+     3.476
+    ],
+    [
+     "mulct",
+     3.45
+    ]
+   ],
+   "step2RealizedMean": 4.079,
+   "step2RealizedSD": 1.417,
+   "step2Hist": [
+    [
+     0,
+     1.2
+    ],
+    [
+     1,
+     4.2
+    ],
+    [
+     2,
+     15
+    ],
+    [
+     3,
+     27.4
+    ],
+    [
+     4,
+     27.6
+    ],
+    [
+     5,
+     14.3
+    ],
+    [
+     6,
+     8.8
+    ],
+    [
+     7,
+     1.4
+    ]
+   ],
+   "realized2Mean": 9.957,
+   "realized2SD": 1.219,
+   "realized2P10": 8.18,
+   "realized2P50": 10.18,
+   "realized2Hist": [
+    [
+     6,
+     1.1
+    ],
+    [
+     7,
+     5.1
+    ],
+    [
+     8,
+     15.7
+    ],
+    [
+     9,
+     21
+    ],
+    [
+     10,
+     18
+    ],
+    [
+     11,
+     39.1
+    ]
+   ],
+   "pctSingletonAfter2": 39.1,
+   "pctSolvedBy2": 2.51,
+   "bestSecond_pctCandidate": 17.3,
+   "bestSecond_pctNonCandStrictlyBetter": 82.7,
+   "bestSecond_avgUnseenLetters": 4.01,
+   "bestSecond_pctRepeatedLetters": 14.3,
+   "corrWithH2": {
+    "unseenLetters": 0.52,
+    "distinctLetters": 0.202,
+    "isCandidate": 0.104,
+    "splitScore": 0.84,
+    "samples": 123234
+   },
+   "largestBuckets": [
+    {
+     "p": 0,
+     "pattern": "⬜⬜⬜⬜⬜",
+     "n": 168,
+     "surprisal1": 3.78,
+     "best": "mulch",
+     "bestIsCandidate": true,
+     "H2": 5.212,
+     "maxPossibleH2": 7.392,
+     "candOnlyH2": 5.212,
+     "subBuckets": 60
+    },
+    {
+     "p": 81,
+     "pattern": "⬜⬜⬜⬜\ud83d",
+     "n": 121,
+     "surprisal1": 4.26,
+     "best": "denet",
+     "bestIsCandidate": false,
+     "H2": 5.228,
+     "maxPossibleH2": 6.919,
+     "candOnlyH2": 5.063,
+     "subBuckets": 48
+    },
+    {
+     "p": 9,
+     "pattern": "⬜⬜\ud83d⬜⬜",
+     "n": 107,
+     "surprisal1": 4.44,
+     "best": "ponty",
+     "bestIsCandidate": false,
+     "H2": 4.85,
+     "maxPossibleH2": 6.741,
+     "candOnlyH2": 4.693,
+     "subBuckets": 43
+    },
+    {
+     "p": 1,
+     "pattern": "\ud83d⬜⬜⬜⬜",
+     "n": 103,
+     "surprisal1": 4.49,
+     "best": "count",
+     "bestIsCandidate": false,
+     "H2": 4.941,
+     "maxPossibleH2": 6.687,
+     "candOnlyH2": 4.706,
+     "subBuckets": 44
+    },
+    {
+     "p": 82,
+     "pattern": "\ud83d⬜⬜⬜\ud83d",
+     "n": 102,
+     "surprisal1": 4.5,
+     "best": "deter",
+     "bestIsCandidate": true,
+     "H2": 4.37,
+     "maxPossibleH2": 6.672,
+     "candOnlyH2": 4.37,
+     "subBuckets": 36
+    },
+    {
+     "p": 3,
+     "pattern": "⬜\ud83d⬜⬜⬜",
+     "n": 92,
+     "surprisal1": 4.65,
+     "best": "clout",
+     "bestIsCandidate": false,
+     "H2": 4.965,
+     "maxPossibleH2": 6.524,
+     "candOnlyH2": 4.863,
+     "subBuckets": 41
+    },
+    {
+     "p": 6,
+     "pattern": "⬜\udfe8⬜⬜⬜",
+     "n": 91,
+     "surprisal1": 4.67,
+     "best": "cyton",
+     "bestIsCandidate": false,
+     "H2": 4.621,
+     "maxPossibleH2": 6.508,
+     "candOnlyH2": 4.031,
+     "subBuckets": 37
+    },
+    {
+     "p": 27,
+     "pattern": "⬜⬜⬜\ud83d⬜",
+     "n": 80,
+     "surprisal1": 4.85,
+     "best": "pluot",
+     "bestIsCandidate": false,
+     "H2": 4.728,
+     "maxPossibleH2": 6.322,
+     "candOnlyH2": 4.498,
+     "subBuckets": 36
+    }
+   ],
+   "efficiency": 0.77
+  },
+  "arose": {
+   "H1": 5.768,
+   "buckets": 121,
+   "adaptiveExpected2": 9.962,
+   "candidateOnlyExpected2": 9.617,
+   "bestFixedSecond": [
+    [
+     "clint",
+     3.771
+    ],
+    [
+     "clipt",
+     3.646
+    ],
+    [
+     "glint",
+     3.572
+    ],
+    [
+     "linty",
+     3.542
+    ],
+    [
+     "cunit",
+     3.509
+    ]
+   ],
+   "step2RealizedMean": 4.195,
+   "step2RealizedSD": 1.433,
+   "step2Hist": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     17.2
+    ],
+    [
+     3,
+     24.2
+    ],
+    [
+     4,
+     24.3
+    ],
+    [
+     5,
+     20
+    ],
+    [
+     6,
+     8.1
+    ],
+    [
+     7,
+     2.2
+    ]
+   ],
+   "realized2Mean": 9.962,
+   "realized2SD": 1.197,
+   "realized2P10": 8.18,
+   "realized2P50": 10.18,
+   "realized2Hist": [
+    [
+     6,
+     0.9
+    ],
+    [
+     7,
+     5.6
+    ],
+    [
+     8,
+     16.3
+    ],
+    [
+     9,
+     20.9
+    ],
+    [
+     10,
+     17.5
+    ],
+    [
+     11,
+     38.9
+    ]
+   ],
+   "pctSingletonAfter2": 38.9,
+   "pctSolvedBy2": 1.86,
+   "bestSecond_pctCandidate": 2.8,
+   "bestSecond_pctNonCandStrictlyBetter": 97.2,
+   "bestSecond_avgUnseenLetters": 4.06,
+   "bestSecond_pctRepeatedLetters": 18.2,
+   "corrWithH2": {
+    "unseenLetters": 0.507,
+    "distinctLetters": 0.212,
+    "isCandidate": 0.115,
+    "splitScore": 0.81,
+    "samples": 107019
+   },
+   "largestBuckets": [
+    {
+     "p": 0,
+     "pattern": "⬜⬜⬜⬜⬜",
+     "n": 183,
+     "surprisal1": 3.66,
+     "best": "clint",
+     "bestIsCandidate": false,
+     "H2": 5.509,
+     "maxPossibleH2": 7.516,
+     "candOnlyH2": 5.245,
+     "subBuckets": 65
+    },
+    {
+     "p": 1,
+     "pattern": "\ud83d⬜⬜⬜⬜",
+     "n": 148,
+     "surprisal1": 3.97,
+     "best": "clint",
+     "bestIsCandidate": false,
+     "H2": 5.35,
+     "maxPossibleH2": 7.209,
+     "candOnlyH2": 4.874,
+     "subBuckets": 57
+    },
+    {
+     "p": 81,
+     "pattern": "⬜⬜⬜⬜\ud83d",
+     "n": 120,
+     "surprisal1": 4.27,
+     "best": "denet",
+     "bestIsCandidate": false,
+     "H2": 5.392,
+     "maxPossibleH2": 6.907,
+     "candOnlyH2": 5.018,
+     "subBuckets": 52
+    },
+    {
+     "p": 9,
+     "pattern": "⬜⬜\ud83d⬜⬜",
+     "n": 104,
+     "surprisal1": 4.48,
+     "best": "cunit",
+     "bestIsCandidate": false,
+     "H2": 4.888,
+     "maxPossibleH2": 6.7,
+     "candOnlyH2": 4.884,
+     "subBuckets": 44
+    },
+    {
+     "p": 84,
+     "pattern": "⬜\ud83d⬜⬜\ud83d",
+     "n": 103,
+     "surprisal1": 4.49,
+     "best": "denet",
+     "bestIsCandidate": false,
+     "H2": 4.424,
+     "maxPossibleH2": 6.687,
+     "candOnlyH2": 4.223,
+     "subBuckets": 37
+    },
+    {
+     "p": 162,
+     "pattern": "⬜⬜⬜⬜\udfe8",
+     "n": 79,
+     "surprisal1": 4.87,
+     "best": "guilt",
+     "bestIsCandidate": false,
+     "H2": 5.068,
+     "maxPossibleH2": 6.304,
+     "candOnlyH2": 4.536,
+     "subBuckets": 41
+    },
+    {
+     "p": 27,
+     "pattern": "⬜⬜⬜\ud83d⬜",
+     "n": 79,
+     "surprisal1": 4.87,
+     "best": "skint",
+     "bestIsCandidate": false,
+     "H2": 4.916,
+     "maxPossibleH2": 6.304,
+     "candOnlyH2": 4.789,
+     "subBuckets": 36
+    },
+    {
+     "p": 82,
+     "pattern": "\ud83d⬜⬜⬜\ud83d",
+     "n": 78,
+     "surprisal1": 4.89,
+     "best": "letch",
+     "bestIsCandidate": false,
+     "H2": 4.658,
+     "maxPossibleH2": 6.285,
+     "candOnlyH2": 4.596,
+     "subBuckets": 31
+    }
+   ],
+   "efficiency": 0.775
+  },
+  "stare": {
+   "H1": 5.807,
+   "buckets": 133,
+   "adaptiveExpected2": 9.985,
+   "candidateOnlyExpected2": 9.687,
+   "bestFixedSecond": [
+    [
+     "colin",
+     3.692
+    ],
+    [
+     "nicol",
+     3.596
+    ],
+    [
+     "noily",
+     3.518
+    ],
+    [
+     "dolci",
+     3.514
+    ],
+    [
+     "cling",
+     3.497
+    ]
+   ],
+   "step2RealizedMean": 4.177,
+   "step2RealizedSD": 1.471,
+   "step2Hist": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     3.2
+    ],
+    [
+     2,
+     17.7
+    ],
+    [
+     3,
+     23.1
+    ],
+    [
+     4,
+     26
+    ],
+    [
+     5,
+     17.6
+    ],
+    [
+     6,
+     10.3
+    ],
+    [
+     7,
+     1.1
+    ]
+   ],
+   "realized2Mean": 9.985,
+   "realized2SD": 1.258,
+   "realized2P10": 8.18,
+   "realized2P50": 10.18,
+   "realized2Hist": [
+    [
+     6,
+     1.4
+    ],
+    [
+     7,
+     7.3
+    ],
+    [
+     8,
+     14.2
+    ],
+    [
+     9,
+     16.4
+    ],
+    [
+     10,
+     19.9
+    ],
+    [
+     11,
+     40.8
+    ]
+   ],
+   "pctSingletonAfter2": 40.8,
+   "pctSolvedBy2": 2.12,
+   "bestSecond_pctCandidate": 13.1,
+   "bestSecond_pctNonCandStrictlyBetter": 86.9,
+   "bestSecond_avgUnseenLetters": 3.94,
+   "bestSecond_pctRepeatedLetters": 22.8,
+   "corrWithH2": {
+    "unseenLetters": 0.55,
+    "distinctLetters": 0.218,
+    "isCandidate": 0.114,
+    "splitScore": 0.825,
+    "samples": 94047
+   },
+   "largestBuckets": [
+    {
+     "p": 0,
+     "pattern": "⬜⬜⬜⬜⬜",
+     "n": 227,
+     "surprisal1": 3.35,
+     "best": "colin",
+     "bestIsCandidate": false,
+     "H2": 5.635,
+     "maxPossibleH2": 7.827,
+     "candOnlyH2": 5.517,
+     "subBuckets": 71
+    },
+    {
+     "p": 9,
+     "pattern": "⬜⬜\ud83d⬜⬜",
+     "n": 127,
+     "surprisal1": 4.19,
+     "best": "colin",
+     "bestIsCandidate": false,
+     "H2": 5.293,
+     "maxPossibleH2": 6.989,
+     "candOnlyH2": 5.016,
+     "subBuckets": 57
+    },
+    {
+     "p": 108,
+     "pattern": "⬜⬜⬜\ud83d\ud83d",
+     "n": 118,
+     "surprisal1": 4.29,
+     "best": "rider",
+     "bestIsCandidate": true,
+     "H2": 4.219,
+     "maxPossibleH2": 6.883,
+     "candOnlyH2": 4.219,
+     "subBuckets": 35
+    },
+    {
+     "p": 81,
+     "pattern": "⬜⬜⬜⬜\ud83d",
+     "n": 116,
+     "surprisal1": 4.32,
+     "best": "lined",
+     "bestIsCandidate": false,
+     "H2": 5.111,
+     "maxPossibleH2": 6.858,
+     "candOnlyH2": 5.05,
+     "subBuckets": 49
+    },
+    {
+     "p": 27,
+     "pattern": "⬜⬜⬜\ud83d⬜",
+     "n": 100,
+     "surprisal1": 4.53,
+     "best": "coign",
+     "bestIsCandidate": false,
+     "H2": 4.922,
+     "maxPossibleH2": 6.644,
+     "candOnlyH2": 4.595,
+     "subBuckets": 41
+    },
+    {
+     "p": 3,
+     "pattern": "⬜\ud83d⬜⬜⬜",
+     "n": 98,
+     "surprisal1": 4.56,
+     "best": "hoing",
+     "bestIsCandidate": false,
+     "H2": 5.008,
+     "maxPossibleH2": 6.615,
+     "candOnlyH2": 4.86,
+     "subBuckets": 44
+    },
+    {
+     "p": 162,
+     "pattern": "⬜⬜⬜⬜\udfe8",
+     "n": 87,
+     "surprisal1": 4.73,
+     "best": "lingo",
+     "bestIsCandidate": false,
+     "H2": 4.992,
+     "maxPossibleH2": 6.443,
+     "candOnlyH2": 4.466,
+     "subBuckets": 40
+    },
+    {
+     "p": 12,
+     "pattern": "⬜\ud83d\ud83d⬜⬜",
+     "n": 74,
+     "surprisal1": 4.97,
+     "best": "taint",
+     "bestIsCandidate": true,
+     "H2": 4.351,
+     "maxPossibleH2": 6.209,
+     "candOnlyH2": 4.351,
+     "subBuckets": 28
+    }
+   ],
+   "efficiency": 0.778
+  },
+  "adieu": {
+   "H1": 4.879,
+   "buckets": 80,
+   "adaptiveExpected2": 9.466,
+   "candidateOnlyExpected2": 9.226,
+   "bestFixedSecond": [
+    [
+     "snort",
+     4.182
+    ],
+    [
+     "crost",
+     4.177
+    ],
+    [
+     "rotls",
+     4.131
+    ],
+    [
+     "trons",
+     4.105
+    ],
+    [
+     "ronts",
+     4.091
+    ]
+   ],
+   "step2RealizedMean": 4.587,
+   "step2RealizedSD": 1.483,
+   "step2Hist": [
+    [
+     0,
+     0.7
+    ],
+    [
+     1,
+     1.2
+    ],
+    [
+     2,
+     11.6
+    ],
+    [
+     3,
+     23.4
+    ],
+    [
+     4,
+     24.8
+    ],
+    [
+     5,
+     22.9
+    ],
+    [
+     6,
+     9
+    ],
+    [
+     7,
+     5.2
+    ],
+    [
+     8,
+     1.1
+    ]
+   ],
+   "realized2Mean": 9.466,
+   "realized2SD": 1.413,
+   "realized2P10": 7.59,
+   "realized2P50": 9.59,
+   "realized2Hist": [
+    [
+     6,
+     3.8
+    ],
+    [
+     7,
+     12.2
+    ],
+    [
+     8,
+     21.7
+    ],
+    [
+     9,
+     19.2
+    ],
+    [
+     10,
+     15.1
+    ],
+    [
+     11,
+     28
+    ]
+   ],
+   "pctSingletonAfter2": 28,
+   "pctSolvedBy2": 1.47,
+   "bestSecond_pctCandidate": 4.7,
+   "bestSecond_pctNonCandStrictlyBetter": 95.3,
+   "bestSecond_avgUnseenLetters": 4.33,
+   "bestSecond_pctRepeatedLetters": 14.1,
+   "corrWithH2": {
+    "unseenLetters": 0.485,
+    "distinctLetters": 0.218,
+    "isCandidate": 0.125,
+    "splitScore": 0.826,
+    "samples": 84318
+   },
+   "largestBuckets": [
+    {
+     "p": 1,
+     "pattern": "\ud83d⬜⬜⬜⬜",
+     "n": 284,
+     "surprisal1": 3.03,
+     "best": "torcs",
+     "bestIsCandidate": false,
+     "H2": 5.303,
+     "maxPossibleH2": 8.15,
+     "candOnlyH2": 5.138,
+     "subBuckets": 67
+    },
+    {
+     "p": 27,
+     "pattern": "⬜⬜⬜\ud83d⬜",
+     "n": 197,
+     "surprisal1": 3.55,
+     "best": "snort",
+     "bestIsCandidate": false,
+     "H2": 5.498,
+     "maxPossibleH2": 7.622,
+     "candOnlyH2": 5.403,
+     "subBuckets": 65
+    },
+    {
+     "p": 28,
+     "pattern": "\ud83d⬜⬜\ud83d⬜",
+     "n": 188,
+     "surprisal1": 3.62,
+     "best": "slart",
+     "bestIsCandidate": false,
+     "H2": 5.287,
+     "maxPossibleH2": 7.555,
+     "candOnlyH2": 4.938,
+     "subBuckets": 55
+    },
+    {
+     "p": 81,
+     "pattern": "⬜⬜⬜⬜\ud83d",
+     "n": 188,
+     "surprisal1": 3.62,
+     "best": "horst",
+     "bestIsCandidate": false,
+     "H2": 5.284,
+     "maxPossibleH2": 7.555,
+     "candOnlyH2": 5.186,
+     "subBuckets": 66
+    },
+    {
+     "p": 0,
+     "pattern": "⬜⬜⬜⬜⬜",
+     "n": 162,
+     "surprisal1": 3.84,
+     "best": "sloot",
+     "bestIsCandidate": false,
+     "H2": 5.212,
+     "maxPossibleH2": 7.34,
+     "candOnlyH2": 5.14,
+     "subBuckets": 55
+    },
+    {
+     "p": 54,
+     "pattern": "⬜⬜⬜\udfe8⬜",
+     "n": 126,
+     "surprisal1": 4.2,
+     "best": "worst",
+     "bestIsCandidate": false,
+     "H2": 4.826,
+     "maxPossibleH2": 6.977,
+     "candOnlyH2": 4.433,
+     "subBuckets": 45
+    },
+    {
+     "p": 9,
+     "pattern": "⬜⬜\ud83d⬜⬜",
+     "n": 114,
+     "surprisal1": 4.34,
+     "best": "colts",
+     "bestIsCandidate": false,
+     "H2": 4.801,
+     "maxPossibleH2": 6.833,
+     "candOnlyH2": 4.536,
+     "subBuckets": 39
+    },
+    {
+     "p": 18,
+     "pattern": "⬜⬜\udfe8⬜⬜",
+     "n": 102,
+     "surprisal1": 4.5,
+     "best": "glost",
+     "bestIsCandidate": false,
+     "H2": 4.679,
+     "maxPossibleH2": 6.672,
+     "candOnlyH2": 4.296,
+     "subBuckets": 35
+    }
+   ],
+   "efficiency": 0.728
+  }
+ },
+ "universalSecondWords": [
+  [
+   "clint",
+   881
+  ],
+  [
+   "denet",
+   464
+  ],
+  [
+   "colin",
+   354
+  ],
+  [
+   "sleet",
+   313
+  ],
+  [
+   "slipt",
+   312
+  ],
+  [
+   "torcs",
+   284
+  ],
+  [
+   "toils",
+   283
+  ],
+  [
+   "soily",
+   246
+  ],
+  [
+   "cornu",
+   221
+  ],
+  [
+   "horst",
+   220
+  ],
+  [
+   "snort",
+   197
+  ],
+  [
+   "slimy",
+   195
+  ],
+  [
+   "slart",
+   188
+  ],
+  [
+   "sling",
+   187
+  ],
+  [
+   "canal",
+   180
+  ]
+ ],
+ "fixedPairs": [
+  {
+   "pair": "soare+clint",
+   "bits": 9.633,
+   "classes": 1104,
+   "pctSingleton": 27.7,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "roast+cline",
+   "bits": 9.615,
+   "classes": 1087,
+   "pctSingleton": 26.8,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "trice+salon",
+   "bits": 9.584,
+   "classes": 1065,
+   "pctSingleton": 26,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "liane+crost",
+   "bits": 9.584,
+   "classes": 1073,
+   "pctSingleton": 26.4,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "toile+carns",
+   "bits": 9.574,
+   "classes": 1066,
+   "pctSingleton": 26.7,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "crane+toils",
+   "bits": 9.569,
+   "classes": 1066,
+   "pctSingleton": 26.9,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "trine+coals",
+   "bits": 9.569,
+   "classes": 1066,
+   "pctSingleton": 26.9,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "toile+crans",
+   "bits": 9.569,
+   "classes": 1066,
+   "pctSingleton": 26.9,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "carse+doilt",
+   "bits": 9.566,
+   "classes": 1048,
+   "pctSingleton": 25.5,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "carle+suint",
+   "bits": 9.557,
+   "classes": 1069,
+   "pctSingleton": 26.6,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "trice+sloan",
+   "bits": 9.555,
+   "classes": 1053,
+   "pctSingleton": 25.3,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "trice+solan",
+   "bits": 9.552,
+   "classes": 1044,
+   "pctSingleton": 24.4,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "snare+doilt",
+   "bits": 9.544,
+   "classes": 1054,
+   "pctSingleton": 26.3,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "arose+clint",
+   "bits": 9.539,
+   "classes": 1053,
+   "pctSingleton": 25.6,
+   "distinctLetters": 10
+  },
+  {
+   "pair": "aline+crost",
+   "bits": 9.539,
+   "classes": 1053,
+   "pctSingleton": 25.6,
+   "distinctLetters": 10
+  }
+ ],
+ "namedPairs": [
+  {
+   "pair": "salet+courd",
+   "bits": 9.345,
+   "classes": 960,
+   "pctSingleton": 22.9
+  },
+  {
+   "pair": "crane+doilt",
+   "bits": 9.513,
+   "classes": 1059,
+   "pctSingleton": 27.1
+  },
+  {
+   "pair": "soare+clint",
+   "bits": 9.633,
+   "classes": 1104,
+   "pctSingleton": 27.7
+  },
+  {
+   "pair": "raise+clout",
+   "bits": 9.39,
+   "classes": 972,
+   "pctSingleton": 22.9
+  },
+  {
+   "pair": "arose+unlit",
+   "bits": 9.241,
+   "classes": 904,
+   "pctSingleton": 20.3
+  },
+  {
+   "pair": "stare+doily",
+   "bits": 9.249,
+   "classes": 901,
+   "pctSingleton": 20.6
+  }
+ ],
+ "fixedTriples": [
+  {
+   "triple": "parse+clint+dough",
+   "bits": 10.787,
+   "classes": 1927,
+   "pctSingleton": 71.7,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "parse+clint+dumbo",
+   "bits": 10.786,
+   "classes": 1914,
+   "pctSingleton": 69.9,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "carse+doilt+nymph",
+   "bits": 10.772,
+   "classes": 1909,
+   "pctSingleton": 70.3,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "snare+doilt+chump",
+   "bits": 10.765,
+   "classes": 1910,
+   "pctSingleton": 70.6,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "carle+suint+podgy",
+   "bits": 10.759,
+   "classes": 1900,
+   "pctSingleton": 69.7,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "roast+cline+dumpy",
+   "bits": 10.755,
+   "classes": 1896,
+   "pctSingleton": 69.3,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "soare+clint+dumpy",
+   "bits": 10.753,
+   "classes": 1898,
+   "pctSingleton": 69.6,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "parse+clint+womby",
+   "bits": 10.751,
+   "classes": 1891,
+   "pctSingleton": 69.2,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "parse+clint+homed",
+   "bits": 10.741,
+   "classes": 1884,
+   "pctSingleton": 68.9,
+   "distinctLetters": 14
+  },
+  {
+   "triple": "roast+cline+pudgy",
+   "bits": 10.741,
+   "classes": 1890,
+   "pctSingleton": 69.6,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "roast+cline+bumph",
+   "bits": 10.74,
+   "classes": 1888,
+   "pctSingleton": 69.3,
+   "distinctLetters": 15
+  },
+  {
+   "triple": "parse+clint+howdy",
+   "bits": 10.739,
+   "classes": 1881,
+   "pctSingleton": 68.6,
+   "distinctLetters": 15
+  }
+ ]
+}
