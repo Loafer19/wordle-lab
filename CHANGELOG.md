@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.4.1] - 2026-10-14
+
+Finishes the two items that v1.4.0 skipped or limited.
+
+### Added
+- **Share card as an image.** *Download image* saves a PNG of the share card (grid, score, Skill, Luck, Optimal, site link). It is drawn on a canvas with no new dependency, at 2× resolution, in EN and UA, and follows the dark or light theme. Where the browser supports it, *Share image* sends the PNG through the Web Share API (with files) and downloads it if the browser can't share it.
+- **Watch a strategy: side-by-side replay.** An optional *Compare with…* picker shows how a second strategy solves the same word next to the first.
+
+### Changed
+- **Watch › Every strategy on this word** now includes two-step entropy and no longer freezes the page. Results are read from the precomputed simulation data when it exists, optimal trees are read directly on the main thread, and the remaining strategies (for example the presets) run in a Web Worker. A progress bar shows how far it has got, and you can cancel or recompute. Results computed in the browser are marked *live*.
+
+### Fixed
+- Luck could show as "−0.0" (in red) on the share card and in the share text. It now shows "+0.0".
+
+### Tests
+- Unit: share-card layout (tile colours, themes, badges stay inside the card), how *Compute all* chooses where each result comes from, the sim lookup matching live two-step play, and the "−0.0" fix.
+- e2e: the PNG download in EN and UA, dark and light (PNG signature, 1200 px wide, background matches the theme); *Compute all* including two-step entropy with the UI staying responsive, cancel, and the side-by-side replay.
+
 ## [1.4.0] - 2026-10-14
 
 UX restructure from the round-11 audit: 6 tabs / 13 views → 5 tabs with less repetition, a phone-first layout and new player features.

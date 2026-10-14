@@ -14,12 +14,14 @@ export function fingerprint(gs: GameRecord[]): Fingerprint | null {
 export function nearest<T extends { avg: number }>(avgGuesses: number, strategies: T[]): T | undefined {
   return [...strategies].sort((a, b) => Math.abs(a.avg - avgGuesses) - Math.abs(b.avg - avgGuesses))[0]
 }
+/** Signed number with 1 decimal that never reads "−0.0". */
+export const signed1 = (v: number) => { const r = +v.toFixed(1); return (r >= 0 ? '+' : '−') + Math.abs(r).toFixed(1) }
 /** Share text: emoji grid + skill/luck (+ the optimum's count on this word when known). */
 export function shareText(o: { title: string; n: number | 'X'; hard: boolean; rows: number[][]; skill?: number; luck?: number; optimal?: number; labels: { skill: string; luck: string; optimal: string; bits: string }; url: string }) {
   const lines = [`${o.title} ${o.n}/6${o.hard ? '*' : ''}`, ...o.rows.map(d => d.map(x => ['⬛', '🟨', '🟩'][x]).join(''))]
   const extra: string[] = []
   if (o.skill !== undefined) extra.push(`${o.labels.skill} ${Math.round(o.skill * 100)}%`)
-  if (o.luck !== undefined) extra.push(`${o.labels.luck} ${o.luck >= 0 ? '+' : '−'}${Math.abs(o.luck).toFixed(1)} ${o.labels.bits}`)
+  if (o.luck !== undefined) extra.push(`${o.labels.luck} ${signed1(o.luck)} ${o.labels.bits}`)
   if (o.optimal !== undefined) extra.push(`${o.labels.optimal} ${o.optimal}`)
   if (extra.length) lines.push(extra.join(' · '))
   lines.push(o.url)

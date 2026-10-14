@@ -2,7 +2,7 @@
 import { t } from '../lib/i18n'
 import { ref, computed, onMounted } from 'vue'
 import { onKeyStroke, useLocalStorage, useClipboard } from '@vueuse/core'
-import { RotateCcw, Copy, Check, Trophy, Share2, Clock, CalendarDays, Shuffle, Sparkles, Crown, Star, PartyPopper, ThumbsUp, HeartPulse, Frown, BookOpen, X } from 'lucide-vue-next'
+import { RotateCcw, Copy, Check, Trophy, Share2, Clock, CalendarDays, Shuffle, Sparkles, Crown, Star, PartyPopper, ThumbsUp, HeartPulse, Frown, BookOpen, X, ImageDown } from 'lucide-vue-next'
 import confetti from 'canvas-confetti'
 import { usePreferredReducedMotion } from '@vueuse/core'
 import WordMeaning from './WordMeaning.vue'
@@ -14,6 +14,10 @@ import { allStrategies } from '../lib/allStrategies'
 import { BEST_ID } from '../lib/lang'
 import { watch } from 'vue'
 import { lang, isLetter, gameKey } from '../lib/lang'
+import { isUA } from '../lib/lang'
+import { isDark } from '../lib/theme'
+import { signed1 } from '../lib/fingerprint'
+import { cardBlob, shareImage, download as downloadBlob, type CardInput } from '../lib/shareImage'
 import { useNow } from '@vueuse/core'
 import { tile, brand } from '../lib/tokens'
 import SelectButton from 'primevue/selectbutton'
@@ -118,6 +122,18 @@ watch(coach, r => {
 const shareText = computed(() => buildShare({ title: `Wordle Lab ${mode.value === 'daily' ? '#' + dayIndex() : t('(random)')}`, n: won.value ? rows.value.length : 'X', hard: hard.value, rows: rows.value.map(r => r.d),
   skill: coach.value && !coach.value.error ? coach.value.efficiency : undefined, luck: coach.value && !coach.value.error ? coach.value.luck : undefined, optimal: optN.value,
   labels: { skill: t('Skill'), luck: t('Luck'), optimal: t('Optimal'), bits: t('bits') }, url: location.origin }))
+/** signed luck rounded to 1 decimal, never "−0.0" */
+const luckStr = signed1
+const cardInput = (): CardInput => ({ title: 'Wordle Lab', sub: mode.value === 'daily' ? '#' + dayIndex() + (isUA ? ' · UA' : '') : t('(random)') + (isUA ? ' · UA' : ''), rows: rows.value.map(r => r.d), score: `${won.value ? rows.value.length : 'X'}/6${hard.value ? '*' : ''}`,
+  skill: coach.value && !coach.value.error ? `${t('Skill')} ${Math.round(coach.value.efficiency * 100)}%` : undefined,
+  luck: coach.value && !coach.value.error ? `${t('Luck')} ${luckStr(coach.value.luck)}` : undefined, luckGood: coach.value && !coach.value.error ? +coach.value.luck.toFixed(1) >= 0 : undefined,
+  optimal: optN.value ? `${t('Optimal')}: ${optN.value}` : undefined, url: location.host, dark: isDark.value })
+const imgName = () => `wordle-lab-${mode.value === 'daily' ? dayIndex() : 'random'}.png`
+const imgBusy = ref(false)
+async function imageAction(kind: 'download' | 'share') {
+  imgBusy.value = true
+  try { const b = await cardBlob(cardInput()); if (kind === 'download') downloadBlob(b, imgName()); else await shareImage(b, imgName(), shareText.value) } finally { imgBusy.value = false }
+}
 const canShare = typeof navigator !== 'undefined' && 'share' in navigator
 const shareNative = () => navigator.share?.({ text: shareText.value }).catch(() => {})
 const maxDist = computed(() => Math.max(1, ...stats.value.dist))
@@ -166,13 +182,15 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
               <div class="text-caption font-bold tracking-wide">Wordle Lab <span class="text-muted font-medium">{{ mode === 'daily' ? '#' + dayIndex() : $t('(random)') }}</span></div>
               <div class="flex flex-col gap-0.5"><div v-for="(r, i) in rows" :key="i" class="flex gap-0.5"><i v-for="(d, j) in r.d" :key="j" class="size-4 rounded-[3px]" :class="['bg-absent', 'bg-present', 'bg-correct'][d]"></i></div></div>
               <div class="text-title font-extrabold">{{ won ? rows.length : 'X' }}/6<span v-if="hard">*</span></div>
-              <div v-if="coach && !coach.error" class="flex gap-2 text-caption"><UiBadge tone="brand">{{ $t('Skill') }} {{ Math.round(coach.efficiency * 100) }}%</UiBadge><UiBadge :tone="coach.luck >= 0 ? 'correct' : 'danger'">{{ $t('Luck') }} {{ coach.luck >= 0 ? '+' : '−' }}{{ Math.abs(coach.luck).toFixed(1) }}</UiBadge></div>
+              <div v-if="coach && !coach.error" class="flex gap-2 text-caption"><UiBadge tone="brand">{{ $t('Skill') }} {{ Math.round(coach.efficiency * 100) }}%</UiBadge><UiBadge :tone="+coach.luck.toFixed(1) >= 0 ? 'correct' : 'danger'">{{ $t('Luck') }} {{ luckStr(coach.luck) }}</UiBadge></div>
               <div v-if="optN" class="text-caption text-muted">{{ $t('Optimal') }}: {{ optN }}</div>
             </div>
             <div class="flex-1 min-w-0 flex flex-col gap-2">
               <pre class="text-caption leading-snug font-mono whitespace-pre-wrap break-words bg-surface-2 rounded-lg p-2" data-share-text>{{ shareText }}</pre>
               <div class="flex flex-wrap gap-2"><UiButton :icon="copied ? Check : Copy" :label="copied ? $t('Copied') : $t('Copy result')" @click="copy(shareText)" data-share-copy />
-                <UiButton v-if="canShare" :icon="Share2" :label="$t('Share')" variant="secondary" @click="shareNative" /></div>
+                <UiButton v-if="canShare" :icon="Share2" :label="$t('Share')" variant="secondary" @click="shareNative" />
+                <UiButton :icon="ImageDown" :label="$t('Download image')" variant="secondary" :loading="imgBusy" @click="imageAction('download')" data-share-png />
+                <UiButton v-if="canShare" :icon="Share2" :label="$t('Share image')" variant="secondary" :loading="imgBusy" @click="imageAction('share')" data-share-image /></div>
             </div>
           </div>
         </UiCard>

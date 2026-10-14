@@ -517,5 +517,14 @@ const UA: Record<string, string> = {
   "Minimax": "Мінімакс",
   "Staged ≤3": "Поетапна ≤3",
   "Staged 2+splitter": "Поетапна 2+розбивач",
+  "Download image": "Завантажити зображення",
+  "Share image": "Поділитися зображенням",
+  "Compare with…": "Порівняти з…",
+  "Cancel": "Скасувати",
+  "Recompute": "Перерахувати",
+  "live": "наживо",
+  "Computed live in your browser (no precomputed simulation for this strategy)": "Пораховано наживо у вашому браузері (для цієї стратегії немає готової симуляції)",
+  "Press Compute to play {w} with every strategy: precomputed results are looked up instantly, the rest (including two-step entropy) run in the background.": "Натисніть «Порахувати», щоб зіграти {w} кожною стратегією: готові результати беруться миттєво, решта (зокрема двокрокова ентропія) рахується у фоні.",
+  "Cancelled — {d} of {n} strategies computed.": "Скасовано — пораховано {d} з {n} стратегій.",
 }
 export default UA

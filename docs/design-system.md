@@ -36,7 +36,7 @@ Game-specific: `GameKeyboard` (state-coloured keys, icons for Enter/Backspace, p
 - Colours only from tokens; no raw hex in components (charts use `tokens.ts`).
 - Every card title through `UiCard`/`SectionHeader`; every action through `UiButton`.
 - Lists that change use `<TransitionGroup name="list">`; view switches use `<Transition name="tab">`.
-- Emoji only in the share-grid text output.
+- Emoji only in the share-grid text output. The share PNG (`src/lib/shareImage.ts`) is drawn from `tokens.ts` plus the `CARD_THEME` mirror of the surface colours.
 - Numbers: casual views round to 2 decimals (bits, luck) with the full value on hover; leaderboard/compare averages keep 3.
 - Phones (<640 px): bottom tab bar, tables become cards (or drop secondary columns), no element may widen the page — `scripts/shots.ts` and the round-11 e2e test check `scrollWidth` on every view.
 - Cursor: pointer on everything clickable, not-allowed on disabled (global rule in `style.css`).
