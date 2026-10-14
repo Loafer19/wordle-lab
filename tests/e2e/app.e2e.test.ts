@@ -5,15 +5,15 @@ import { open } from './helpers'
 test('tabs and logo are real links; sub-views deep-link; legacy hashes redirect', async () => {
   const { b, p, errors } = await open('play')
   try {
-    expect(await p.locator('a[data-tab-link]').evaluateAll(a => a.map(x => x.getAttribute('href')))).toEqual(['#tab=play', '#tab=solver', '#tab=coach', '#tab=strategies', '#tab=explore', '#tab=analytics'])
+    expect(await p.locator('a[data-tab-link]').evaluateAll(a => a.map(x => x.getAttribute('href')))).toEqual(['#tab=play', '#tab=assistant', '#tab=learn', '#tab=strategies', '#tab=explore'])
     expect(await p.locator('a[data-home]').getAttribute('href')).toBe('#tab=play')
     await p.click('a[data-tab=explore]'); await p.waitForTimeout(500)
-    expect(await p.evaluate(() => location.hash)).toBe('#tab=explore&view=paths')
-    await p.click('a[data-view-link][href$="view=tree"]'); await p.waitForTimeout(800)
     expect(await p.evaluate(() => location.hash)).toBe('#tab=explore&view=tree')
+    await p.click('a[data-view-link][href$="view=map"]'); await p.waitForTimeout(800)
+    expect(await p.evaluate(() => location.hash)).toBe('#tab=explore&view=map')
     const [np] = await Promise.all([p.context().waitForEvent('page'), p.click('a[data-tab=strategies]', { modifiers: ['Control'] })])
     expect(np.url()).toContain('#tab=strategies')
-    for (const [old, now] of [['sim', '#tab=strategies&view=simulation'], ['assist', '#tab=solver'], ['flow', '#tab=explore&view=flow'], ['openers', '#tab=analytics&view=openers'], ['letters&view=patterns', '#tab=analytics&view=patterns'], ['tuner', '#tab=strategies&view=lab'], ['strategies&view=tuner', '#tab=strategies&view=lab']]) {
+    for (const [old, now] of [['sim', '#tab=strategies&view=leaderboard'], ['assist', '#tab=assistant&view=solve'], ['solver', '#tab=assistant&view=solve'], ['coach', '#tab=assistant&view=review'], ['flow', '#tab=explore&view=flow'], ['openers', '#tab=learn&view=openers'], ['letters&view=patterns', '#tab=learn&view=letters'], ['analytics&view=patterns', '#tab=learn&view=inspector'], ['analytics&view=letters', '#tab=learn&view=letters'], ['analytics', '#tab=learn&view=letters'], ['explore&view=paths', '#tab=assistant&view=watch'], ['strategies&view=simulation', '#tab=strategies&view=leaderboard'], ['tuner', '#tab=strategies&view=lab'], ['strategies&view=tuner', '#tab=strategies&view=lab'], ['strategies&view=compare', '#tab=strategies&view=compare']]) {
       await p.goto(p.url().split('#')[0] + '#tab=' + old); await p.reload(); await p.waitForTimeout(600)
       expect(await p.evaluate(() => location.hash)).toBe(now)
     }

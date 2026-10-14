@@ -2,6 +2,36 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-10-14
+
+UX restructure from the round-11 audit: 6 tabs / 13 views → 5 tabs with less repetition, a phone-first layout and new player features.
+
+### Changed
+- **Five tabs:** Play · Assistant · Learn · Strategies · Explore. On phones the tabs are a fixed bottom bar; sub-views scroll sideways instead of wrapping off-screen.
+- **Assistant** (was Solver + Coach + Explore › Decision paths): *Help me now* (live solver), *Review a game* (paste any game), *Watch a strategy* (pick a word and a strategy, see every guess with its reasoning). All of them, and the Play post-game review, use the same per-guess card (`StepCard`).
+- **Learn** (was Analytics): *Start here* guide, Letters (word list, letter and positional frequency), Top openers, and the **Word inspector**, which merges Patterns with the openers' pattern panel. Click an opener bar or row to open it there. There is one entropy explainer instead of two. The opener-pairs heatmap moved into a collapsed *Advanced* section.
+- **Strategies:** one **leaderboard** replaces the gap table, the Results table and the average-guesses chart. It has a Normal / Hard / Both toggle (hard columns are hidden by default), inline gap bars, fail % and worst case, and short strategy names with the full name and description in a tooltip. It becomes cards on phones. **Compare** opens when you tick two rows; "Biggest differences" shows the top 15 with a *Show all* button, and the per-word histogram is collapsed. The gap, distribution and candidates-per-turn charts and the Web Worker re-run controls sit in collapsed sections.
+- **Explore:** Tree, Flow and Answer map. On phones, Tree becomes an accordion drill-down and Flow becomes a per-guess list; a *Chart* button still shows the full chart.
+- One KPI tile component (`UiStat`) and one collapsible section (`UiAdvanced`) across Coach, Compare, Lab and the fingerprint. Casual views round to 2 decimals, with full precision on hover.
+- Every view except Play is lazy-loaded (code-split), so ECharts no longer loads on the first Play paint.
+
+### Added
+- **Player fingerprint** (Play): skill and luck of every finished game are stored in `localStorage` per language. It shows games played, average skill (with the trend over the last 10 games), average luck, average guesses and win rate, skill and luck sparklines, and the strategy whose average is closest to yours.
+- **"How the optimal strategy solves WORD"** after every game (the hard-mode tree in hard mode), with "you beat it / tied / N fewer than you".
+- **Share card**: a mini grid plus Skill, Luck and the optimum's count; the share text includes them too. Native *Share* button where supported.
+- **Guided Learn path:** four short steps (letters → patterns → entropy → decision trees), each linking to its view.
+- Simulation re-runs are cached in IndexedDB and replace the precomputed numbers in the leaderboard (marked ↻).
+- `scripts/i18n-check.ts` (fails if any `t('…')` string lacks a Ukrainian translation) and `scripts/shots.ts` (screenshots of every view in EN/UA, desktop/390 px, with checks for console errors and horizontal overflow).
+- Tests: unit tests for routes and redirects, fingerprint maths and the share text; e2e tests for 390 px overflow on every view (EN + UA), leaderboard → compare, opener → inspector, the guide, Watch a strategy, the post-game optimal replay, share card and fingerprint, the tree/flow phone fallbacks and the Answer map hint.
+
+### Fixed
+- Loading and empty states: Lab KPIs show skeletons instead of "0.000" and "…"; there is no hidden "No results found" on load in the word pickers; the Answer map hint is muted text rather than a heading; and the leaderboard, tree, flow and map show skeletons while loading.
+- Horizontal overflow at 390 px in Compare and Answer map (long strategy names in the picker, cells scaled on hover).
+- Untranslated strings: "… is not in the word list", "kept", "N guesses" on the map, and "Loading … dictionaries".
+
+### Redirects
+Old links keep working: `#tab=solver`/`assist` → Assistant › Help me now, `#tab=coach` → Review a game, `#tab=explore&view=paths` → Watch a strategy, `#tab=strategies&view=simulation` → Leaderboard, `#tab=analytics&view=letters|patterns|openers` → Learn › Letters | Word inspector | Top openers, plus all older v1.0–v1.2 hashes.
+
 ## [1.3.0] - 2026-10-13
 
 ### Added

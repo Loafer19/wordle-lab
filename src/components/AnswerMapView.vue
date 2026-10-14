@@ -27,7 +27,7 @@ const presets = isUA ? ['с*', 'к*', '*ка', '*ня', '?ора'] : ['?ight', '
     <UiCard :title="$t('Answer map')" :icon="MapIcon" :subtitle="$t('Every possible answer as one cell, coloured by how many guesses the strategy needs. Hover a cell to see the word, click to pin it, click the word for its meaning.')">
       <div class="flex flex-wrap items-center gap-3">
         <StrategyPicker v-model:id="id" v-model:hard="hard" />
-        <span class="relative"><Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" /><InputText v-model="q" :placeholder="isUA ? 'фільтр: с*, *ка, ?ора' : 'filter: ?ight, s*, *er'" size="small" class="!pl-8 w-48" /></span>
+        <span class="relative"><Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" /><InputText v-model="q" :placeholder="isUA ? 'фільтр: с*, *ка, ?ора' : 'filter: ?ight, s*, *er'" size="small" class="!pl-8 w-48 max-w-full" /></span>
         <UiButton v-for="p in presets" :key="p" :label="p" variant="ghost" @click="q = p" />
       </div>
       <div class="flex flex-wrap items-center gap-2 mt-3">
@@ -38,14 +38,15 @@ const presets = isUA ? ['с*', 'к*', '*ка', '*ня', '?ора'] : ['?ight', '
       </div>
     </UiCard>
     <UiCard>
-      <div class="flex items-center gap-2 mb-3 h-6 text-body">
-        <template v-if="hover"><b class="font-mono uppercase"><WordLink :word="hover.w" /></b><UiBadge :tone="hover.g <= 3 ? 'correct' : hover.g <= 5 ? 'present' : 'danger'">{{ hover.g }} guesses</UiBadge></template>
-        <span v-else class="text-muted">{{ $t('Hover a cell…') }}</span>
+      <div class="flex flex-wrap items-center gap-2 mb-3 min-h-6 text-body">
+        <template v-if="hover"><b class="font-mono uppercase"><WordLink :word="hover.w" /></b><UiBadge :tone="hover.g <= 3 ? 'correct' : hover.g <= 5 ? 'present' : 'danger'">{{ $t('{n} guesses', { n: hover.g }) }}</UiBadge></template>
+        <span v-else class="text-caption text-muted" data-map-hint>{{ $t('Hover or tap a cell to see the word') }}</span>
         <div class="flex-1"></div>
         <UiBadge tone="brand">{{ $t('{n} shown · avg {a}', { n: matched.length, a: avgMatched.toFixed(2) }) }}</UiBadge>
       </div>
-      <div class="grid gap-[2px]" style="grid-template-columns: repeat(auto-fill, minmax(11px, 1fr))" @mouseleave="hover = pinned">
-        <div v-for="c in cells" :key="c.w" @click="pinned = c" class="aspect-square rounded-[2px] transition-[opacity,transform] duration-200 hover:scale-150 hover:z-10 cursor-pointer" :style="{ background: colors[Math.min(7, c.g)], opacity: match(c) ? 1 : 0.12 }" :title="`${c.w.toUpperCase()}: ${c.g}`" @mouseenter="hover = c"></div>
+      <div v-if="!full" class="grid gap-[2px]" style="grid-template-columns: repeat(auto-fill, minmax(11px, 1fr))" data-skeleton><div v-for="i in 400" :key="i" class="aspect-square rounded-[2px] bg-surface-2 animate-pulse"></div></div>
+      <div v-else class="grid gap-[2px] overflow-hidden p-1 -m-1" style="grid-template-columns: repeat(auto-fill, minmax(11px, 1fr))" @mouseleave="hover = pinned" data-map-grid>
+        <div v-for="c in cells" :key="c.w" @click="pinned = c; hover = c" class="aspect-square rounded-[2px] transition-[opacity,transform] duration-200 hover:scale-150 hover:z-10 cursor-pointer" :style="{ background: colors[Math.min(7, c.g)], opacity: match(c) ? 1 : 0.12 }" :title="`${c.w.toUpperCase()}: ${c.g}`" @mouseenter="hover = c"></div>
       </div>
       <div v-if="re && matched.length <= 80" class="mt-4 flex flex-wrap gap-1.5">
         <UiBadge v-for="c in [...matched].sort((a, b) => b.g - a.g)" :key="c.w" :tone="c.g <= 3 ? 'correct' : c.g <= 5 ? 'present' : 'danger'"><WordLink :word="c.w" class="font-mono uppercase" /> {{ c.g }}</UiBadge>

@@ -25,6 +25,10 @@ JS mirror: `src/lib/tokens.ts` (`tile`, `brand`, `chartPalette`, strategy colour
 | `SectionHeader` | Icon chip + title + subtitle + actions slot. |
 | `UiBadge` | Pill with tones `neutral/brand/correct/present/danger`. |
 | `CountUp` | Animated number (VueUse `useTransition`). |
+| `UiStat` | KPI tile: label, big value, small note, tone, tooltip; `value=null` or `loading` renders a skeleton (never a fake 0). |
+| `UiAdvanced` | Collapsed "Advanced" section (dashed border); its content renders only after the first open. |
+
+Shared analysis pieces: `StepCard` (one analysed guess) inside `CoachReport` (summary + steps) is used by Play, Assistant › Help me now / Review / Watch; `StrategyReplay` shows how a strategy solves a word (Play post-game, Watch).
 
 Game-specific: `GameKeyboard` (state-coloured keys, icons for Enter/Backspace, press/hover animation, responsive), tile classes `.tile` + `.s0/.s1/.s2`, `.filled` (pop), `.reveal` (staggered flip via `--i`), `.win` (bounce), sizes `.tile-sm`, `.tile-xs`.
 
@@ -33,3 +37,6 @@ Game-specific: `GameKeyboard` (state-coloured keys, icons for Enter/Backspace, p
 - Every card title through `UiCard`/`SectionHeader`; every action through `UiButton`.
 - Lists that change use `<TransitionGroup name="list">`; view switches use `<Transition name="tab">`.
 - Emoji only in the share-grid text output.
+- Numbers: casual views round to 2 decimals (bits, luck) with the full value on hover; leaderboard/compare averages keep 3.
+- Phones (<640 px): bottom tab bar, tables become cards (or drop secondary columns), no element may widen the page — `scripts/shots.ts` and the round-11 e2e test check `scrollWidth` on every view.
+- Cursor: pointer on everything clickable, not-allowed on disabled (global rule in `style.css`).

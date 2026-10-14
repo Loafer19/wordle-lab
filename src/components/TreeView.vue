@@ -14,7 +14,10 @@ import { tile } from '../lib/tokens'
 import { loadFull, simReady, fullId } from '../lib/simdata'
 import { patternDigits } from '../lib/wordle'
 import type { TreeNode } from '../lib/advanced'
-import UiCard from './ui/UiCard.vue'; import UiBadge from './ui/UiBadge.vue'
+import UiCard from './ui/UiCard.vue'; import UiBadge from './ui/UiBadge.vue'; import UiButton from './ui/UiButton.vue'
+import TreeBranch from './TreeBranch.vue'
+import Skeleton from 'primevue/skeleton'
+import { MonitorSmartphone } from 'lucide-vue-next'
 import StrategyPicker from './StrategyPicker.vue'
 const id = ref(BEST_ID), hard = ref(false), layout = ref<'orthogonal' | 'radial'>('orthogonal')
 const tree = ref<TreeNode | null>(null)
@@ -22,6 +25,8 @@ watch([id, hard], async () => { await simReady; tree.value = (await loadFull(ful
 const sq = (p: number) => patternDigits(p).map(d => `{${'apc'[d]}|}`).join('')
 const { width: vw } = useWindowSize()
 const topN = ref(vw.value < 640 ? 16 : 24)
+const forceChart = ref(false)
+const mobile = computed(() => vw.value < 640 && !forceChart.value)
 function conv(n: TreeNode, p: number | null, depth: number): any {
   const kids = Object.entries(n.c ?? {}).map(([k, v]) => [+k, v] as const).sort((a, b) => b[1].n - a[1].n)
   let children = kids.map(([k, v]) => conv(v, k, depth + 1))
@@ -56,12 +61,17 @@ const children = computed((): number => Object.keys(tree.value?.c ?? {}).length)
     <UiCard :title="$t('Interactive decision tree')" :icon="Network" :subtitle="$t('Click a node to expand/collapse. Branches are colour patterns, node size = number of possible answers reaching it. Scroll to zoom, drag to pan.')">
       <div class="flex flex-wrap items-center gap-3">
         <StrategyPicker v-model:id="id" v-model:hard="hard" />
-        <SelectButton v-model="layout" :options="[{ v: 'orthogonal', l: $t('orthogonal') }, { v: 'radial', l: $t('radial') }]" optionLabel="l" optionValue="v" :allowEmpty="false" size="small" />
+        <SelectButton v-if="!mobile" v-model="layout" :options="[{ v: 'orthogonal', l: $t('orthogonal') }, { v: 'radial', l: $t('radial') }]" optionLabel="l" optionValue="v" :allowEmpty="false" size="small" />
         <UiBadge v-if="tree" tone="brand">{{ $t('opener') }} {{ tree.g.toUpperCase() }} · {{ $t('{n} branches', { n: children }) }}</UiBadge>
-        <label class="flex items-center gap-2 text-caption text-muted">{{ $t('Label top {n}', { n: Math.min(topN, children) }) }}<Slider v-model="topN" :min="8" :max="160" class="w-28" /></label>
-        <span class="text-caption text-muted flex items-center gap-1"><Maximize2 :size="12" />{{ $t('roam enabled') }}</span>
+        <label v-if="!mobile" class="flex items-center gap-2 text-caption text-muted">{{ $t('Label top {n}', { n: Math.min(topN, children) }) }}<Slider v-model="topN" :min="8" :max="160" class="w-28" /></label>
+        <span v-if="!mobile" class="text-caption text-muted flex items-center gap-1"><Maximize2 :size="12" />{{ $t('roam enabled') }}</span>
       </div>
     </UiCard>
-    <UiCard><VChart v-if="opt" :option="opt" @click="onClick" :style="{ height: height + 'px' }" autoresize /></UiCard>
+    <UiCard v-if="mobile" :title="$t('Tree as a list')" :subtitle="$t('The interactive tree works best on a wider screen. Tap a branch to see what the strategy plays next.')" data-tree-list>
+      <template #actions><UiButton :icon="MonitorSmartphone" variant="ghost" :label="$t('Chart')" @click="forceChart = true" /></template>
+      <ul v-if="tree" class="text-body"><TreeBranch :node="tree" :open="true" /></ul>
+      <div v-else class="flex flex-col gap-2" data-skeleton><Skeleton v-for="i in 6" :key="i" height="1.8rem" /></div>
+    </UiCard>
+    <UiCard v-else><VChart v-if="opt" :option="opt" @click="onClick" :style="{ height: height + 'px' }" autoresize /><Skeleton v-else height="560px" /></UiCard>
   </div>
 </template>

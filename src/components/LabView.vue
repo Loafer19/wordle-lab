@@ -13,8 +13,11 @@ import { PRESETS, SCORE_LABEL, type Spec, type Score } from '../lib/compose'
 import { customs } from '../lib/custom'
 import { NA, FAMOUS_OPENERS } from '../lib/lang'
 import { t } from '../lib/i18n'
-import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import CountUp from './ui/CountUp.vue'; import InfoTip from './InfoTip.vue'
+import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import InfoTip from './InfoTip.vue'
 import WordChips from './WordChips.vue'
+import UiStat from './ui/UiStat.vue'
+import Skeleton from 'primevue/skeleton'
+import { shortName } from '../lib/names'
 
 const spec = reactive<Spec>({ ...PRESETS[1], id: 'lab', name: '' })
 const hard = ref(false), openerMode = ref<'computed' | 'fixed'>('computed'), fixedOpener = ref(FAMOUS_OPENERS[0])
@@ -90,20 +93,20 @@ const describe = (s: Spec) => [s.opener ? s.opener.toUpperCase() : t('computed o
       <ProgressBar v-if="running" :value="Math.round(progress * 100)" class="mt-4 !h-1.5" :showValue="false" />
     </UiCard>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <UiCard interactive><div class="text-caption text-muted flex items-center gap-1"><Gauge :size="12" />{{ t('Average') }} ({{ res?.n ?? '…' }} {{ t('words') }})</div><div class="text-3xl font-extrabold" data-lab-avg><CountUp :value="res?.avg ?? 0" :decimals="3" /></div><div class="text-caption text-muted">{{ t('opener') }} <b class="font-mono uppercase">{{ res?.opener }}</b></div></UiCard>
-      <UiCard interactive><div class="text-caption text-muted flex items-center gap-1"><Trophy :size="12" />{{ t('vs best known') }}</div><div class="text-3xl font-extrabold" :class="res && best && res.avg - best.avg <= 0.0005 ? 'text-correct' : 'text-present'">{{ res && best ? (res.avg - best.avg >= 0 ? '+' : '') + (res.avg - best.avg).toFixed(3) : '…' }}</div><div class="text-caption text-muted truncate">{{ best ? t(best.name) + ' ' + best.avg.toFixed(3) : '' }}</div></UiCard>
-      <UiCard interactive><div class="text-caption text-muted flex items-center gap-1"><TriangleAlert :size="12" />{{ t('Fail rate (>6)') }}</div><div class="text-3xl font-extrabold"><CountUp :value="(res?.failRate ?? 0) * 100" :decimals="2" />%</div><div class="text-caption text-muted">{{ t('worst') }}: {{ res?.worst ?? '…' }} {{ t('guesses') }}</div></UiCard>
-      <UiCard interactive><div class="text-caption text-muted">{{ t("vs Ruslan balanced") }}</div><div class="text-3xl font-extrabold" :class="res && ruslan && res.avg < ruslan.avg ? 'text-correct' : 'text-muted'">{{ res && ruslan ? (res.avg - ruslan.avg >= 0 ? '+' : '') + (res.avg - ruslan.avg).toFixed(3) : '…' }}</div><div class="text-caption text-muted">{{ ruslan?.avg.toFixed(3) }}</div></UiCard>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" data-lab-kpis>
+      <UiStat :label="res ? t('Average ({n} words)', { n: res.n }) : t('Average')" :icon="Gauge" :value="res ? res.avg.toFixed(3) : null" :sub="res ? t('opener') + ' ' + res.opener.toUpperCase() : t('Simulating…')" data-lab-avg />
+      <UiStat :label="t('vs best known')" :icon="Trophy" :value="res && best ? (res.avg - best.avg >= 0 ? '+' : '') + (res.avg - best.avg).toFixed(3) : null" :tone="res && best && res.avg - best.avg <= 0.0005 ? 'correct' : 'present'" :sub="best ? shortName(best.id, t(best.name)) + ' ' + best.avg.toFixed(3) : undefined" />
+      <UiStat :label="t('Fail rate (>6)')" :icon="TriangleAlert" :value="res ? (res.failRate * 100).toFixed(2) + '%' : null" :sub="res ? t('worst') + ': ' + res.worst + ' ' + t('guesses') : undefined" />
+      <UiStat :label="t('vs Ruslan balanced')" :value="res && ruslan ? (res.avg - ruslan.avg >= 0 ? '+' : '') + (res.avg - ruslan.avg).toFixed(3) : null" :tone="res && ruslan && res.avg < ruslan.avg ? 'correct' : 'neutral'" :sub="ruslan?.avg.toFixed(3)" />
     </div>
     <p v-if="res && !full" class="text-caption text-muted -mt-2">{{ t('Sample of {n} answers: numbers are approximate. "vs" columns compare against full-list results.', { n: res.n }) }}</p>
 
     <div class="grid lg:grid-cols-[2fr_1fr] gap-5">
-      <UiCard :title="t('Guess distribution (% of games)')"><VChart v-if="opt" :option="opt" style="height: 280px" autoresize /></UiCard>
-      <UiCard :title="t('Hardest words')" :icon="Skull" :subtitle="t('Answers that needed the most guesses')"><WordChips v-if="res" :words="res.worstWords" /></UiCard>
+      <UiCard :title="t('Guess distribution (% of games)')"><VChart v-if="opt" :option="opt" style="height: 280px" autoresize /><Skeleton v-else height="280px" /></UiCard>
+      <UiCard :title="t('Hardest words')" :icon="Skull" :subtitle="t('Answers that needed the most guesses')"><WordChips v-if="res" :words="res.worstWords" /><div v-else class="flex flex-wrap gap-1.5" data-skeleton><Skeleton v-for="i in 8" :key="i" width="3.5rem" height="1.4rem" /></div></UiCard>
     </div>
 
-    <UiCard :title="t('Save as custom strategy')" :icon="Blocks" :subtitle="t('Saved strategies appear in Solver, Compare, Tree, Flow and Answer map (stored in this browser).')">
+    <UiCard :title="t('Save as custom strategy')" :icon="Blocks" :subtitle="t('Saved strategies appear in the Assistant, Compare, Tree, Flow and Answer map (stored in this browser).')">
       <div class="flex flex-wrap items-center gap-2 mb-4">
         <InputText v-model="saveName" :placeholder="t('Name, e.g. My explorer')" size="small" class="w-64" data-lab-name @keydown.enter="save" />
         <UiButton :icon="Save" :label="t('Save')" @click="save" :disabled="!openerOk" data-lab-save />

@@ -4,7 +4,7 @@ import { answers, allowed, ready } from './words'
 import { optimalTrees } from './allStrategies'
 import type { CoachStep, GameAnalysis } from './coach'
 let seq = 0
-export function useCoach(game: Ref<CoachStep[] | null>, hard: Ref<boolean>) {
+export function useCoach(game: Readonly<Ref<CoachStep[] | null>>, hard: Readonly<Ref<boolean>>) {
   const result = shallowRef<GameAnalysis | null>(null), progress = ref(0), busy = ref(false)
   let w: Worker | null = null
   const run = async () => {

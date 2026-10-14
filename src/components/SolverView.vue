@@ -13,7 +13,8 @@ import { answers, allowed } from '../lib/words'
 import { precomputed } from '../lib/results'
 import { filter, digitsToPattern, entropy, feedback, patternDigits, type Suggestion } from '../lib/wordle'
 import InfoTip from './InfoTip.vue'
-import BitsPanel from './BitsPanel.vue'
+import CoachReport from './CoachReport.vue'
+import { useCoach } from '../lib/useCoach'
 import PatternSquares from './PatternSquares.vue'
 
 const stratId = ref('freqbal-cand')
@@ -101,6 +102,8 @@ function demo() {
 onUnmounted(stopDemo)
 const alts = computed(() => { const c = cands.value; if (c.length > 400 || c.length < 2) return []; return c.map(w => ({ w, h: entropy(w, c) })).sort((a, b) => b.h - a.h).slice(0, 6) })
 const howto = ['Type the word you guessed in Wordle — or keep the suggestion and play it there.', 'Click the tiles until they match the colours Wordle showed you: gray → yellow → green.', 'Press Apply. Impossible words are removed and your next guess is suggested.'].map(s => t(s))
+const coachGame = computed(() => (steps.value.length ? steps.value.map(s => ({ w: s.w, d: [...s.d] })) : null))
+const { result: coach, busy: coachBusy, progress: coachProgress } = useCoach(coachGame, ref(false))
 const colourNames: Record<number, string> = { [-1]: t('not set'), 0: t('gray'), 1: t('yellow'), 2: t('green') }
 </script>
 <template>
@@ -137,7 +140,7 @@ const colourNames: Record<number, string> = { [-1]: t('not set'), 0: t('gray'), 
             <div v-for="(s, i) in steps" :key="i + s.w" class="flex items-center gap-3 flex-wrap">
               <div class="flex gap-1"><div v-for="j in 5" :key="j" class="tile tile-sm reveal" :style="{ '--i': j - 1 }" :class="'s' + s.d[j - 1]">{{ s.w[j - 1] }}</div></div>
               <div class="flex items-center gap-1.5">{{ s.sizeBefore }}<UiIcon :icon="ArrowRight" size="xs" class="text-muted" /><b>{{ s.sizeAfter }}</b> {{ $t('words') }}</div>
-              <UiBadge :tone="s.sizeAfter / s.sizeBefore < 0.1 ? 'correct' : s.sizeAfter / s.sizeBefore < 0.4 ? 'present' : 'neutral'">kept {{ Math.round((100 * s.sizeAfter) / s.sizeBefore) }}%</UiBadge>
+              <UiBadge :tone="s.sizeAfter / s.sizeBefore < 0.1 ? 'correct' : s.sizeAfter / s.sizeBefore < 0.4 ? 'present' : 'neutral'">{{ $t('kept') }} {{ Math.round((100 * s.sizeAfter) / s.sizeBefore) }}%</UiBadge>
             </div>
           </TransitionGroup>
         </div>
@@ -177,10 +180,10 @@ const colourNames: Record<number, string> = { [-1]: t('not set'), 0: t('gray'), 
       <CandidatesCard class="lg:col-span-2" :words="cands" :highlight="sug?.guess">
         <div v-if="alts.length" class="mt-4"><div class="text-caption text-muted mb-2">{{ $t('Most informative of these (entropy)') }}</div>
           <TransitionGroup name="list" tag="div" class="flex flex-col gap-1">
-            <div v-for="a in alts" :key="a.w" class="flex gap-2 items-center font-mono text-caption"><span class="w-14 uppercase font-semibold">{{ a.w }}</span><div class="h-2.5 rounded-full bg-brand-500 transition-all duration-500" :style="{ width: a.h * 28 + 'px' }"></div><span class="text-muted">{{ a.h.toFixed(2) }} bits</span></div>
+            <div v-for="a in alts" :key="a.w" class="flex gap-2 items-center font-mono text-caption"><span class="w-14 uppercase font-semibold">{{ a.w }}</span><div class="h-2.5 rounded-full bg-brand-500 transition-all duration-500" :style="{ width: a.h * 28 + 'px' }"></div><span class="text-muted">{{ a.h.toFixed(2) }} {{ $t('bits') }}</span></div>
           </TransitionGroup></div>
       </CandidatesCard>
     </div>
-    <BitsPanel :rows="steps" />
+    <CoachReport v-if="steps.length" :result="coach" :busy="coachBusy" :progress="coachProgress" :title="$t('Your guesses, reviewed')" data-solver-review />
   </div>
 </template>

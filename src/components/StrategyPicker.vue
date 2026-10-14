@@ -4,15 +4,18 @@ import Select from 'primevue/select'; import SelectButton from 'primevue/selectb
 import { simIndex } from '../lib/simdata'
 import { customs } from '../lib/custom'
 import { t } from '../lib/i18n'
+import { shortName } from '../lib/names'
 const id = defineModel<string>('id', { required: true })
 const hard = defineModel<boolean>('hard', { default: false })
 withDefaults(defineProps<{ showMode?: boolean }>(), { showMode: true })
-const opts = computed(() => [...simIndex.value.filter(s => s.mode === 'normal').map(s => ({ id: s.id, label: `${t(s.name)} · ${s.avg.toFixed(3)}` })), ...customs.value.map(c => ({ id: c.id, label: `★ ${c.name}` }))])
+const opts = computed(() => [...simIndex.value.filter(s => s.mode === 'normal').map(s => ({ id: s.id, label: `${shortName(s.id, t(s.name))} · ${s.avg.toFixed(3)}`, title: t(s.name) })), ...customs.value.map(c => ({ id: c.id, label: `★ ${c.name}` }))])
 const modes = [{ v: false, l: t('Normal') }, { v: true, l: t('Hard') }]
 </script>
 <template>
-  <div class="flex flex-wrap items-center gap-2">
-    <Select v-model="id" :options="opts" optionLabel="label" optionValue="id" class="w-full sm:w-80" filter />
+  <div class="flex flex-wrap items-center gap-2 min-w-0 max-w-full">
+    <Select v-model="id" :options="opts" optionLabel="label" optionValue="id" class="w-full sm:w-80 max-w-full min-w-0" filter>
+      <template #option="{ option }"><span :title="option.title">{{ option.label }}</span></template>
+    </Select>
     <SelectButton v-if="showMode" v-model="hard" :options="modes" optionLabel="l" optionValue="v" :allowEmpty="false" size="small" />
   </div>
 </template>

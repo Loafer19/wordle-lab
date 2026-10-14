@@ -76,14 +76,16 @@ test('EN Solver: SALET tree opener shows the tree explanation', async () => {
 }, 30000)
 
 for (const lang of ['en', 'ua'] as const) test(`${lang}: gap table uses this language's optimum, no negative gaps`, async () => {
-  const { b, p, errors } = await open('strategies&view=simulation', { lang })
+  const { b, p, errors } = await open('strategies&view=leaderboard', { lang })
   try {
     await p.waitForTimeout(1500)
     const txt = await p.locator('main').innerText()
     expect(txt).toContain(lang === 'en' ? '3.4212' : '3.3809')
     if (lang === 'ua') { expect(txt).not.toContain('3.4212'); expect(txt).toContain('3.4537') }
+    await p.click('[data-board-mode] >> text=' + (lang === 'en' ? 'Both' : 'Обидва')); await p.waitForTimeout(300)
+    expect(await p.locator('[data-board-table] thead').innerText()).toContain(lang === 'en' ? 'Hard avg' : 'складний')
     expect(txt).not.toMatch(/\+-\d|−0\.\d{3}|\s-0\.\d{3}/)
-    const optRow = await p.locator('tr', { hasText: lang === 'en' ? 'Optimal tree (SALET)' : 'Оптимальне дерево (UA)' }).first().innerText()
+    const optRow = await p.locator('[data-board-row][data-id=optimal]').innerText()
     expect(optRow).toContain('+0.000')
     if (SHOTS) await p.screenshot({ path: `${SHOTS}/${lang}-gap.png` })
     expect(errors).toEqual([])

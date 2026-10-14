@@ -22,23 +22,22 @@
 
 | | |
 |---|---|
-| 🎮 **Play** | Daily word with a countdown to the next one, or random games. Hard mode, flip, bounce and confetti animations, stats, a shareable emoji grid, and the **word's meaning** after each game. |
-| 🎓 **Coach** | Per-guess analysis after every game and for any pasted game: bits gained vs expected, the best move by entropy and by the optimal tree, luck, and plain-language tips. |
-| 🧭 **Solver** | Type your guess, tap the tiles to match your colours, and get the next best word with a plain-English reason. Undo, a demo mode, keyboard shortcuts, and the provably optimal tree. |
-| 🧪 **Strategies** | **Simulation** of every strategy on every answer (Web Workers), a head-to-head **Compare**, and the **Strategy Lab**: build a strategy from blocks (opener, explore turns, scoring, tie-breaker), see live results against the best known strategy, and save it for use in Solver, Compare, Tree and more. |
-| 🧭 **Explore** | **Decision paths** for any secret word, the optimal decision **Tree**, a **Flow** sankey of how the answer set shrinks, and an **Answer map** of how hard each word is. |
-| 🔤 **Analytics** | Letter frequencies, all 243 colour patterns with the entropy maths, and the best **Openers**, including a heatmap of opener pairs. |
+| 🎮 **Play** | Daily word with a countdown to the next one, or random games. Hard mode, flip/bounce/confetti animations, stats and the **word's meaning**. After each game: a per-guess **review**, **how the optimal strategy solves the same word**, and a **share card** with your skill and luck. Your **player fingerprint** tracks skill and luck over time (stored in your browser). |
+| 🧭 **Assistant** | **Help me now:** type your guess, tap the tiles to match your colours, and get the next best word with a plain-language reason (undo, demo, shortcuts, the provably optimal tree). **Review a game:** paste any result, e.g. `ARISE(⬜⬜⬜🟨⬜) CLOTH(⬜⬜🟩🟨⬜)`. **Watch a strategy:** pick a word and a strategy and watch it play. All three use the same per-guess card: bits gained vs expected, the best move by entropy and by the optimal tree, luck, and tips. |
+| 🎓 **Learn** | A four-step **guide** (letters → patterns → entropy → trees), letter and positional frequencies, the **top openers**, and the **Word inspector** (all 243 colour patterns of any guess, its entropy and its worst case). The opener-pairs heatmap is under *Advanced*. |
+| 🧪 **Strategies** | One **leaderboard** of every strategy on every answer: average, gap to the proven optimum, fail % and worst case, with Normal/Hard/Both. Tick two rows to **Compare** them. The **Strategy Lab** builds a strategy from blocks and saves it for the other views. More charts and Web Worker re-runs (cached in IndexedDB) are collapsed. |
+| 🔭 **Explore** | The optimal decision **Tree**, a **Flow** sankey of how the answer set shrinks, and an **Answer map** of how hard each word is. On phones, Tree and Flow switch to list drill-downs. |
 | 🇺🇦 **Ukrainian** | EN/UA switch in Settings: the whole interface in Ukrainian, Ukrainian word lists, a ЙЦУКЕН keyboard (ґ, є, і, ї), and every strategy simulated on Ukrainian answers. |
 | 📖 **Word meanings** | Click any word for its definition (dictionaryapi.dev with Wiktionary as a fallback; UA words link to Горох, СУМ-20 and sum.in.ua). |
 
-Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can open views in new tabs and share them.
+Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can open views in new tabs and share them. Links from older versions (`#tab=solver`, `#tab=coach`, `#tab=analytics&view=patterns`, …) redirect to their new places. On phones the five tabs are a bottom bar.
 
 <table>
-<tr><td><img src="docs/readme/dark-assist.png" alt="Solver"/></td><td><img src="docs/readme/dark-tree.png" alt="Tree"/></td></tr>
-<tr><td><img src="docs/readme/dark-flow.png" alt="Flow"/></td><td><img src="docs/readme/dark-map.png" alt="Answer map"/></td></tr>
-<tr><td><img src="docs/readme/dark-compare.png" alt="Compare"/></td><td><img src="docs/readme/light-patterns.png" alt="Patterns"/></td></tr>
-<tr><td><img src="docs/readme/dark-lab.png" alt="Strategy Lab"/></td><td><img src="docs/readme/dark-openers.png" alt="Openers"/></td></tr>
+<tr><td><img src="docs/screenshots/round11/en-play-after.png" alt="Play: review, optimal replay, share card, fingerprint"/></td><td><img src="docs/screenshots/round11/strategies-leaderboard_en_desk.png" alt="Strategy leaderboard"/></td></tr>
+<tr><td><img src="docs/screenshots/round11/assistant-watch_en_desk.png" alt="Assistant: watch a strategy"/></td><td><img src="docs/screenshots/round11/learn-inspector_en_desk.png" alt="Learn: word inspector"/></td></tr>
+<tr><td><img src="docs/readme/dark-tree.png" alt="Tree"/></td><td><img src="docs/readme/dark-flow.png" alt="Flow"/></td></tr>
 </table>
+<p align="center"><img src="docs/screenshots/round11/play_ua_mob.png" alt="UA on a phone" width="240"/> <img src="docs/screenshots/round11/strategies-leaderboard_en_mob.png" alt="Leaderboard as cards on a phone" width="240"/> <img src="docs/screenshots/round11/explore-tree_en_mob.png" alt="Tree drill-down on a phone" width="240"/></p>
 
 ## 🏁 Strategy results
 
@@ -96,11 +95,11 @@ The UA optima are **our own exact results** (`scripts/ua-optimal/`, a Selby-styl
 Gap tables in the app compare each language with its own optimum (EN 3.4212 / 3.5084, UA 3.3809 / 3.4537).
 How much the second guess matters: [docs/analysis-second-step.md](docs/analysis-second-step.md) (scripts in `scripts/analysis/`).
 
-## 🎓 Coach
+## 🎓 Game review & fingerprint
 
-After every Play game (daily or random, EN and UA) the **Coach** reviews each guess: candidates before → after, the bits you actually gained versus the bits that guess was expected to give, the best guess by entropy (hard-mode legal in hard mode) and the optimal-tree move while you are still on the tree, each with its expected bits and expected answers left, a luck indicator, and short tips: reused grey letters, a yellow letter put back in the same spot, cluster traps (many look-alike candidates, so a probe word is better), when a non-candidate would have helped, and when to just guess one of the last candidates. The **Coach tab** analyses any game you paste, e.g. `ARISE(⬜⬜⬜🟨⬜) CLOTH(⬜⬜🟩🟨⬜)` or `arise 00010`.
+After every Play game (daily or random, EN and UA) each guess is reviewed: candidates before → after, the bits you actually gained versus the bits that guess was expected to give, the best guess by entropy (hard-mode legal in hard mode) and the optimal-tree move while you are still on the tree, a luck indicator, and short tips (reused grey letters, a yellow letter put back in the same spot, cluster traps, when a non-candidate would have helped). Below it, the optimal strategy plays the same word, and the share card adds your **skill** (the share of the best expected information your guesses achieved) and **luck** (bits gained minus bits expected). Every finished game feeds your **fingerprint**: average skill and its trend, average luck, average guesses, and the strategy whose average is closest to yours. *Assistant › Review a game* does the same for any game you paste.
 
-<img src="docs/screenshots/round10/en-coach-tab.png" alt="Coach" width="720"/>
+<img src="docs/screenshots/round10/en-coach-tab.png" alt="Game review" width="720"/>
 
 ## 🧮 How it works
 
@@ -124,7 +123,10 @@ bun install
 bun run dev          # http://localhost:5173
 bun run build        # static site in dist/
 bun run simulate     # recompute public/sim/*, results.json, optimal tree, opener pairs
-bun run test:e2e     # Playwright regression tests (needs Chrome; CHROME=/path env to override)
+bun run test:unit    # engine, coach, routes/redirects, fingerprint
+bun run test:e2e     # Playwright regression tests against the dev server (needs Chrome; CHROME=/path, BASE_URL=… to override)
+bun scripts/i18n-check.ts           # every UI string has a Ukrainian translation
+OUT=shots bun scripts/shots.ts      # screenshots of every view (EN/UA × desktop/390px) + overflow/console check
 bun run definitions  # optional: precompute word meanings into data/ and public/
 ```
 
