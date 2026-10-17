@@ -526,5 +526,18 @@ const UA: Record<string, string> = {
   "Computed live in your browser (no precomputed simulation for this strategy)": "Пораховано наживо у вашому браузері (для цієї стратегії немає готової симуляції)",
   "Press Compute to play {w} with every strategy: precomputed results are looked up instantly, the rest (including two-step entropy) run in the background.": "Натисніть «Порахувати», щоб зіграти {w} кожною стратегією: готові результати беруться миттєво, решта (зокрема двокрокова ентропія) рахується у фоні.",
   "Cancelled — {d} of {n} strategies computed.": "Скасовано — пораховано {d} з {n} стратегій.",
+  "Default": "Типове",
+  "Your opener": "Ваше слово",
+  "Starting word": "Перше слово",
+  "Build tree": "Побудувати дерево",
+  "Reset to {w}": "Скинути до {w}",
+  "Tree for your opener {w}; every next move is chosen by {s}.": "Дерево для вашого першого слова {w}; кожен наступний хід обирає стратегія «{s}».",
+  "The precomputed optimal tree only covers its own opener, so after a custom opener the next moves use max entropy (computed in your browser).": "Готове оптимальне дерево охоплює лише власне перше слово, тож після вашого слова наступні ходи обираються за максимальною ентропією (рахується у вашому браузері).",
+  "Type any allowed 5-letter word to see the tree with your own first guess (computed in your browser).": "Введіть будь-яке допустиме слово з 5 літер, щоб побачити дерево з вашою першою спробою (рахується у вашому браузері).",
+  "Computing the tree…": "Будуємо дерево…",
+  "Computed over all {n} answers in {s} s.": "Пораховано для всіх {n} відповідей за {s} с.",
+  "Type a 5-letter word": "Введіть слово з 5 літер",
+  "The opener must have exactly 5 letters": "Перше слово має складатися рівно з 5 літер",
+  "Use only letters of the current alphabet": "Використовуйте лише літери поточного алфавіту (українські)",
 }
 export default UA

@@ -112,6 +112,8 @@ const colourNames: Record<number, string> = { [-1]: t('not set'), 0: t('gray'), 
       <template #actions>
         <UiButton :icon="Play" :label="$t('Show me an example')" @click="demo" />
       </template>
+      <!-- the how-to steps are only for getting started: once a guess is entered they collapse so the suggestion moves up -->
+      <template v-if="!steps.length">
       <ol class="grid sm:grid-cols-3 gap-3">
         <li v-for="(h, i) in howto" :key="i" class="flex gap-3 bg-surface-2 rounded-xl p-3">
           <span class="grid place-items-center size-6 shrink-0 rounded-full bg-brand-600 text-white text-caption font-bold">{{ i + 1 }}</span><span>{{ h }}</span>
@@ -121,7 +123,8 @@ const colourNames: Record<number, string> = { [-1]: t('not set'), 0: t('gray'), 
         <UiIcon :icon="Keyboard" size="xs" />
         <span>{{ $t('letters = edit word') }}</span><span><kbd>1</kbd>–<kbd>5</kbd> {{ $t('cycle tile') }}</span><span><kbd>{{ $t('Enter') }}</kbd> {{ $t('apply') }}</span><span><kbd>Ctrl</kbd>+<kbd>Z</kbd> {{ $t('undo') }}</span><span><kbd>Esc</kbd> {{ $t('reset') }}</span>
       </div>
-      <div class="flex flex-wrap gap-2 items-center mt-4 pt-4 border-t border-line">
+      </template>
+      <div class="flex flex-wrap gap-2 items-center" :class="!steps.length && 'mt-4 pt-4 border-t border-line'">
         <span class="text-body font-medium">{{ $t('Strategy') }}</span>
         <Select v-model="stratId" :options="allStrategies" optionLabel="name" optionValue="id" class="w-full sm:w-80" />
         <InfoTip :text="allStrategies.find(s => s.id === stratId)?.desc ?? ''" />

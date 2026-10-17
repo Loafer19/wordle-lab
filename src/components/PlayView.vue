@@ -137,6 +137,15 @@ async function imageAction(kind: 'download' | 'share') {
 const canShare = typeof navigator !== 'undefined' && 'share' in navigator
 const shareNative = () => navigator.share?.({ text: shareText.value }).catch(() => {})
 const maxDist = computed(() => Math.max(1, ...stats.value.dist))
+/** Game phase for the right-column card order: idle (no guess yet), playing (≥1 revealed guess), over. */
+const phase = computed<'idle' | 'playing' | 'over'>(() => (over.value ? 'over' : revealed.value > 0 ? 'playing' : 'idle'))
+const ORDER = {
+  idle: { stats: 1, fingerprint: 2 },
+  playing: { candidates: 1, bits: 2, stats: 3, fingerprint: 4 },
+  over: { share: 1, stats: 2, meaning: 3, coach: 4, replay: 5, fingerprint: 6 },
+} as const
+const ORD_CLASS = ['order-none', 'order-1', 'order-2', 'order-3', 'order-4', 'order-5', 'order-6']
+const ord = computed(() => { const o: Record<string, number> = ORDER[phase.value]; return Object.fromEntries(['stats', 'fingerprint', 'candidates', 'bits', 'share', 'meaning', 'coach', 'replay'].map(k => [k, ORD_CLASS[o[k] ?? 0]])) as Record<string, string> })
 const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.value.wins) / stats.value.played) : 0))
 </script>
 <template>
@@ -171,12 +180,15 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
       </div>
       <GameKeyboard :states="keyState" :active="activeKey" @press="press" />
     </div>
-    <div class="flex flex-col gap-5 w-full">
+    <!-- Right column order depends on the game phase (CSS order keeps cards mounted, so counters/charts don't replay):
+         before the first guess: stats, fingerprint · while playing: words still possible, info per guess, compact stats, fingerprint
+         · after the game: share (result), stats, meaning, review, optimal replay, fingerprint. On phones this column sits under the board. -->
+    <div class="flex flex-col gap-5 w-full" :data-phase="phase">
       <Transition name="tab">
-        <UiCard v-if="over" :title="$t('Word meaning')" :icon="BookOpen" :subtitle="won ? $t('You found it — here is what it means') : $t('Today’s answer')"><WordMeaning :word="answer" /></UiCard>
+        <UiCard v-if="over" :class="ord.meaning" :title="$t('Word meaning')" :icon="BookOpen" :subtitle="won ? $t('You found it — here is what it means') : $t('Today’s answer')"><WordMeaning :word="answer" /></UiCard>
       </Transition>
       <Transition name="tab">
-        <UiCard v-if="over" :title="$t('Share your result')" :icon="Share2" data-share>
+        <UiCard v-if="over" :class="ord.share" :title="$t('Share your result')" :icon="Share2" data-share>
           <div class="flex flex-wrap items-start gap-4">
             <div class="rounded-card border border-line bg-surface-2 p-3 flex flex-col items-center gap-2 min-w-[11rem]" data-share-card>
               <div class="text-caption font-bold tracking-wide">Wordle Lab <span class="text-muted font-medium">{{ mode === 'daily' ? '#' + dayIndex() : $t('(random)') }}</span></div>
@@ -196,21 +208,21 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
         </UiCard>
       </Transition>
       <Transition name="tab">
-        <div v-if="over" class="flex flex-col gap-2" data-play-coach>
+        <div v-if="over" class="flex flex-col gap-2" :class="ord.coach" data-play-coach>
           <CoachReport :result="coach" :busy="coachBusy" :progress="coachProgress" :title="$t('Your game, reviewed')" />
           <button type="button" class="self-end text-caption text-muted hover:text-fg underline underline-offset-2 cursor-pointer" @click="openInCoach">{{ $t('Open in Assistant › Review a game') }}</button>
         </div>
       </Transition>
       <Transition name="tab">
-        <StrategyReplay v-if="over && answer" :word="answer" :stratId="optId" :yours="won ? rows.length : 7" :title="$t('How the optimal strategy solves {w}', { w: answer.toUpperCase() })" :showWhy="false" @steps="s => (optN = s.length)" data-play-optimal />
+        <StrategyReplay v-if="over && answer" :class="ord.replay" :word="answer" :stratId="optId" :yours="won ? rows.length : 7" :title="$t('How the optimal strategy solves {w}', { w: answer.toUpperCase() })" :showWhy="false" @steps="s => (optN = s.length)" data-play-optimal />
       </Transition>
-      <UiCard :title="$t('Your stats')" :icon="Trophy" :subtitle="$t('Saved in this browser')">
-        <div class="grid grid-cols-4 text-center mb-4">
+      <UiCard :class="ord.stats" :title="$t('Your stats')" :icon="Trophy" :subtitle="$t('Saved in this browser')" data-play-stats>
+        <div class="grid grid-cols-4 text-center" :class="phase !== 'playing' && 'mb-4'">
           <div v-for="s in [{ v: stats.played, l: $t('Played') }, { v: winPct, l: $t('Win %') }, { v: stats.streak, l: $t('Streak') }, { v: stats.best, l: $t('Best streak') }]" :key="s.l">
             <div class="text-3xl font-extrabold"><CountUp :value="s.v" /></div><div class="text-caption text-muted">{{ s.l }}</div>
           </div>
         </div>
-        <div class="flex flex-col gap-1.5">
+        <div v-if="phase !== 'playing'" class="flex flex-col gap-1.5">
           <div v-for="(c, i) in stats.dist" :key="i" class="flex items-center gap-2 text-caption">
             <span class="w-3 font-semibold">{{ i + 1 }}</span>
             <div class="h-5 rounded flex items-center justify-end px-1.5 font-semibold transition-all duration-700 ease-out"
@@ -218,9 +230,9 @@ const winPct = computed(() => (stats.value.played ? Math.round((100 * stats.valu
           </div>
         </div>
       </UiCard>
-      <FingerprintCard />
-      <BitsPanel v-if="!over" :rows="rows.slice(0, revealed)" />
-      <CandidatesCard :title="$t('Words still possible')" :words="remaining" :started="revealed > 0" :max="80">
+      <FingerprintCard :class="ord.fingerprint" />
+      <BitsPanel v-if="phase === 'playing'" :class="ord.bits" :rows="rows.slice(0, revealed)" />
+      <CandidatesCard v-if="phase === 'playing'" :class="ord.candidates" :title="$t('Words still possible')" :words="remaining" :started="revealed > 0" :max="80">
         <template #empty><p class="text-muted">{{ $t('Type a 5-letter word and press') }} <kbd>{{ $t('Enter') }}</kbd>.</p></template>
       </CandidatesCard>
     </div>
