@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.4.2] - 2026-10-18
+
+Card order that follows what you are doing, and your own starting word in the decision tree.
+
+### Added
+- **Explore › Tree: your own starting word.** Type any allowed 5-letter word (Ukrainian letters in UA) and *Build tree*: the first guess is yours and every later move is chosen by max entropy, since the precomputed optimal tree only covers its own opener. The tree is built in a Web Worker with a progress bar, a table compares the default opener with yours (average, worst case, guess distribution), and the word is remembered per language until you *Reset*. Invalid words are explained inline.
+
+### Changed
+- **Play:** the right-hand cards follow the game. Before the first guess: stats and fingerprint. While playing: *Words still possible* and *Information per guess* first, then a one-line stats summary. After the game: share card, stats, word meaning, review, optimal replay, fingerprint. On phones the board and keyboard stay on top.
+- **Assistant › Help me now:** the how-to steps hide after the first guess, so the suggestion moves up.
+- **Assistant › Watch a strategy:** *Every strategy on this word* now comes right after the replay, above the long guess-by-guess review.
+- **Strategies › Strategy Lab:** *Save as custom strategy* sits directly under the builder, above the results.
+- **Strategies › Compare:** *Biggest differences* comes before the guess-distribution chart.
+- **Learn › Top openers:** the *Openers at a glance* table comes before the chart.
+- Faster max-entropy picker (byte-encoded feedback with reused buckets), used when building custom-opener trees.
+- README: refreshed screenshots (all in `docs/readme/`, taken from the v1.4.2 build with `scripts/readme-shots.ts`) and the feature list.
+
+### Tests
+- Unit: custom-opener trees cover every answer in EN and UA and start with the opener; the fast feedback and fast max entropy agree with the engine; tree strategies fall back to max entropy after a custom opener.
+- e2e: Play card order by phase (EN/UA, desktop and phone); the tree opener (validation, worker build, comparison, persistence, reset); the new card order in Watch, Lab, Compare and Top openers (EN/UA). Fixed a race in *Coach tab analyses a pasted game*, which could read the default example's review before the pasted game's.
+
 ## [1.4.1] - 2026-10-14
 
 Finishes the two items that v1.4.0 skipped or limited.

@@ -2,9 +2,10 @@
 
 # 🟩🟨⬛ Wordle Lab
 
-**Play Wordle, get a solver that explains every guess, and see how 13 strategies compare across all 2,315 answers.**
+**Play Wordle, get a solver that explains every guess, and see how 14 strategies compare across all 2,315 answers (and 1,717 Ukrainian ones).**
 
 [![Live demo](https://img.shields.io/badge/live%20demo-wordle.fundsflow.fun-16a34a?style=for-the-badge)](https://wordle.fundsflow.fun)
+[![Release](https://img.shields.io/github/v/release/Loafer19/wordle-lab?style=for-the-badge&color=16a34a)](https://github.com/Loafer19/wordle-lab/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 <br/>
 ![Bun](https://img.shields.io/badge/Bun-000?logo=bun&logoColor=fff)
@@ -14,7 +15,7 @@
 ![PrimeVue](https://img.shields.io/badge/PrimeVue%204-41B883)
 ![ECharts](https://img.shields.io/badge/ECharts-AA344D?logo=apacheecharts&logoColor=fff)
 
-<img src="docs/readme/hero.png" alt="Wordle Lab: a winning game with confetti" width="860" />
+<img src="docs/readme/hero.png" alt="Wordle Lab: a daily game won in two, with the share card, stats and the word's meaning" width="860" />
 
 </div>
 
@@ -22,22 +23,23 @@
 
 | | |
 |---|---|
-| 🎮 **Play** | Daily word with a countdown to the next one, or random games. Hard mode, flip/bounce/confetti animations, stats and the **word's meaning**. After each game: a per-guess **review**, **how the optimal strategy solves the same word**, and a **share card** with your skill and luck. Your **player fingerprint** tracks skill and luck over time (stored in your browser). |
-| 🧭 **Assistant** | **Help me now:** type your guess, tap the tiles to match your colours, and get the next best word with a plain-language reason (undo, demo, shortcuts, the provably optimal tree). **Review a game:** paste any result, e.g. `ARISE(⬜⬜⬜🟨⬜) CLOTH(⬜⬜🟩🟨⬜)`. **Watch a strategy:** pick a word and a strategy and watch it play. All three use the same per-guess card: bits gained vs expected, the best move by entropy and by the optimal tree, luck, and tips. |
-| 🎓 **Learn** | A four-step **guide** (letters → patterns → entropy → trees), letter and positional frequencies, the **top openers**, and the **Word inspector** (all 243 colour patterns of any guess, its entropy and its worst case). The opener-pairs heatmap is under *Advanced*. |
-| 🧪 **Strategies** | One **leaderboard** of every strategy on every answer: average, gap to the proven optimum, fail % and worst case, with Normal/Hard/Both. Tick two rows to **Compare** them. The **Strategy Lab** builds a strategy from blocks and saves it for the other views. More charts and Web Worker re-runs (cached in IndexedDB) are collapsed. |
-| 🔭 **Explore** | The optimal decision **Tree**, a **Flow** sankey of how the answer set shrinks, and an **Answer map** of how hard each word is. On phones, Tree and Flow switch to list drill-downs. |
-| 🇺🇦 **Ukrainian** | EN/UA switch in Settings: the whole interface in Ukrainian, Ukrainian word lists, a ЙЦУКЕН keyboard (ґ, є, і, ї), and every strategy simulated on Ukrainian answers. |
+| 🎮 **Play** | Daily word with a countdown to the next one, or random games. Hard mode, flip/bounce/confetti animations, stats and the **word's meaning**. After each game: a per-guess **review**, **how the optimal strategy solves the same word**, and a **share card** with your skill and luck. Your **player fingerprint** tracks skill and luck over time (stored in your browser). Cards follow the game: before the first guess you see your stats; during a game the **possible words** and **information per guess** come first (stats shrink to one line); after it the share card leads. On phones the board and keyboard always come first. |
+| 🧭 **Assistant** | **Help me now:** type your guess, tap the tiles to match your colours, and get the next best word with a plain-language reason (undo, demo, shortcuts, the provably optimal tree). The how-to hides once you have entered a guess. **Review a game:** paste any result, e.g. `ARISE(⬜⬜⬜🟨⬜) CLOTH(⬜⬜🟩🟨⬜)`. **Watch a strategy:** pick a word and a strategy and watch it play, optionally next to a second one; *Every strategy on this word* sits right under the replay, above the long guess-by-guess review. All three use the same per-guess card: bits gained vs expected, the best move by entropy and by the optimal tree, luck, and tips. |
+| 🎓 **Learn** | A four-step **guide** (letters → patterns → entropy → trees), letter and positional frequencies, the **top openers** (the at-a-glance table first, then the chart), and the **Word inspector** (all 243 colour patterns of any guess, its entropy and its worst case). The opener-pairs heatmap is under *Advanced*. |
+| 🧪 **Strategies** | One **leaderboard** of every strategy on every answer: average, gap to the proven optimum, fail % and worst case, with Normal/Hard/Both. Tick two rows to **Compare** them: KPIs, then the **biggest differences**, then the distributions chart. The **Strategy Lab** builds a strategy from blocks, with *Save as custom strategy* right under the builder, so saved strategies show up in the other views. More charts and Web Worker re-runs (cached in IndexedDB) are collapsed. |
+| 🔭 **Explore** | The optimal decision **Tree**, which you can also rebuild from **your own starting word** (computed in a Web Worker, with a *default vs. yours* table of average, worst case and the guess distribution, remembered per language), a **Flow** sankey of how the answer set shrinks, and an **Answer map** of how hard each word is. On phones, Tree and Flow switch to list drill-downs. |
+| 🇺🇦 **Ukrainian** | EN/UA switch in Settings: the whole interface in Ukrainian (Гра · Асистент · Навчання · Стратегії · Дослідження), Ukrainian word lists, a ЙЦУКЕН keyboard (ґ, є, і, ї), and every strategy simulated on Ukrainian answers. |
 | 📖 **Word meanings** | Click any word for its definition (dictionaryapi.dev with Wiktionary as a fallback; UA words link to Горох, СУМ-20 and sum.in.ua). |
 
 Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can open views in new tabs and share them. Links from older versions (`#tab=solver`, `#tab=coach`, `#tab=analytics&view=patterns`, …) redirect to their new places. On phones the five tabs are a bottom bar.
 
 <table>
-<tr><td><img src="docs/screenshots/round11/en-play-after.png" alt="Play: review, optimal replay, share card, fingerprint"/></td><td><img src="docs/screenshots/round11/strategies-leaderboard_en_desk.png" alt="Strategy leaderboard"/></td></tr>
-<tr><td><img src="docs/screenshots/round11/assistant-watch_en_desk.png" alt="Assistant: watch a strategy"/></td><td><img src="docs/screenshots/round11/learn-inspector_en_desk.png" alt="Learn: word inspector"/></td></tr>
-<tr><td><img src="docs/readme/dark-tree.png" alt="Tree"/></td><td><img src="docs/readme/dark-flow.png" alt="Flow"/></td></tr>
+<tr><td><img src="docs/readme/play-after.png" alt="Play after a game: share card, stats, word meaning, review, optimal replay, fingerprint"/></td><td><img src="docs/readme/leaderboard.png" alt="Strategy leaderboard"/></td></tr>
+<tr><td><img src="docs/readme/watch.png" alt="Assistant: watch a strategy, every strategy on this word, then the review"/></td><td><img src="docs/readme/tree-opener.png" alt="Tree built from your own starting word (CRANE) compared with SALET"/></td></tr>
+<tr><td><img src="docs/readme/light-compare.png" alt="Compare (light theme): biggest differences above the chart"/></td><td><img src="docs/readme/dark-flow.png" alt="Flow"/></td></tr>
+<tr><td><img src="docs/readme/light-patterns.png" alt="Learn: word inspector (light theme)"/></td><td><img src="docs/readme/ua-leaderboard.png" alt="Ukrainian leaderboard"/></td></tr>
 </table>
-<p align="center"><img src="docs/screenshots/round11/play_ua_mob.png" alt="UA on a phone" width="240"/> <img src="docs/screenshots/round11/strategies-leaderboard_en_mob.png" alt="Leaderboard as cards on a phone" width="240"/> <img src="docs/screenshots/round11/explore-tree_en_mob.png" alt="Tree drill-down on a phone" width="240"/></p>
+<p align="center"><img src="docs/readme/ua-play-mob.png" alt="UA on a phone" width="240"/> <img src="docs/readme/leaderboard-mob.png" alt="Leaderboard as cards on a phone" width="240"/> <img src="docs/readme/tree-mob.png" alt="Tree with a custom starting word and the list drill-down on a phone" width="240"/></p>
 
 ## 🏁 Strategy results
 
@@ -99,7 +101,7 @@ How much the second guess matters: [docs/analysis-second-step.md](docs/analysis-
 
 After every Play game (daily or random, EN and UA) each guess is reviewed: candidates before → after, the bits you actually gained versus the bits that guess was expected to give, the best guess by entropy (hard-mode legal in hard mode) and the optimal-tree move while you are still on the tree, a luck indicator, and short tips (reused grey letters, a yellow letter put back in the same spot, cluster traps, when a non-candidate would have helped). Below it, the optimal strategy plays the same word, and the share card adds your **skill** (the share of the best expected information your guesses achieved) and **luck** (bits gained minus bits expected). Every finished game feeds your **fingerprint**: average skill and its trend, average luck, average guesses, and the strategy whose average is closest to yours. *Assistant › Review a game* does the same for any game you paste.
 
-<img src="docs/screenshots/round10/en-coach-tab.png" alt="Game review" width="720"/>
+<img src="docs/readme/review.png" alt="Assistant › Review a game" width="720"/>
 
 ## 🧮 How it works
 
@@ -112,7 +114,7 @@ $$P(p) = \frac{|S_p|}{|S|}, \qquad H(g) = -\sum_{p} P(p)\,\log_2 P(p)$$
 * **Entropy** picks the guess with the highest *H*. **Two-step** adds the expected entropy of the best follow-up guess in each group.
 * **Minimax** minimises maxₚ |*Sₚ*|. **Expected size** minimises Σ |*Sₚ*|² / |*S*|.
 * **Letter frequency**: if *f* is the number of candidates containing a letter and *n* the number of candidates, the balanced score is *f·(n−f)*. It rewards letters that split the candidates roughly in half.
-* **Optimal** follows a precomputed decision tree that minimises the total number of guesses over all answers. It is verified on load, and if your guesses leave the tree it falls back to two-step.
+* **Optimal** follows a precomputed decision tree that minimises the total number of guesses over all answers. It is verified on load, and if your guesses leave the tree it falls back to two-step. In *Explore › Tree* you can start from any allowed word instead: the first guess is yours and every later move is chosen by max entropy (the precomputed tree only covers its own opener).
 
 Feedback is encoded in base 3 (gray 0, yellow 1, green 2), so 242 means all green. Duplicate letters are handled exactly as Wordle does.
 
@@ -123,10 +125,11 @@ bun install
 bun run dev          # http://localhost:5173
 bun run build        # static site in dist/
 bun run simulate     # recompute public/sim/*, results.json, optimal tree, opener pairs
-bun run test:unit    # engine, coach, routes/redirects, fingerprint
+bun run test:unit    # engine, coach, routes/redirects, fingerprint, custom-opener trees
 bun run test:e2e     # Playwright regression tests against the dev server (needs Chrome; CHROME=/path, BASE_URL=… to override)
 bun scripts/i18n-check.ts           # every UI string has a Ukrainian translation
 OUT=shots bun scripts/shots.ts      # screenshots of every view (EN/UA × desktop/390px) + overflow/console check
+BASE_URL=http://localhost:4173 bun scripts/readme-shots.ts  # README images in docs/readme/ (against `vite preview`)
 bun run definitions  # optional: precompute word meanings into data/ and public/
 ```
 
