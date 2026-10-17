@@ -11,7 +11,8 @@ for (const lang of ['en', 'ua'] as const) {
     try {
       const game = lang === 'en' ? 'ARISE(⬜⬜⬜🟨⬜) CLOTH(⬜⬜🟩🟨⬜)' : 'КОТРА(⬜🟨⬜⬜⬜) СОПЛО(🟩🟨⬜🟨🟩) СЛОВО(🟩🟩🟩🟩🟩)'
       await p.fill('[data-coach-text]', game); await p.click('[data-coach-run]')
-      await waitCoach(p); await p.waitForTimeout(500)
+      await waitCoach(p) // the default example's (3-guess) review can still be on screen while the pasted game is analysed
+      await p.waitForFunction(n => document.querySelectorAll('[data-coach-step]').length === n, lang === 'en' ? 2 : 3, { timeout: 20000 }).catch(() => {}); await p.waitForTimeout(500)
       expect(await p.locator('[data-coach-step]').count()).toBe(lang === 'en' ? 2 : 3)
       const txt = await p.locator('[data-coach]').innerText()
       if (lang === 'en') { expect(txt).toContain('2315 → 80'); expect(txt).toContain('SOARE'); expect(txt).toContain('Best by entropy') }

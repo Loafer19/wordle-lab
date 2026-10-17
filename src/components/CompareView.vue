@@ -52,8 +52,7 @@ const distOpt = computed(() => ({ ...baseC.value, grid: { left: 50, right: 20, t
       <UiStat :label="$t('B wins')" :value="rows.length ? losses : null" tone="danger" />
       <UiStat :label="$t('Ties')" :value="rows.length ? ties : null" />
     </div>
-    <UiCard :title="$t('Guess distributions')"><VChart :option="distOpt" style="height: 280px" autoresize /></UiCard>
-    <UiCard :title="$t('Biggest differences')" :subtitle="$t('Words where the two strategies disagree most')">
+    <UiCard data-compare-diffs-card :title="$t('Biggest differences')" :subtitle="$t('Words where the two strategies disagree most')">
       <template #actions><UiBadge>{{ diffs.length }}</UiBadge></template>
       <p v-if="rows.length && !diffs.length" class="text-muted">{{ $t('Both strategies need the same number of guesses for every word.') }}</p>
       <table v-else class="text-caption w-full" data-diffs>
@@ -69,6 +68,7 @@ const distOpt = computed(() => ({ ...baseC.value, grid: { left: 50, right: 20, t
       </table>
       <UiButton v-if="diffs.length > 15" class="mt-3" variant="secondary" :label="showAll ? $t('Show top 15') : $t('Show all {n}', { n: diffs.length })" @click="showAll = !showAll" data-diffs-all />
     </UiCard>
+    <UiCard data-compare-dist :title="$t('Guess distributions')"><VChart :option="distOpt" style="height: 280px" autoresize /></UiCard>
     <UiAdvanced :subtitle="$t('Per-word difference histogram')">
       <UiCard :title="$t('Per-word difference (A − B)')" :subtitle="$t('Green = A faster, red = B faster (log scale)')"><VChart :option="deltaOpt" style="height: 280px" autoresize /></UiCard>
     </UiAdvanced>

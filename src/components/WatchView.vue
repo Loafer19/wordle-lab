@@ -76,7 +76,6 @@ const stratB = useLocalStorage('wl-watch-strat-b-' + lang, '')
         <StrategyReplay :word="word" :stratId="stratId" @steps="onSteps" />
         <StrategyReplay v-if="stratB" :word="word" :stratId="stratB" :showWhy="false" data-watch-replay-b />
       </div>
-      <CoachReport v-if="game" :result="result" :busy="busy" :progress="progress" :title="$t('Guess-by-guess review')" :notes="notes" />
       <UiCard :title="$t('Every strategy on this word')" :icon="ListOrdered" :subtitle="$t('Number of guesses each built-in strategy needs for {w}', { w: word.toUpperCase() })">
         <template #actions>
           <UiButton v-if="allBusy" :icon="X" :label="$t('Cancel')" variant="ghost" @click="stopAll" data-watch-cancel />
@@ -89,6 +88,7 @@ const stratB = useLocalStorage('wl-watch-strat-b-' + lang, '')
         <p v-if="!all" class="text-caption text-muted">{{ $t('Press Compute to play {w} with every strategy: precomputed results are looked up instantly, the rest (including two-step entropy) run in the background.', { w: word.toUpperCase() }) }}</p>
         <p v-else-if="!allBusy && allDone < allTotal" class="text-caption text-muted mt-2" data-watch-cancelled>{{ $t('Cancelled — {d} of {n} strategies computed.', { d: allDone, n: allTotal }) }}</p>
       </UiCard>
+      <CoachReport v-if="game" data-watch-review :result="result" :busy="busy" :progress="progress" :title="$t('Guess-by-guess review')" :notes="notes" />
     </template>
   </div>
 </template>

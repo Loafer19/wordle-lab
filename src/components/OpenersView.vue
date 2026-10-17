@@ -27,17 +27,17 @@ const inspect = (w: string) => { inspectWord.value = w.toLowerCase(); go('learn'
 </script>
 <template>
   <div class="flex flex-col gap-5">
-    <UiCard :title="$t('Opening words by expected information')" :icon="Rocket" :subtitle="$t('Bits gained on average over the {n} possible answers · click a bar to inspect it', { n: NA })">
-      <template #actions>
-        <InputText v-model="custom" maxlength="5" :placeholder="$t('add word')" size="small" class="w-28 uppercase" @keyup.enter="add" /><UiButton :icon="Plus" :ariaLabel="$t('Add word')" variant="secondary" @click="add" />
-      </template>
-      <VChart :option="opt" style="height: 560px" autoresize @click="(e: any) => inspect(e.name)" class="echarts-clickable" />
-    </UiCard>
-    <UiCard :title="$t('Openers at a glance')" :icon="Table2" :subtitle="$t('Click a row to open it in the Word inspector')">
+    <UiCard data-openers-table :title="$t('Openers at a glance')" :icon="Table2" :subtitle="$t('Click a row to open it in the Word inspector')">
       <div class="overflow-x-auto"><table class="font-mono text-caption w-full max-w-md">
         <thead><tr class="text-muted text-left"><th class="py-1 pr-4 font-medium">{{ $t('word') }}</th><th class="pr-4 font-medium">{{ $t('bits') }}</th><th class="pr-4 font-medium">{{ $t('patterns') }}</th><th class="font-medium">{{ $t('worst bucket') }}</th></tr></thead>
         <tbody><tr v-for="d in data" :key="d.w" class="border-t border-line hover:bg-surface-2 transition-colors cursor-pointer" @click="inspect(d.w)" data-opener-row><td class="py-1 pr-4 uppercase font-semibold">{{ d.w }}</td><td class="pr-4" :title="d.h.toFixed(4)">{{ d.h.toFixed(2) }}</td><td class="pr-4">{{ d.nz }}</td><td>{{ d.mx }}</td></tr></tbody>
       </table></div>
+    </UiCard>
+    <UiCard data-openers-chart :title="$t('Opening words by expected information')" :icon="Rocket" :subtitle="$t('Bits gained on average over the {n} possible answers · click a bar to inspect it', { n: NA })">
+      <template #actions>
+        <InputText v-model="custom" maxlength="5" :placeholder="$t('add word')" size="small" class="w-28 uppercase" @keyup.enter="add" /><UiButton :icon="Plus" :ariaLabel="$t('Add word')" variant="secondary" @click="add" />
+      </template>
+      <VChart :option="opt" style="height: 560px" autoresize @click="(e: any) => inspect(e.name)" class="echarts-clickable" />
     </UiCard>
     <UiAdvanced v-if="!isUA" :subtitle="$t('Opener pairs heatmap: first × second word')"><PairHeatmap /></UiAdvanced>
   </div>

@@ -93,20 +93,7 @@ const describe = (s: Spec) => [s.opener ? s.opener.toUpperCase() : t('computed o
       <ProgressBar v-if="running" :value="Math.round(progress * 100)" class="mt-4 !h-1.5" :showValue="false" />
     </UiCard>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" data-lab-kpis>
-      <UiStat :label="res ? t('Average ({n} words)', { n: res.n }) : t('Average')" :icon="Gauge" :value="res ? res.avg.toFixed(3) : null" :sub="res ? t('opener') + ' ' + res.opener.toUpperCase() : t('Simulating…')" data-lab-avg />
-      <UiStat :label="t('vs best known')" :icon="Trophy" :value="res && best ? (res.avg - best.avg >= 0 ? '+' : '') + (res.avg - best.avg).toFixed(3) : null" :tone="res && best && res.avg - best.avg <= 0.0005 ? 'correct' : 'present'" :sub="best ? shortName(best.id, t(best.name)) + ' ' + best.avg.toFixed(3) : undefined" />
-      <UiStat :label="t('Fail rate (>6)')" :icon="TriangleAlert" :value="res ? (res.failRate * 100).toFixed(2) + '%' : null" :sub="res ? t('worst') + ': ' + res.worst + ' ' + t('guesses') : undefined" />
-      <UiStat :label="t('vs Ruslan balanced')" :value="res && ruslan ? (res.avg - ruslan.avg >= 0 ? '+' : '') + (res.avg - ruslan.avg).toFixed(3) : null" :tone="res && ruslan && res.avg < ruslan.avg ? 'correct' : 'neutral'" :sub="ruslan?.avg.toFixed(3)" />
-    </div>
-    <p v-if="res && !full" class="text-caption text-muted -mt-2">{{ t('Sample of {n} answers: numbers are approximate. "vs" columns compare against full-list results.', { n: res.n }) }}</p>
-
-    <div class="grid lg:grid-cols-[2fr_1fr] gap-5">
-      <UiCard :title="t('Guess distribution (% of games)')"><VChart v-if="opt" :option="opt" style="height: 280px" autoresize /><Skeleton v-else height="280px" /></UiCard>
-      <UiCard :title="t('Hardest words')" :icon="Skull" :subtitle="t('Answers that needed the most guesses')"><WordChips v-if="res" :words="res.worstWords" /><div v-else class="flex flex-wrap gap-1.5" data-skeleton><Skeleton v-for="i in 8" :key="i" width="3.5rem" height="1.4rem" /></div></UiCard>
-    </div>
-
-    <UiCard :title="t('Save as custom strategy')" :icon="Blocks" :subtitle="t('Saved strategies appear in the Assistant, Compare, Tree, Flow and Answer map (stored in this browser).')">
+    <UiCard data-lab-save-card :title="t('Save as custom strategy')" :icon="Blocks" :subtitle="t('Saved strategies appear in the Assistant, Compare, Tree, Flow and Answer map (stored in this browser).')">
       <div class="flex flex-wrap items-center gap-2 mb-4">
         <InputText v-model="saveName" :placeholder="t('Name, e.g. My explorer')" size="small" class="w-64" data-lab-name @keydown.enter="save" />
         <UiButton :icon="Save" :label="t('Save')" @click="save" :disabled="!openerOk" data-lab-save />
@@ -121,5 +108,18 @@ const describe = (s: Spec) => [s.opener ? s.opener.toUpperCase() : t('computed o
         <li v-if="!customs.length" key="none" class="text-caption text-muted">{{ t('No saved strategies yet.') }}</li>
       </TransitionGroup>
     </UiCard>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" data-lab-kpis>
+      <UiStat :label="res ? t('Average ({n} words)', { n: res.n }) : t('Average')" :icon="Gauge" :value="res ? res.avg.toFixed(3) : null" :sub="res ? t('opener') + ' ' + res.opener.toUpperCase() : t('Simulating…')" data-lab-avg />
+      <UiStat :label="t('vs best known')" :icon="Trophy" :value="res && best ? (res.avg - best.avg >= 0 ? '+' : '') + (res.avg - best.avg).toFixed(3) : null" :tone="res && best && res.avg - best.avg <= 0.0005 ? 'correct' : 'present'" :sub="best ? shortName(best.id, t(best.name)) + ' ' + best.avg.toFixed(3) : undefined" />
+      <UiStat :label="t('Fail rate (>6)')" :icon="TriangleAlert" :value="res ? (res.failRate * 100).toFixed(2) + '%' : null" :sub="res ? t('worst') + ': ' + res.worst + ' ' + t('guesses') : undefined" />
+      <UiStat :label="t('vs Ruslan balanced')" :value="res && ruslan ? (res.avg - ruslan.avg >= 0 ? '+' : '') + (res.avg - ruslan.avg).toFixed(3) : null" :tone="res && ruslan && res.avg < ruslan.avg ? 'correct' : 'neutral'" :sub="ruslan?.avg.toFixed(3)" />
+    </div>
+    <p v-if="res && !full" class="text-caption text-muted -mt-2">{{ t('Sample of {n} answers: numbers are approximate. "vs" columns compare against full-list results.', { n: res.n }) }}</p>
+
+    <div class="grid lg:grid-cols-[2fr_1fr] gap-5">
+      <UiCard :title="t('Guess distribution (% of games)')"><VChart v-if="opt" :option="opt" style="height: 280px" autoresize /><Skeleton v-else height="280px" /></UiCard>
+      <UiCard :title="t('Hardest words')" :icon="Skull" :subtitle="t('Answers that needed the most guesses')"><WordChips v-if="res" :words="res.worstWords" /><div v-else class="flex flex-wrap gap-1.5" data-skeleton><Skeleton v-for="i in 8" :key="i" width="3.5rem" height="1.4rem" /></div></UiCard>
+    </div>
   </div>
 </template>
