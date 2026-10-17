@@ -22,7 +22,7 @@ const maxBits = computed(() => Math.max(6, ...(p.result?.steps ?? []).flatMap(s 
       <div v-if="result.error" class="flex items-center gap-2 text-caption text-red-600 dark:text-red-400 mb-3" data-coach-error><CircleAlert :size="14" />
         {{ result.error.kind === 'invalid-word' ? $t('Guess {i} is not in the word list — analysis stops there.', { i: result.error.i + 1 }) : $t('No answer matches the colours of guess {i} — check the tiles.', { i: result.error.i + 1 }) }}</div>
       <div v-if="!compact" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4" data-coach-summary>
-        <UiStat :label="$t('Result')" :value="result.solved ? $t('Solved in {k}', { k: result.steps.length }) : $t('Not solved')" />
+        <UiStat text :label="$t('Result')" :value="result.solved ? $t('Solved in {k}', { k: result.steps.length }) : $t('Not solved')" />
         <UiStat :label="$t('Information')" :value="`${result.totalBits.toFixed(1)} / ${result.neededBits.toFixed(1)}`" :sub="$t('bits')" />
         <UiStat :label="$t('Skill')" :value="Math.round(result.efficiency * 100) + '%'" :tip="$t('Average share of the best expected information your guesses achieved (guesses with 3+ candidates left)')" />
         <UiStat :label="$t('Luck')" :value="(result.luck >= 0 ? '+' : '') + result.luck.toFixed(2)" :sub="$t('bits')" :tone="result.luck >= 0 ? 'correct' : 'danger'" :tip="$t('Actual minus expected information, summed over your guesses')" />
