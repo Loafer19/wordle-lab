@@ -539,5 +539,12 @@ const UA: Record<string, string> = {
   "Type a 5-letter word": "Введіть слово з 5 літер",
   "The opener must have exactly 5 letters": "Перше слово має складатися рівно з 5 літер",
   "Use only letters of the current alphabet": "Використовуйте лише літери поточного алфавіту (українські)",
+  // singleton ('small groups') strategy
+  "Small groups": "Малі групи",
+  "Small groups (singletons, ⌈n/4⌉ cap)": "Малі групи (одиночні, межа ⌈n/4⌉)",
+  "Maximise the sum of 1/group size over the feedback groups (many groups of one → a good chance to solve next turn), only among guesses whose largest group is at most ⌈n/4⌉ of the n remaining answers; if no guess meets the cap, max entropy. Any allowed word; ties prefer possible answers. Fixed opener: SALET (EN) / КОТРА (UA).": "Максимізує суму 1/розмір групи за всіма групами відповідей (багато груп з одного слова → добрий шанс розгадати наступним ходом), але лише серед слів, у яких найбільша група не перевищує ⌈n/4⌉ з n можливих відповідей; якщо такого слова немає — максимальна ентропія. Будь-яке допустиме слово; за рівності перевага можливим відповідям. Фіксоване перше слово: SALET (EN) / КОТРА (UA).",
+  "Opener \"{w}\": {k} feedback groups, the largest has {m} of {n} answers.": "Перше слово «{w}»: {k} груп відповідей, найбільша — {m} з {n}.",
+  "No guess keeps every group at ⌈{n}/4⌉ = {c} or fewer — falling back to max entropy.": "Жодне слово не тримає всі групи в межах ⌈{n}/4⌉ = {c} — повертаємося до максимальної ентропії.",
+  "\"{w}\" leaves about {s} answers alone in their group (chance {p}% to know the answer next turn); its largest group is {m} ≤ ⌈{n}/4⌉ = {c}.": "«{w}» залишає приблизно {s} відповідей самих у своїй групі (шанс {p}% знати відповідь наступним ходом); найбільша група — {m} ≤ ⌈{n}/4⌉ = {c}.",
 }
 export default UA

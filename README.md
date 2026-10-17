@@ -2,7 +2,7 @@
 
 # 🟩🟨⬛ Wordle Lab
 
-**Play Wordle, get a solver that explains every guess, and see how 14 strategies compare across all 2,315 answers (and 1,717 Ukrainian ones).**
+**Play Wordle, get a solver that explains every guess, and see how 15 strategies compare across all 2,315 answers (and 1,717 Ukrainian ones).**
 
 [![Live demo](https://img.shields.io/badge/live%20demo-wordle.fundsflow.fun-16a34a?style=for-the-badge)](https://wordle.fundsflow.fun)
 [![Release](https://img.shields.io/github/v/release/Loafer19/wordle-lab?style=for-the-badge&color=16a34a)](https://github.com/Loafer19/wordle-lab/releases/latest)
@@ -51,6 +51,7 @@ Every strategy plays every answer. *Hard* = Wordle hard mode (revealed letters m
 |---|---|---:|---:|---:|---:|
 | **Optimal tree (SALET)** — Selby, proven | SALET | **3.4212** | 0 | **3.5084** | 0 |
 | Two-step entropy | SLATE | 3.446 | 0 | 3.553 | 0.30% |
+| Small groups (Σ 1/group, largest ≤ ⌈n/4⌉) | SALET | 3.450 | 0 | 3.546 | 0.22% |
 | Max entropy (any word) | SOARE | 3.465 | 0 | 3.603 | 0.30% |
 | Min expected size | ROATE | 3.481 | 0 | 3.597 | 0.22% |
 | Explore 2 → candidates (Ruslan balanced) | SOARE | 3.515 | 0.35% | 3.632 | 0.65% |
@@ -80,6 +81,7 @@ The UA optima are **our own exact results** (`scripts/ua-optimal/`, a Selby-styl
 |---|---|---:|---:|---:|---:|
 | **Optimal tree (UA)** / **(UA, hard)** | КОТРА / КАРСТ | **3.3809** | 0 | **3.4537** | 0.12% |
 | Optimal tree (UA, ≤5 guesses) | КОТРА | 3.3815 | 0 | – | – |
+| Small groups (Σ 1/group, largest ≤ ⌈n/4⌉) | КОТРА | 3.394 | 0 | 3.506 | 0.41% |
 | Max entropy (any word) | КОТРА | 3.396 | 0 | 3.488 | 0.29% |
 | Min expected size | КОТРА | 3.409 | 0 | 3.503 | 0.29% |
 | Two-step entropy | КОТРА | 3.418 | 0 | 3.497 | 0.23% |
@@ -112,6 +114,7 @@ $$P(p) = \frac{|S_p|}{|S|}, \qquad H(g) = -\sum_{p} P(p)\,\log_2 P(p)$$
 *H(g)* is the expected information in **bits**. Seeing pattern *p* gives log₂(1/P(p)) bits, and identifying one answer among the 2,315 takes log₂ 2315 ≈ 11.18 bits. A guess that splits *S* evenly gets close to the ceiling of log₂ 243 ≈ 7.92 bits.
 
 * **Entropy** picks the guess with the highest *H*. **Two-step** adds the expected entropy of the best follow-up guess in each group.
+* **Small groups** maximises Σₚ 1/|*Sₚ*| (many groups of one, so a good chance to know the answer next turn), only among guesses whose largest group is at most ⌈|*S*|/4⌉; if none qualifies it uses max entropy.
 * **Minimax** minimises maxₚ |*Sₚ*|. **Expected size** minimises Σ |*Sₚ*|² / |*S*|.
 * **Letter frequency**: if *f* is the number of candidates containing a letter and *n* the number of candidates, the balanced score is *f·(n−f)*. It rewards letters that split the candidates roughly in half.
 * **Optimal** follows a precomputed decision tree that minimises the total number of guesses over all answers. It is verified on load, and if your guesses leave the tree it falls back to two-step. In *Explore › Tree* you can start from any allowed word instead: the first guess is yours and every later move is chosen by max entropy (the precomputed tree only covers its own opener).
