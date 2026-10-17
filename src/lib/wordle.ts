@@ -117,6 +117,42 @@ function bucketStrategy(id: string, name: string, desc: string, fromAll: boolean
   }
 }
 
+/** Singleton score of a guess: Σ over feedback groups of 1/|group| (= expected chance of knowing the answer next turn, × n), plus its largest group. */
+export function singletonScore(guess: string, cands: string[]) {
+  const b = buckets(guess, cands)
+  let s = 0, max = 0
+  for (const c of b) if (c) { s += 1 / c; if (c > max) max = c }
+  return { s, max }
+}
+export const SINGLETON_OPENER = { en: 'salet', ua: 'котра' } as const
+const SINGLETON_EPS = 1e-9
+// 'Small groups': maximise Σ 1/|group| (many singleton groups → a good chance to solve on the next turn), but only among guesses
+// whose largest group is at most ⌈n/4⌉; with no such guess fall back to max entropy. Any allowed word; ties prefer candidates.
+function singletonStrategy(): Strategy {
+  const entropyFallback = bucketStrategy('entropy-all', 'Max entropy', '', true, 'entropy')
+  return {
+    id: 'singleton-all', name: 'Small groups (singletons, ⌈n/4⌉ cap)',
+    desc: 'Maximise the sum of 1/group size over the feedback groups (many groups of one → a good chance to solve next turn), only among guesses whose largest group is at most ⌈n/4⌉ of the n remaining answers; if no guess meets the cap, max entropy. Any allowed word; ties prefer possible answers. Fixed opener: SALET (EN) / КОТРА (UA).',
+    pick(cands, ctx, turn) {
+      const n = cands.length
+      if (n <= 2) return { guess: cands[0], score: 1, why: tr('{n} candidate(s) left — guess one.', { n }) }
+      if (turn === 1 && n === ctx.answers.length) {
+        const o = /^[a-z]/.test(cands[0]) ? SINGLETON_OPENER.en : SINGLETON_OPENER.ua
+        if (ctx.allowed.includes(o)) { const r = singletonScore(o, cands); return { guess: o, score: r.s, why: tr('Opener "{w}": {k} feedback groups, the largest has {m} of {n} answers.', { w: o.toUpperCase(), k: buckets(o, cands).filter(Boolean).length, m: r.max, n }) } }
+      }
+      const cap = Math.ceil(n / 4), cs = new Set(cands)
+      let best = '', bs = -Infinity, bm = 0
+      for (const w of ctx.allowed) {
+        const r = singletonScore(w, cands)
+        if (r.max > cap) continue
+        if (r.s > bs + SINGLETON_EPS || (r.s > bs - SINGLETON_EPS && cs.has(w) && !cs.has(best))) { best = w; bs = r.s; bm = r.max }
+      }
+      if (!best) { const f = entropyFallback.pick(cands, ctx, turn); return { ...f, why: tr('No guess keeps every group at ⌈{n}/4⌉ = {c} or fewer — falling back to max entropy.', { n, c: cap }) + ' ' + f.why } }
+      return { guess: best, score: bs, why: tr('"{w}" leaves about {s} answers alone in their group (chance {p}% to know the answer next turn); its largest group is {m} ≤ ⌈{n}/4⌉ = {c}.', { w: best.toUpperCase(), s: bs.toFixed(1), p: Math.round((100 * bs) / n), m: bm, n, c: cap }) }
+    },
+  }
+}
+
 let seed = 12345
 const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff)
 export const STRATEGIES: Strategy[] = [
@@ -127,6 +163,7 @@ export const STRATEGIES: Strategy[] = [
   bucketStrategy('entropy-cand', 'Max entropy (candidates)', 'Max entropy but only guessing possible answers (hard-mode-ish).', false, 'entropy'),
   bucketStrategy('minimax-all', 'Minimax worst bucket', 'Minimise the largest remaining group (Knuth Mastermind style).', true, 'minimax'),
   bucketStrategy('expsize-all', 'Min expected size', 'Minimise expected number of remaining candidates (sum of squares of bucket sizes).', true, 'expsize'),
+  singletonStrategy(),
   { id: 'random', name: 'Random candidate', desc: 'Baseline: random word still consistent with feedback.',
     pick(c) { const g = c[Math.floor(rnd() * c.length)]; return { guess: g, score: 0, why: tr('Random pick among {n} consistent words.', { n: c.length }) } } },
 ]

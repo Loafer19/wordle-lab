@@ -5,6 +5,7 @@ const SHORT: Record<string, string> = {
   'explore1-cand': 'Explore 1 → cand.', 'explore2-cand': 'Explore 2 → balanced', 'freq-cand': 'Ruslan freq', 'freqpos-cand': 'Ruslan pos-freq',
   'freqbal-cand': 'Ruslan balanced', 'entropy-all': 'Max entropy', 'entropy-cand': 'Max entropy (cand.)', 'minimax-all': 'Minimax',
   'expsize-all': 'Min expected size', random: 'Random', 'staged-adaptive': 'Staged ≤3', 'staged-2turn': 'Staged 2+splitter',
+  'singleton-all': 'Small groups',
 }
 export const baseId = (id: string) => id.replace(/@hard$/, '')
 export const shortName = (id: string, fallback = id) => (SHORT[baseId(id)] ? t(SHORT[baseId(id)]) : fallback)
