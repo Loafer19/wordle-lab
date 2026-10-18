@@ -5,6 +5,7 @@ export const SECTIONS: Record<string, string[]> = {
   learn: ['guide', 'letters', 'openers', 'inspector'],
   strategies: ['leaderboard', 'compare', 'lab'],
   explore: ['tree', 'flow', 'map'],
+  community: [],
 }
 /** Old tab (and optional old view) → new [tab, view]. Exported for tests. */
 export const LEGACY: Record<string, [string, string?]> = {

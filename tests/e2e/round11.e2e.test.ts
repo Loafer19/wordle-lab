@@ -10,7 +10,7 @@ for (const lang of ['en', 'ua'] as const) test(`${lang} 390px: bottom tab bar, n
   try {
     expect(await p.locator('[data-bottomnav]').isVisible()).toBe(true)
     expect(await p.locator('[data-topnav]').isVisible()).toBe(false)
-    expect(await p.locator('[data-bottomnav] a').count()).toBe(5)
+    expect(await p.locator('[data-bottomnav] a').count()).toBe(6)
     const over: string[] = []
     for (const v of VIEWS) {
       await p.goto(p.url().split('#')[0] + '#tab=' + v); await p.waitForTimeout(1800)

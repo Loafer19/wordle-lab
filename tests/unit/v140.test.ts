@@ -4,7 +4,7 @@ import { resolve, SECTIONS, href } from '../../src/lib/routes'
 import { fingerprint, nearest, shareText, type GameRecord } from '../../src/lib/fingerprint'
 
 test('five tabs with their sub-views', () => {
-  expect(Object.keys(SECTIONS)).toEqual(['play', 'assistant', 'learn', 'strategies', 'explore'])
+  expect(Object.keys(SECTIONS)).toEqual(['play', 'assistant', 'learn', 'strategies', 'explore', 'community'])
   expect(SECTIONS.explore).toEqual(['tree', 'flow', 'map'])
   expect(href('learn', 'inspector')).toBe('#tab=learn&view=inspector')
 })

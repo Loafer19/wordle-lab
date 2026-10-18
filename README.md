@@ -28,10 +28,11 @@
 | 🎓 **Learn** | A four-step **guide** (letters → patterns → entropy → trees), letter and positional frequencies, the **top openers** (the at-a-glance table first, then the chart), and the **Word inspector** (all 243 colour patterns of any guess, its entropy and its worst case). The opener-pairs heatmap is under *Advanced*. |
 | 🧪 **Strategies** | One **leaderboard** of every strategy on every answer: average, gap to the proven optimum, fail % and worst case, with Normal/Hard/Both. Tick two rows to **Compare** them: KPIs, then the **biggest differences**, then the distributions chart. The **Strategy Lab** builds a strategy from blocks, with *Save as custom strategy* right under the builder, so saved strategies show up in the other views. More charts and Web Worker re-runs (cached in IndexedDB) are collapsed. |
 | 🔭 **Explore** | The optimal decision **Tree**, which you can also rebuild from **your own starting word** (computed in a Web Worker, with a *default vs. yours* table of average, worst case and the guess distribution, remembered per language), a **Flow** sankey of how the answer set shrinks, and an **Answer map** of how hard each word is. On phones, Tree and Flow switch to list drill-downs. |
+| 👥 **Community** | Curated links: competitive Wordle (World Wardle, Wordle Dash, The Arena Cup), videos and stories (3Blue1Brown, Alex Selby's proof, how Wordle was made and sold), Discord servers, and **notable words** from our own simulations: the hardest answers, hard-mode traps and one-letter families like _IGHT, each one click from *Watch a strategy*. |
 | 🇺🇦 **Ukrainian** | EN/UA switch in Settings: the whole interface in Ukrainian (Гра · Асистент · Навчання · Стратегії · Дослідження), Ukrainian word lists, a ЙЦУКЕН keyboard (ґ, є, і, ї), and every strategy simulated on Ukrainian answers. |
 | 📖 **Word meanings** | Click any word for its definition (dictionaryapi.dev with Wiktionary as a fallback; UA words link to Горох, СУМ-20 and sum.in.ua). |
 
-Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can open views in new tabs and share them. Links from older versions (`#tab=solver`, `#tab=coach`, `#tab=analytics&view=patterns`, …) redirect to their new places. On phones the five tabs are a bottom bar.
+Every tab and sub-view is a real link, e.g. `#tab=explore&view=tree`, so you can open views in new tabs and share them. Links from older versions (`#tab=solver`, `#tab=coach`, `#tab=analytics&view=patterns`, …) redirect to their new places. On phones the six tabs are a bottom bar.
 
 <table>
 <tr><td><img src="docs/readme/play-after.png" alt="Play after a game: share card, stats, word meaning, review, optimal replay, fingerprint"/></td><td><img src="docs/readme/leaderboard.png" alt="Strategy leaderboard"/></td></tr>
@@ -133,6 +134,7 @@ bun run test:e2e     # Playwright regression tests against the dev server (needs
 bun scripts/i18n-check.ts           # every UI string has a Ukrainian translation
 OUT=shots bun scripts/shots.ts      # screenshots of every view (EN/UA × desktop/390px) + overflow/console check
 BASE_URL=http://localhost:4173 bun scripts/readme-shots.ts  # README images in docs/readme/ (against `vite preview`)
+bun scripts/notable.ts              # Community › notable words (public/notable.json, public/ua/notable.json) from public/sim/*
 bun run definitions  # optional: precompute word meanings into data/ and public/
 ```
 

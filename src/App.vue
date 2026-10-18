@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { t } from './lib/i18n'
 import { ref, computed, defineAsyncComponent } from 'vue'
-import { Gamepad2, Brain, CaseSensitive, Rocket, Sun, Moon, Sparkles, Network, Waves, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag, Scale, History, GraduationCap, Eye, Footprints, ScanSearch, Trophy } from 'lucide-vue-next'
+import { Gamepad2, Brain, CaseSensitive, Rocket, Sun, Moon, Sparkles, Network, Waves, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag, Scale, History, GraduationCap, Eye, Footprints, ScanSearch, Trophy, Users } from 'lucide-vue-next'
 import { ready } from './lib/words'
 import { isDark, toggleDark } from './lib/theme'
 import { route, href } from './lib/route'
@@ -21,12 +21,14 @@ const sub = {
   strategies: [{ id: 'leaderboard', label: t('Leaderboard'), icon: Trophy, comp: lazy(() => import('./components/LeaderboardView.vue')) }, { id: 'compare', label: t('Compare'), icon: GitCompare, comp: lazy(() => import('./components/CompareView.vue')), hidden: true }, { id: 'lab', label: t('Strategy Lab'), icon: Blocks, comp: lazy(() => import('./components/LabView.vue')) }],
   explore: [{ id: 'tree', label: t('Tree'), icon: Network, comp: lazy(() => import('./components/TreeView.vue')) }, { id: 'flow', label: t('Flow'), icon: Waves, comp: lazy(() => import('./components/SankeyView.vue')) }, { id: 'map', label: t('Answer map'), icon: MapIcon, comp: lazy(() => import('./components/AnswerMapView.vue')) }],
 }
+const CommunityView = lazy(() => import('./components/CommunityView.vue'))
 const tabs = [
   { id: 'play', label: t('Play'), icon: Gamepad2 },
   { id: 'assistant', label: t('Assistant'), icon: Brain },
   { id: 'learn', label: t('Learn'), icon: GraduationCap },
   { id: 'strategies', label: t('Strategies'), icon: FlaskConical },
   { id: 'explore', label: t('Explore'), icon: Compass },
+  { id: 'community', label: t('Community'), icon: Users },
 ]
 const loaded = ref(false); ready.then(() => (loaded.value = true))
 // pre-warm: once the first view is up and the browser is idle, fetch the other views' chunks so tab switches are instant
@@ -60,7 +62,7 @@ const current = computed(() => route.tab)
     </nav>
     <!-- phones: fixed bottom tab bar -->
     <nav class="sm:hidden fixed bottom-0 inset-x-0 z-20 bg-surface/95 backdrop-blur border-t border-line pb-[env(safe-area-inset-bottom)]" :aria-label="$t('Main')" data-bottomnav>
-      <div class="grid grid-cols-5">
+      <div class="grid grid-cols-6">
         <a v-for="t in tabs" :key="t.id" :href="href(t.id)" :aria-current="current === t.id ? 'page' : undefined" data-tab-link-mobile :data-tab="t.id"
           class="flex flex-col items-center gap-0.5 pt-2 pb-1.5 text-[11px] font-medium min-w-0 transition-colors" :class="current === t.id ? 'text-brand-700 dark:text-brand-400' : 'text-muted'">
           <span class="grid place-items-center h-7 w-12 rounded-full transition-colors" :class="current === t.id && 'bg-brand-500/15'"><UiIcon :icon="t.icon" /></span><span class="truncate max-w-full px-0.5">{{ t.label }}</span>
@@ -71,6 +73,7 @@ const current = computed(() => route.tab)
     <main v-else>
       <Transition name="tab" mode="out-in">
         <PlayView v-if="current === 'play'" key="play" />
+        <CommunityView v-else-if="current === 'community'" key="community" />
         <SectionView v-else :key="current" :tab="current" :views="sub[current as keyof typeof sub]" />
       </Transition>
     </main>

@@ -5,7 +5,7 @@ import { open } from './helpers'
 test('tabs and logo are real links; sub-views deep-link; legacy hashes redirect', async () => {
   const { b, p, errors } = await open('play')
   try {
-    expect(await p.locator('a[data-tab-link]').evaluateAll(a => a.map(x => x.getAttribute('href')))).toEqual(['#tab=play', '#tab=assistant', '#tab=learn', '#tab=strategies', '#tab=explore'])
+    expect(await p.locator('a[data-tab-link]').evaluateAll(a => a.map(x => x.getAttribute('href')))).toEqual(['#tab=play', '#tab=assistant', '#tab=learn', '#tab=strategies', '#tab=explore', '#tab=community'])
     expect(await p.locator('a[data-home]').getAttribute('href')).toBe('#tab=play')
     await p.click('a[data-tab=explore]'); await p.waitForTimeout(500)
     expect(await p.evaluate(() => location.hash)).toBe('#tab=explore&view=tree')
