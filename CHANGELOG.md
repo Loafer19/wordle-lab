@@ -11,7 +11,7 @@ Lookahead strategies that look two guesses ahead, a leaderboard grouped by type,
 - **Lookahead 2-ply safe** (`lookahead-a`): maximises the answers whose group can be finished within two more guesses. EN 3.4540 with 98.4% of games in ≤ 4 (worst 5), UA 3.4024 with 98.0% in ≤ 4.
 - `scripts/lookahead/lookahead.py` (Python + numpy) regenerates the four trees in `data/lookahead/` and `data/ua/lookahead/` in about 10–30 s each; `bun scripts/simulate.ts` verifies them and writes `public/lookahead-tree.json`.
 - **Small groups + entropy** (`hybrid-all`): instant greedy rule Σ 1/group + 20 × entropy, no cap, fixed opener SALET / КОТРА. EN 3.4263, UA 3.3885.
-- **Max entropy (fixed opener)** (`entropy-fixed`, EN): max entropy after SALET, a like-for-like baseline for the SALET strategies (3.4337 vs 3.4648 with its own opener SOARE).
+- **Max entropy** (`entropy-all`) now always opens with SALET (EN) / КОТРА (UA), the same opener as Small groups, so the comparison is like for like: EN 3.4337 (was 3.4648 with its own opener SOARE), hard 3.5235; UA unchanged (3.3960, it already opened with КОТРА). There is a single max-entropy row; the old "own opener" variant is gone.
 - **Strategies › Lookahead**: how the lookahead works (2-ply expected guesses, the penalty x, top-K pruning, why it is precomputed), results next to the optimum and the greedy rules, the safe vs expected-cost trade-off, the opener effect table (SOARE / SALET / TRACE / CRANE), the Small-groups cap sweep and the lookahead parameter sweep. EN and UA.
 
 ### Changed

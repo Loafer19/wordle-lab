@@ -29,7 +29,7 @@ const modes = [{ v: 'normal', l: t('Normal') }, { v: 'hard', l: t('Hard') }, { v
 // re-run results (Web Workers) override the precomputed normal-mode numbers; cached in IndexedDB per language + word list size
 const reruns = ref<Record<string, SimResult>>({}), progress = ref<Record<string, number>>({})
 const cacheKey = (id: string) => `sim:${lang}:${answers.value.length}:${id}`
-const SIM_STRATS = [...STAGED_STRATEGIES, ...STRATEGIES].filter(s => !(isUA && s.id === 'entropy-fixed')).map(s => ({ id: s.id, name: shortName(s.id, t(s.name)) }))
+const SIM_STRATS = [...STAGED_STRATEGIES, ...STRATEGIES].map(s => ({ id: s.id, name: shortName(s.id, t(s.name)) }))
 const selected = ref(SIM_STRATS.map(s => s.id))
 watch(() => answers.value.length, async n => { if (!n) return; for (const s of SIM_STRATS) { const r = await idbGet<SimResult>(cacheKey(s.id)); if (r) reruns.value[s.id] = r } }, { immediate: true })
 function rerun() {

@@ -47,7 +47,6 @@ const treeFor = (id: string, hard: boolean) => id.startsWith('lookahead-') ? (ha
 const all: Strategy[] = [...treeStrats, ...lookStrats, twoStepStrategy(), ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...STRATEGIES].filter(s => !ids.length || ids.includes(s.id))
 const results: RichResult[] = []
 for (const s of all) for (const hard of noHard ? [false] : [false, true]) {
-  if (LANG !== 'en' && s.id === 'entropy-fixed') continue // UA max entropy already opens with КОТРА → identical to entropy-all
   if (hard && s.id.startsWith('lookahead-')) continue // the lookahead trees are normal-mode only
   if (LANG !== 'en' && hard && s.id === 'optimal-max5') continue // the ≤5 UA tree is normal-mode only (hard: 'optimal' uses the КАРСТ hard tree)
   const r = simulateEx(s, ctx, { hard, tree: treeFor(s.id, hard), optimum: OPTIMA[LANG as 'en' | 'ua'] ?? OPTIMUM })

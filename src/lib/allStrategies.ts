@@ -71,6 +71,5 @@ fetch(base + 'lookahead-tree.json').then(r => r.json()).then(async (lt: { b: Tre
   const hy = STRATEGIES.find(s => s.id === 'hybrid-all')!
   lookaheadTrees.value = [treeLookupStrategy('lookahead-b', LOOK_B_NAME, lt.b, answers.value, hy, LOOK_B_DESC, LOOK_TEXTS), treeLookupStrategy('lookahead-a', LOOK_A_NAME, lt.a, answers.value, hy, LOOK_A_DESC, LOOK_TEXTS)]
 }).catch(() => {})
-// UA max entropy already opens with КОТРА, so the fixed-opener baseline would be an exact duplicate there
-export const allStrategies = computed(() => [...extra.value, ...lookaheadTrees.value, ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...customs.value.map(composeStrategy), ...STRATEGIES.filter(s => !(isUA && s.id === 'entropy-fixed'))].map(s => (s.id.startsWith('custom:') ? s : { ...s, name: t(s.name), desc: t(s.desc) })))
+export const allStrategies = computed(() => [...extra.value, ...lookaheadTrees.value, ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...customs.value.map(composeStrategy), ...STRATEGIES].map(s => (s.id.startsWith('custom:') ? s : { ...s, name: t(s.name), desc: t(s.desc) })))
 void filter

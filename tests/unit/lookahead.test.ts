@@ -7,6 +7,7 @@ import { feedback, ALL_GREEN, STRATEGIES, hybridScore, buckets } from '../../src
 import { shortName, groupOf, blurb, GROUPS } from '../../src/lib/names'
 import { isTreeId, LOOK_A_NAME, LOOK_B_NAME, LOOK_A_DESC, LOOK_B_DESC } from '../../src/lib/lookahead'
 import UA_T from '../../src/lib/i18n-ua'
+import { canonicalId } from '../../src/lib/shared'
 const rd = (f: string) => readFileSync(f, 'utf8').split(/\s+/).filter(Boolean)
 const json = (f: string) => JSON.parse(readFileSync(f, 'utf8'))
 const depth = (t: TreeNode, a: string) => { let n: TreeNode | undefined = t, k = 0; while (n) { k++; const p = feedback(n.g, a); if (p === ALL_GREEN) return k; n = n.c?.[p] } return 99 }
@@ -34,15 +35,18 @@ test('public lookahead-tree.json = the shipped trees', () => {
   }
 })
 
-test('sim index: lookahead rows (normal only), hybrid and fixed-opener baseline', () => {
+test('sim index: lookahead rows (normal only), hybrid and the single max-entropy row (fixed opener)', () => {
   const en = json('public/sim/index.json') as { id: string; avg: number; worst: number; opener: string }[], ua = json('public/ua/sim/index.json') as typeof en
   const g = (x: typeof en, id: string) => x.find(r => r.id === id)!
   expect(Math.round(g(en, 'lookahead-b').avg * 2315)).toBe(7920); expect(Math.round(g(en, 'lookahead-a').avg * 2315)).toBe(7996)
   expect(Math.round(g(ua, 'lookahead-b').avg * 1717)).toBe(5805); expect(Math.round(g(ua, 'lookahead-a').avg * 1717)).toBe(5842)
   expect(en.some(r => r.id === 'lookahead-b@hard')).toBe(false)
   expect(Math.round(g(en, 'hybrid-all').avg * 2315)).toBe(7932); expect(g(en, 'hybrid-all').opener).toBe('salet')
-  expect(Math.round(g(en, 'entropy-fixed').avg * 2315)).toBe(7949); expect(g(en, 'entropy-fixed').opener).toBe('salet')
-  expect(g(ua, 'hybrid-all').opener).toBe('котра'); expect(ua.some(r => r.id === 'entropy-fixed')).toBe(false)
+  expect(Math.round(g(en, 'entropy-all').avg * 2315)).toBe(7949); expect(g(en, 'entropy-all').opener).toBe('salet')
+  expect(Math.round(g(ua, 'entropy-all').avg * 1717)).toBe(5831); expect(g(ua, 'entropy-all').opener).toBe('котра')
+  expect(g(ua, 'hybrid-all').opener).toBe('котра')
+  for (const x of [en, ua]) expect(x.some(r => r.id.startsWith('entropy-fixed'))).toBe(false)
+  expect(canonicalId('entropy-fixed')).toBe('entropy-all'); expect(canonicalId('optimal')).toBe('optimal')
 })
 
 test('hybrid = Σ 1/|group| + 20·H, first move matches the sim', () => {
@@ -58,10 +62,10 @@ test('hybrid = Σ 1/|group| + 20·H, first move matches the sim', () => {
 })
 
 test('registration: names, groups, descriptions and Ukrainian translations', () => {
-  for (const id of ['hybrid-all', 'entropy-fixed']) { const s = STRATEGIES.find(x => x.id === id)!; expect(s).toBeDefined(); for (const k of [s.name, s.desc, shortName(id)]) expect(UA_T[k]).toBeTruthy() }
+  for (const id of ['hybrid-all', 'entropy-all']) { const s = STRATEGIES.find(x => x.id === id)!; expect(s).toBeDefined(); for (const k of [s.name, s.desc, shortName(id)]) expect(UA_T[k]).toBeTruthy() }
   for (const k of [LOOK_A_NAME, LOOK_B_NAME, LOOK_A_DESC, LOOK_B_DESC, shortName('lookahead-a'), shortName('lookahead-b'), ...GROUPS.map(g => g.label)]) expect(UA_T[k]).toBeTruthy()
   expect(isTreeId('lookahead-b')).toBe(true); expect(isTreeId('optimal-max5')).toBe(true); expect(isTreeId('hybrid-all')).toBe(false)
   expect(groupOf('optimal')).toBe('optimal'); expect(groupOf('lookahead-a')).toBe('lookahead'); expect(groupOf('hybrid-all')).toBe('greedy')
-  expect(groupOf('entropy-fixed')).toBe('baseline'); expect(groupOf('random@hard')).toBe('baseline'); expect(groupOf('freqbal-cand')).toBe('human')
+  expect(groupOf('entropy-all')).toBe('baseline'); expect(groupOf('random@hard')).toBe('baseline'); expect(groupOf('freqbal-cand')).toBe('human')
   for (const r of json('public/sim/index.json') as { id: string }[]) expect(blurb(r.id)).toBeTruthy()
 })

@@ -13,7 +13,7 @@ import { guessScale, ruslanColor, otherColor } from '../lib/tokens'
 import { t } from '../lib/i18n'
 import Skeleton from 'primevue/skeleton'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'
-const IDS = lang === 'en' ? ['optimal', 'lookahead-b', 'lookahead-a', 'hybrid-all', 'entropy-fixed', 'singleton-all', 'entropy2-all', 'entropy-all'] : ['optimal', 'optimal-max5', 'lookahead-b', 'lookahead-a', 'hybrid-all', 'singleton-all', 'entropy-all', 'entropy2-all']
+const IDS = lang === 'en' ? ['optimal', 'lookahead-b', 'lookahead-a', 'hybrid-all', 'entropy-all', 'singleton-all', 'entropy2-all'] : ['optimal', 'optimal-max5', 'lookahead-b', 'lookahead-a', 'hybrid-all', 'singleton-all', 'entropy-all', 'entropy2-all']
 const cnt = (s: Summary) => s.dist.reduce((a, b) => a + (b ?? 0), 0)
 const total = (s: Summary) => Math.round(s.avg * cnt(s))
 const share = (s: Summary, k: number) => (100 * s.dist.slice(0, k + 1).reduce((a, b) => a + (b ?? 0), 0)) / cnt(s)
@@ -73,7 +73,7 @@ const avg = (tot: number) => (tot / 2315).toFixed(3)
           <table class="text-caption w-full"><thead><tr class="text-muted text-left"><th class="py-1 pr-3 font-medium">{{ $t('Rule') }}</th><th v-for="o in OPENERS" :key="o" class="pr-3 font-mono uppercase font-semibold">{{ o }}</th></tr></thead>
             <tbody><tr v-for="r in ruleRows" :key="r.rule" class="border-t border-line"><td class="py-1.5 pr-3 whitespace-nowrap">{{ $t(r.rule) }}</td>
               <td v-for="c in r.cells" :key="c[1]" class="pr-3 tabular-nums whitespace-nowrap" :class="c[2] === rowMin(r.cells) && 'font-bold text-correct'">{{ c[2] }} <span class="text-muted font-normal">({{ avg(c[2]) }})</span><sup v-if="c[3] < 6" class="text-muted" v-tooltip.top="$t('worst case 5')">≤5</sup></td></tr></tbody></table>
-          <p class="text-caption text-muted mt-2">{{ $t('SOARE is the max-entropy opener, but after it every rule does worse: about 50–80 guesses more than SALET. Compare strategies with the same opener.') }}</p>
+          <p class="text-caption text-muted mt-2">{{ $t('SOARE is the max-entropy opener, but after it every rule does worse: about 50–80 guesses more than SALET. That is why Max entropy in the leaderboard opens with SALET too.') }}</p>
         </div>
         <div class="overflow-x-auto" data-lookahead-cap>
           <h4 class="font-semibold mb-1">{{ $t('Small groups: cap on the largest group (SALET)') }}</h4>

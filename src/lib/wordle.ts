@@ -183,12 +183,13 @@ function hybridStrategy(): Strategy {
     },
   }
 }
-// Max entropy with the same fixed opener as Small groups — a fair baseline (max entropy's own opener is SOARE in EN).
-function entropyFixedStrategy(): Strategy {
+// Max entropy with a fixed opener (the same as Small groups: SALET in EN, КОТРА in UA), so it compares like for like with the
+// SALET / КОТРА strategies. In UA that is also max entropy's own best opener; in EN its own pick would be SOARE (worse after all).
+function entropyStrategy(): Strategy {
   const e = bucketStrategy('entropy-all', 'Max entropy', '', true, 'entropy')
   return {
-    id: 'entropy-fixed', name: 'Max entropy (SALET / КОТРА opener)',
-    desc: 'Max entropy (any allowed word) after the same fixed opener as Small groups: SALET (EN) / КОТРА (UA). A like-for-like baseline: the openers differ otherwise (max entropy alone opens with SOARE in EN).',
+    id: 'entropy-all', name: 'Max entropy',
+    desc: 'Maximise expected information (Shannon entropy of the feedback groups), any allowed word; ties prefer possible answers. Fixed opener SALET (EN) / КОТРА (UA), the same as Small groups (in EN max entropy would pick SOARE itself, which does worse over all answers).',
     pick(cands, ctx, turn) {
       if (turn === 1 && cands.length === ctx.answers.length) {
         const o = /^[a-z]/.test(cands[0]) ? SINGLETON_OPENER.en : SINGLETON_OPENER.ua
@@ -205,13 +206,12 @@ export const STRATEGIES: Strategy[] = [
   freqStrategy('freq-cand', 'Ruslan freq (candidates)', false, false),
   freqStrategy('freqpos-cand', 'Ruslan pos-freq (candidates)', false, true),
   freqStrategy('freqbal-cand', 'Ruslan balanced f·(n−f) (candidates)', false, false, true),
-  bucketStrategy('entropy-all', 'Max entropy (3b1b)', 'Maximise expected information (Shannon entropy of feedback distribution), any allowed word; ties prefer candidates.', true, 'entropy'),
+  entropyStrategy(),
   bucketStrategy('entropy-cand', 'Max entropy (candidates)', 'Max entropy but only guessing possible answers (hard-mode-ish).', false, 'entropy'),
   bucketStrategy('minimax-all', 'Minimax worst bucket', 'Minimise the largest remaining group (Knuth Mastermind style).', true, 'minimax'),
   bucketStrategy('expsize-all', 'Min expected size', 'Minimise expected number of remaining candidates (sum of squares of bucket sizes).', true, 'expsize'),
   singletonStrategy(),
   hybridStrategy(),
-  entropyFixedStrategy(),
   { id: 'random', name: 'Random candidate', desc: 'Baseline: random word still consistent with feedback.',
     pick(c) { const g = c[Math.floor(rnd() * c.length)]; return { guess: g, score: 0, why: tr('Random pick among {n} consistent words.', { n: c.length }) } } },
 ]
