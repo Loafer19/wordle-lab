@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Learn › Start here: a short guided path (letters → patterns → entropy → trees) for curious players.
-import { CaseSensitive, Grid2x2, Sigma, Network, ArrowRight, CircleCheck } from 'lucide-vue-next'
+import { CaseSensitive, Grid2x2, Sigma, Network, ArrowRight, CircleCheck, Boxes } from 'lucide-vue-next'
 import { href } from '../lib/route'
 import { guideSeen } from '../lib/shared'
 import { t } from '../lib/i18n'
@@ -24,5 +24,9 @@ const mark = (id: string) => (guideSeen.value = { ...guideSeen.value, [id]: true
         <a :href="s.link" @click="mark(s.id)" class="self-start inline-flex items-center gap-1.5 text-body font-semibold text-brand-700 dark:text-brand-400 hover:underline underline-offset-2">{{ s.cta }}<ArrowRight :size="14" /></a>
       </li>
     </ol>
+    <a :href="href('learn', 'small-groups')" class="bg-surface border border-line rounded-card shadow-card p-4 sm:p-5 flex items-center gap-3 hover:bg-surface-2 transition" data-guide-small-groups>
+      <span class="grid place-items-center size-8 rounded-lg bg-brand-500/12 text-brand-600 dark:text-brand-400"><Boxes :size="16" /></span>
+      <span class="flex-1"><span class="block text-title font-semibold">{{ $t('Bonus: how to play Small groups in your head') }}</span><span class="block text-body text-muted">{{ $t('A strategy almost as good as max entropy that you can count without a calculator.') }}</span></span><ArrowRight :size="16" class="text-brand-600" />
+    </a>
   </div>
 </template>
