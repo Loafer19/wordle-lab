@@ -8,6 +8,7 @@ import { PRESET_STRATEGIES, composeStrategy } from './compose'
 import { customs } from './custom'
 import { STAGED_STRATEGIES } from './staged'
 import { t } from './i18n'
+import { LOOK_A_DESC, LOOK_A_NAME, LOOK_B_DESC, LOOK_B_NAME } from './lookahead'
 
 /** Index an optimal tree by the exact candidate set reaching each node → guess. Falls back to two-step when the user left the tree. */
 export const EN_TREE_DESC = 'Provably optimal decision tree (Alex Selby; Bertsimas & Paskov): average 3.4212 normal / 3.5084 hard. If your guesses leave the tree, it falls back to two-step entropy.'
@@ -20,7 +21,18 @@ export function treeAvg(tree: TreeNode) {
   const go = (n: TreeNode, d: number) => { const kids = Object.values(n.c ?? {}); const below = kids.reduce((s, c) => s + c.n, 0); sum += (n.n - below) * d; for (const c of kids) go(c, d + 1) }
   go(tree, 1); return sum / tree.n
 }
-export function treeLookupStrategy(id: string, name: string, tree: TreeNode, all: string[], fallback: Strategy, desc = EN_TREE_DESC): Strategy {
+export interface TreeTexts { open: string; move: string; off: string }
+const OPT_TEXTS: TreeTexts = {
+  open: 'Opening move of the optimal decision tree: "{w}". Following this tree over all {n} answers takes {a} guesses on average (see the strategy description for how it was proven). Each next move is read from the tree for the exact set of answers still possible.',
+  move: 'Optimal decision tree says "{w}" for these {n} possible answers (minimises the total number of guesses over all of them).',
+  off: 'Off the optimal tree (an earlier guess differed) — falling back to two-step entropy.',
+}
+const LOOK_TEXTS: TreeTexts = {
+  open: 'Opening move of the precomputed lookahead tree: "{w}". Following this tree over all {n} answers takes {a} guesses on average. Each next move is read from the tree for the exact set of answers still possible.',
+  move: 'Lookahead tree says "{w}" for these {n} possible answers (chosen by looking two guesses ahead).',
+  off: 'Off the lookahead tree (an earlier guess differed) — falling back to Small groups + entropy.',
+}
+export function treeLookupStrategy(id: string, name: string, tree: TreeNode, all: string[], fallback: Strategy, desc = EN_TREE_DESC, texts: TreeTexts = OPT_TEXTS): Strategy {
   const map = new Map<string, string>()
   const avg = treeAvg(tree)
   const walk = (node: TreeNode, cands: string[]) => {
@@ -34,9 +46,9 @@ export function treeLookupStrategy(id: string, name: string, tree: TreeNode, all
     id, name, desc,
     pick(cands, ctx, turn) {
       const g = map.get(cands.join(','))
-      if (g && turn === 1 && cands.length === all.length) return { guess: g, score: avg, why: t('Opening move of the optimal decision tree: "{w}". Following this tree over all {n} answers takes {a} guesses on average (see the strategy description for how it was proven). Each next move is read from the tree for the exact set of answers still possible.', { w: g.toUpperCase(), n: all.length, a: avg.toFixed(4) }) }
-      if (g) return { guess: g, score: 0, why: t('Optimal decision tree says "{w}" for these {n} possible answers (minimises the total number of guesses over all of them).', { w: g.toUpperCase(), n: cands.length }) }
-      const s = fallback.pick(cands, ctx, turn); return { ...s, why: t('Off the optimal tree (an earlier guess differed) — falling back to two-step entropy.') + ' ' + s.why }
+      if (g && turn === 1 && cands.length === all.length) return { guess: g, score: avg, why: t(texts.open, { w: g.toUpperCase(), n: all.length, a: avg.toFixed(4) }) }
+      if (g) return { guess: g, score: 0, why: t(texts.move, { w: g.toUpperCase(), n: cands.length }) }
+      const s = fallback.pick(cands, ctx, turn); return { ...s, why: t(texts.off) + ' ' + s.why }
     },
   }
 }
@@ -52,5 +64,12 @@ fetch(base + 'optimal-tree.json').then(r => r.json()).then(async (t: { normal: T
     ? [treeLookupStrategy('optimal', 'Optimal tree (UA)', t.normal, answers.value, two, UA_TREE_DESC), treeLookupStrategy('optimal-max5', 'Optimal tree (UA, ≤5 guesses)', t.max5!, answers.value, two, UA_TREE5_DESC), ...(t.hard ? [treeLookupStrategy('optimal-hard', 'Optimal tree (UA, hard)', t.hard, answers.value, two, UA_TREEH_DESC)] : []), two]
     : [treeLookupStrategy('optimal', 'Optimal tree (SALET)', t.normal, answers.value, two), treeLookupStrategy('optimal-hard', 'Optimal tree (SALET, hard mode)', t.hard!, answers.value, two), two]
 }).catch(() => {})
-export const allStrategies = computed(() => [...extra.value, ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...customs.value.map(composeStrategy), ...STRATEGIES].map(s => (s.id.startsWith('custom:') ? s : { ...s, name: t(s.name), desc: t(s.desc) })))
+/** 2-ply lookahead trees (normal mode), listed after the optimal trees; off the tree they fall back to the instant Small groups + entropy. */
+export const lookaheadTrees = shallowRef<Strategy[]>([])
+fetch(base + 'lookahead-tree.json').then(r => r.json()).then(async (lt: { b: TreeNode; a: TreeNode }) => {
+  await new Promise<void>(r => { const i = setInterval(() => { if (answers.value.length) { clearInterval(i); r() } }, 50) })
+  const hy = STRATEGIES.find(s => s.id === 'hybrid-all')!
+  lookaheadTrees.value = [treeLookupStrategy('lookahead-b', LOOK_B_NAME, lt.b, answers.value, hy, LOOK_B_DESC, LOOK_TEXTS), treeLookupStrategy('lookahead-a', LOOK_A_NAME, lt.a, answers.value, hy, LOOK_A_DESC, LOOK_TEXTS)]
+}).catch(() => {})
+export const allStrategies = computed(() => [...extra.value, ...lookaheadTrees.value, ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...customs.value.map(composeStrategy), ...STRATEGIES].map(s => (s.id.startsWith('custom:') ? s : { ...s, name: t(s.name), desc: t(s.desc) })))
 void filter

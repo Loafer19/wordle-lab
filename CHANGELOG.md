@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] - 2026-10-26
+
+Lookahead strategies that look two guesses ahead, a leaderboard grouped by type, and a head-to-head Compare panel.
+
+### Added
+- **Lookahead 2-ply** (`lookahead-b`): picks the guess with the lowest expected number of guesses, where every feedback group gets the best possible next guess (over all allowed words) and groups still left with 3+ answers are estimated optimistically plus a 0.25 penalty; the top 50 guesses by Σ 1/group plus all candidates are tried. Precomputed trees: EN SALET 7920 / 2315 = 3.4212 (worst 5, the proven optimum), UA КОТРА 5805 / 1717 = 3.3809 (worst 6, the proven optimum). Normal mode only; off the tree it falls back to Small groups + entropy.
+- **Lookahead 2-ply safe** (`lookahead-a`): maximises the answers whose group can be finished within two more guesses. EN 3.4540 with 98.4% of games in ≤ 4 (worst 5), UA 3.4024 with 98.0% in ≤ 4.
+- `scripts/lookahead/lookahead.py` (Python + numpy) regenerates the four trees in `data/lookahead/` and `data/ua/lookahead/` in about 10–30 s each; `bun scripts/simulate.ts` verifies them and writes `public/lookahead-tree.json`.
+- **Small groups + entropy** (`hybrid-all`): instant greedy rule Σ 1/group + 20 × entropy, no cap, fixed opener SALET / КОТРА. EN 3.4263, UA 3.3885.
+- **Max entropy** (`entropy-all`) now always opens with SALET (EN) / КОТРА (UA), the same opener as Small groups, so the comparison is like for like: EN 3.4337 (was 3.4648 with its own opener SOARE), hard 3.5235; UA unchanged (3.3960, it already opened with КОТРА). There is a single max-entropy row; the old "own opener" variant is gone.
+- **Learn › Small groups in your head** (`#tab=learn&view=small-groups`, EN + UA): the rule for playing Small groups by hand (group the answers by the colours a guess would show, count groups of one, tie-break on the largest group), a worked example whose colour tiles come from the game engine (EN: BATCH/HATCH/LATCH/MATCH/PATCH/WATCH, MATCH is a trap, PLUMB leaves 4 groups of one + 1 pair; UA: МАВКА…МАТКА, МАСКА vs СТВОР), try-your-own-word, the scout-word lesson and an honest note (the app checks every allowed guess with Σ 1/group; with the same opener Small groups is 3.450 vs 3.434 for max entropy in EN). Linked from *Start here*.
+- **Strategies › Lookahead**: how the lookahead works (2-ply expected guesses, the penalty x, top-K pruning, why it is precomputed), results next to the optimum and the greedy rules, the safe vs expected-cost trade-off, the opener effect table (SOARE / SALET / TRACE / CRANE), the Small-groups cap sweep and the lookahead parameter sweep. EN and UA.
+
+### Changed
+- **Strategies › Leaderboard:** rows are grouped by type (Optimal trees, Lookahead, Greedy heuristics, Letter frequency & staged, Baselines) with the overall rank, a one-line description and the opener; *Ranked* shows the old single list. Equal averages share a rank.
+- **Strategies › Compare:** the five KPI tiles are replaced by one head-to-head panel: both strategy names, descriptions and openers, A always amber and B always blue (also in the difference table and histogram), averages with the difference, a stacked bar of words where A is better / the same / B is better with percentages, and worst case, failures and the share of games in ≤ 4 for each side.
+- The i18n check also covers `tr(…)` calls and strings translated from data tables (strategy names, descriptions, groups).
+
+### Tests
+- Unit: the four lookahead trees are valid (verifyTree, every guess allowed), with the expected totals, worst cases and ≤ 4 counts; the published `lookahead-tree.json` equals them; sim index rows for the new strategies; the hybrid score; names, groups, descriptions and UA translations.
+- e2e: leaderboard groups and new rows, the head-to-head panel, and the Lookahead page (EN/UA).
+
 ## [1.4.2] - 2026-10-18
 
 Card order that follows what you are doing, and your own starting word in the decision tree.

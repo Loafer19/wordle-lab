@@ -27,6 +27,7 @@ import TreeBranch from './TreeBranch.vue'
 import Skeleton from 'primevue/skeleton'
 import { MonitorSmartphone } from 'lucide-vue-next'
 import StrategyPicker from './StrategyPicker.vue'
+import { isTreeId } from '../lib/lookahead'
 const id = ref(BEST_ID), hard = ref(false), layout = ref<'orthogonal' | 'radial'>('orthogonal')
 const defaultTree = ref<TreeNode | null>(null), defaultGuesses = ref<number[]>([])
 watch([id, hard], async () => { await simReady; const f = await loadFull(fullId(id.value, hard.value)); defaultTree.value = f.tree; defaultGuesses.value = f.guesses ?? [] }, { immediate: true })
@@ -127,7 +128,7 @@ const children = computed((): number => Object.keys(tree.value?.c ?? {}).length)
           <span v-if="openerErr" class="text-caption text-red-600 dark:text-red-400" role="alert" data-tree-opener-error>{{ openerErr }}</span>
         </form>
         <p class="text-caption text-muted">
-          <template v-if="opener">{{ $t('Tree for your opener {w}; every next move is chosen by {s}.', { w: opener.toUpperCase(), s: followName }) }} <template v-if="follow === FALLBACK_FOLLOW && id.startsWith('optimal')">{{ $t('The precomputed optimal tree only covers its own opener, so after a custom opener the next moves use max entropy (computed in your browser).') }}</template></template>
+          <template v-if="opener">{{ $t('Tree for your opener {w}; every next move is chosen by {s}.', { w: opener.toUpperCase(), s: followName }) }} <template v-if="follow === FALLBACK_FOLLOW && isTreeId(id)">{{ $t('The precomputed optimal tree only covers its own opener, so after a custom opener the next moves use max entropy (computed in your browser).') }}</template></template>
           <template v-else>{{ $t('Type any allowed 5-letter word to see the tree with your own first guess (computed in your browser).') }}</template>
         </p>
         <div v-if="busy" class="flex items-center gap-3" data-tree-opener-progress><ProgressBar :value="Math.round(progress * 100)" :showValue="false" class="flex-1 !h-2" /><span class="text-caption text-muted tabular-nums">{{ $t('Computing the tree…') }} {{ Math.round(progress * 100) }}%</span></div>

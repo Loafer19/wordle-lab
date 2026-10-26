@@ -2,6 +2,7 @@
 // Assistant › Watch a strategy: pick a secret word and a strategy, watch it play, with the same per-guess review as your own games.
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
+import { canonicalId } from '../lib/shared'
 import AutoComplete from 'primevue/autocomplete'; import Select from 'primevue/select'
 import { Eye, Shuffle, ListOrdered, Columns2, X } from 'lucide-vue-next'
 import { DEMO_WORD, BEST_ID, lang } from '../lib/lang'
@@ -55,6 +56,7 @@ onBeforeUnmount(stopAll)
 watch(word, () => { stopAll(); all.value = null })
 // optional side-by-side replay of a second strategy
 const stratB = useLocalStorage('wl-watch-strat-b-' + lang, '')
+for (const r of [stratId, stratB]) r.value = canonicalId(r.value)
 
 </script>
 <template>

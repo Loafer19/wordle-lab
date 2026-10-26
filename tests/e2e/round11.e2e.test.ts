@@ -3,7 +3,7 @@
 import { test, expect } from 'bun:test'
 import { open } from './helpers'
 const SHOTS = process.env.SHOTS
-const VIEWS = ['play', 'assistant&view=solve', 'assistant&view=review', 'assistant&view=watch', 'learn&view=guide', 'learn&view=letters', 'learn&view=openers', 'learn&view=inspector', 'strategies&view=leaderboard', 'strategies&view=compare', 'strategies&view=lab', 'explore&view=tree', 'explore&view=flow', 'explore&view=map']
+const VIEWS = ['play', 'assistant&view=solve', 'assistant&view=review', 'assistant&view=watch', 'learn&view=guide', 'learn&view=small-groups', 'learn&view=letters', 'learn&view=openers', 'learn&view=inspector', 'strategies&view=leaderboard', 'strategies&view=compare', 'strategies&view=lab', 'explore&view=tree', 'explore&view=flow', 'explore&view=map']
 
 for (const lang of ['en', 'ua'] as const) test(`${lang} 390px: bottom tab bar, no horizontal overflow on any view`, async () => {
   const { b, p, errors } = await open('play', { lang, viewport: { width: 390, height: 844 } })

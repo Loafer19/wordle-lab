@@ -11,6 +11,7 @@ import { playOne, patternDigits } from '../lib/wordle'
 import { t } from '../lib/i18n'
 import UiCard from './ui/UiCard.vue'; import UiBadge from './ui/UiBadge.vue'
 import WordLink from './WordLink.vue'
+import { isTreeId } from '../lib/lookahead'
 const p = withDefaults(defineProps<{ word: string; stratId: string; title?: string; subtitle?: string; yours?: number; showWhy?: boolean }>(), { showWhy: true })
 const emit = defineEmits<{ steps: [{ w: string; d: number[]; why: string }[]] }>()
 type Steps = ReturnType<typeof playOne>
@@ -23,7 +24,7 @@ function run() {
   const my = ++seq; steps.value = null
   setTimeout(() => {
     if (my !== seq) return
-    const opener = s.id.startsWith('optimal') || s.id === 'random' ? undefined : precomputed.value.find(r => r.id === s.id)?.opener
+    const opener = isTreeId(s.id) || s.id === 'random' ? undefined : precomputed.value.find(r => r.id === s.id)?.opener
     const r = playOne(s, { answers: answers.value, allowed: allowed.value }, w, opener)
     if (my !== seq) return
     steps.value = r

@@ -153,17 +153,65 @@ function singletonStrategy(): Strategy {
   }
 }
 
+// 'Small groups + entropy': maximise Σ 1/|group| + 20·H (H = entropy in bits) over all allowed words, no cap; ties prefer possible answers.
+// Same fixed opener as Small groups. The entropy term keeps big groups splitting evenly; Σ 1/|group| rewards groups of one.
+export const HYBRID_LAMBDA = 20
+export function hybridScore(guess: string, cands: string[]) {
+  const b = buckets(guess, cands), n = cands.length
+  let s = 0, h = 0
+  for (const c of b) if (c) { s += 1 / c; const p = c / n; h -= p * Math.log2(p) }
+  return { s, h, score: s + HYBRID_LAMBDA * h }
+}
+function hybridStrategy(): Strategy {
+  return {
+    id: 'hybrid-all', name: 'Small groups + entropy (Σ 1/group + 20·H)',
+    desc: 'Greedy: maximise the sum of 1/group size plus 20 × the entropy of the feedback groups (bits), over any allowed word, no cap; ties prefer possible answers. Instant, no lookahead. Fixed opener: SALET (EN) / КОТРА (UA).',
+    pick(cands, ctx, turn) {
+      const n = cands.length
+      if (n <= 2) return { guess: cands[0], score: 1, why: tr('{n} candidate(s) left — guess one.', { n }) }
+      if (turn === 1 && n === ctx.answers.length) {
+        const o = /^[a-z]/.test(cands[0]) ? SINGLETON_OPENER.en : SINGLETON_OPENER.ua
+        if (ctx.allowed.includes(o)) { const r = hybridScore(o, cands); return { guess: o, score: r.score, why: tr('Opener "{w}": {k} feedback groups, {b} bits.', { w: o.toUpperCase(), k: buckets(o, cands).filter(Boolean).length, b: r.h.toFixed(2) }) } }
+      }
+      const cs = new Set(cands)
+      let best = '', bs = -Infinity, br = { s: 0, h: 0 }
+      for (const w of ctx.allowed) {
+        const r = hybridScore(w, cands)
+        if (r.score > bs + SINGLETON_EPS || (r.score > bs - SINGLETON_EPS && cs.has(w) && !cs.has(best))) { best = w; bs = r.score; br = r }
+      }
+      return { guess: best, score: bs, why: tr('"{w}" scores {s} = {g} (Σ 1/group: about that many answers end up alone) + 20 × {b} bits of entropy.', { w: best.toUpperCase(), s: bs.toFixed(1), g: br.s.toFixed(1), b: br.h.toFixed(2) }) }
+    },
+  }
+}
+// Max entropy with a fixed opener (the same as Small groups: SALET in EN, КОТРА in UA), so it compares like for like with the
+// SALET / КОТРА strategies. In UA that is also max entropy's own best opener; in EN its own pick would be SOARE (worse after all).
+function entropyStrategy(): Strategy {
+  const e = bucketStrategy('entropy-all', 'Max entropy', '', true, 'entropy')
+  return {
+    id: 'entropy-all', name: 'Max entropy',
+    desc: 'Maximise expected information (Shannon entropy of the feedback groups), any allowed word; ties prefer possible answers. Fixed opener SALET (EN) / КОТРА (UA), the same as Small groups (in EN max entropy would pick SOARE itself, which does worse over all answers).',
+    pick(cands, ctx, turn) {
+      if (turn === 1 && cands.length === ctx.answers.length) {
+        const o = /^[a-z]/.test(cands[0]) ? SINGLETON_OPENER.en : SINGLETON_OPENER.ua
+        if (ctx.allowed.includes(o)) return { guess: o, score: entropy(o, cands), why: tr('Fixed opener "{w}": {b} bits of information on average.', { w: o.toUpperCase(), b: entropy(o, cands).toFixed(2) }) }
+      }
+      return e.pick(cands, ctx, turn)
+    },
+  }
+}
+
 let seed = 12345
 const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff)
 export const STRATEGIES: Strategy[] = [
   freqStrategy('freq-cand', 'Ruslan freq (candidates)', false, false),
   freqStrategy('freqpos-cand', 'Ruslan pos-freq (candidates)', false, true),
   freqStrategy('freqbal-cand', 'Ruslan balanced f·(n−f) (candidates)', false, false, true),
-  bucketStrategy('entropy-all', 'Max entropy (3b1b)', 'Maximise expected information (Shannon entropy of feedback distribution), any allowed word; ties prefer candidates.', true, 'entropy'),
+  entropyStrategy(),
   bucketStrategy('entropy-cand', 'Max entropy (candidates)', 'Max entropy but only guessing possible answers (hard-mode-ish).', false, 'entropy'),
   bucketStrategy('minimax-all', 'Minimax worst bucket', 'Minimise the largest remaining group (Knuth Mastermind style).', true, 'minimax'),
   bucketStrategy('expsize-all', 'Min expected size', 'Minimise expected number of remaining candidates (sum of squares of bucket sizes).', true, 'expsize'),
   singletonStrategy(),
+  hybridStrategy(),
   { id: 'random', name: 'Random candidate', desc: 'Baseline: random word still consistent with feedback.',
     pick(c) { const g = c[Math.floor(rnd() * c.length)]; return { guess: g, score: 0, why: tr('Random pick among {n} consistent words.', { n: c.length }) } } },
 ]
