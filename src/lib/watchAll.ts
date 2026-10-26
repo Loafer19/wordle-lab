@@ -4,12 +4,13 @@ import { playOne, STRATEGIES, type Strategy, type Ctx } from './wordle'
 import { STAGED_STRATEGIES } from './staged'
 import { PRESET_STRATEGIES } from './compose'
 import { twoStepStrategy } from './advanced'
+import { isTreeId } from './lookahead'
 export type Source = 'sim' | 'tree' | 'worker'
 export interface Job { id: string; opener?: string }
 /** Decide per strategy where its guess count comes from. Optimal trees off the sim are cheap lookups on the main thread. */
 export function planAll(ids: string[], simIds: Set<string>): Record<Source, string[]> {
   const r: Record<Source, string[]> = { sim: [], tree: [], worker: [] }
-  for (const id of ids) r[simIds.has(id) ? 'sim' : id.startsWith('optimal') ? 'tree' : 'worker'].push(id)
+  for (const id of ids) r[simIds.has(id) ? 'sim' : isTreeId(id) ? 'tree' : 'worker'].push(id)
   return r
 }
 /** Guesses for `word` from a precomputed sim file (guesses[] is aligned with the answer list); undefined if absent. */

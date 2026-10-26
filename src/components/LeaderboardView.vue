@@ -10,7 +10,7 @@ import { lang, isUA, NA, NV } from '../lib/lang'
 import { OPTIMA, gapTo } from '../lib/optimum'
 import { simIndex, type Summary } from '../lib/simdata'
 import { allStrategies } from '../lib/allStrategies'
-import { shortName, baseId } from '../lib/names'
+import { shortName, baseId, GROUPS, groupOf, blurb, type Group } from '../lib/names'
 import { compareSel } from '../lib/shared'
 import { go } from '../lib/route'
 import { idbGet, idbSet } from '../lib/idbcache'
@@ -23,11 +23,13 @@ import { t } from '../lib/i18n'
 import UiCard from './ui/UiCard.vue'; import UiButton from './ui/UiButton.vue'; import UiBadge from './ui/UiBadge.vue'; import UiAdvanced from './ui/UiAdvanced.vue'
 const O = OPTIMA[lang]
 const mode = useLocalStorage<'normal' | 'hard' | 'both'>('wl-board-mode', 'normal')
+const grouped = useLocalStorage('wl-board-grouped', true)
+const layouts = [{ v: true, l: t('By type') }, { v: false, l: t('Ranked') }]
 const modes = [{ v: 'normal', l: t('Normal') }, { v: 'hard', l: t('Hard') }, { v: 'both', l: t('Both') }]
 // re-run results (Web Workers) override the precomputed normal-mode numbers; cached in IndexedDB per language + word list size
 const reruns = ref<Record<string, SimResult>>({}), progress = ref<Record<string, number>>({})
 const cacheKey = (id: string) => `sim:${lang}:${answers.value.length}:${id}`
-const SIM_STRATS = [...STAGED_STRATEGIES, ...STRATEGIES].map(s => ({ id: s.id, name: shortName(s.id, t(s.name)) }))
+const SIM_STRATS = [...STAGED_STRATEGIES, ...STRATEGIES].filter(s => !(isUA && s.id === 'entropy-fixed')).map(s => ({ id: s.id, name: shortName(s.id, t(s.name)) }))
 const selected = ref(SIM_STRATS.map(s => s.id))
 watch(() => answers.value.length, async n => { if (!n) return; for (const s of SIM_STRATS) { const r = await idbGet<SimResult>(cacheKey(s.id)); if (r) reruns.value[s.id] = r } }, { immediate: true })
 function rerun() {
@@ -39,13 +41,19 @@ function rerun() {
   }
 }
 const descOf = (id: string) => { const s = allStrategies.value.find(x => x.id === baseId(id)); return s ? `${s.name} — ${s.desc}` : '' }
-interface Row { id: string; name: string; full: string; opener: string; n: Summary; h?: Summary; cached: boolean }
+interface Row { id: string; name: string; full: string; blurb: string; group: Group; rank: number; opener: string; n: Summary; h?: Summary; cached: boolean }
 const rows = computed<Row[]>(() => {
   const norm = simIndex.value.filter(s => s.mode === 'normal').map(s => { const r = reruns.value[s.id]; return r ? { ...s, avg: r.avg, failRate: r.failRate, worst: r.worst, dist: r.dist } : s })
-  const out = norm.map(n => ({ id: n.id, name: shortName(n.id, n.name), full: descOf(n.id), opener: n.opener, n, h: simIndex.value.find(x => x.id === n.id + '@hard'), cached: !!reruns.value[n.id] }))
+  const out = norm.map(n => ({ id: n.id, name: shortName(n.id, n.name), full: descOf(n.id), blurb: blurb(n.id), group: groupOf(n.id), rank: 0, opener: n.opener, n, h: simIndex.value.find(x => x.id === n.id + '@hard'), cached: !!reruns.value[n.id] }))
   const key = (r: Row) => (mode.value === 'hard' ? r.h?.avg ?? 99 : r.n.avg)
-  return out.sort((a, b) => key(a) - key(b))
+  const gi = (r: Row) => GROUPS.findIndex(g => g.id === r.group)
+  // equal averages share a rank (the 2-ply lookahead ties the optimal tree); ties list in group order
+  const sorted = out.sort((a, b) => key(a) - key(b) || gi(a) - gi(b) || a.name.localeCompare(b.name))
+  return sorted.map(r => ({ ...r, rank: 1 + sorted.filter(x => key(x) < key(r) - 1e-9).length }))
 })
+// grouped by type (Optimal trees / Lookahead / Greedy / …), each group sorted by the same key; or one ranked list
+const sections = computed(() => grouped.value ? GROUPS.map(g => ({ id: g.id, label: t(g.label), rows: rows.value.filter(r => r.group === g.id) })).filter(g => g.rows.length) : [{ id: 'all', label: '', rows: rows.value }])
+const cols = computed(() => 3 + (mode.value === 'both' ? 8 : 4))
 const gap = (s: Summary | undefined, hard: boolean) => (s ? gapTo(s.avg, lang, hard) : NaN)
 const maxGap = computed(() => Math.max(0.05, ...rows.value.map(r => gap(mode.value === 'hard' ? r.h : r.n, mode.value === 'hard')).filter(Number.isFinite)))
 const tone = (g: number) => (g < 0.001 ? 'correct' : g < 0.1 ? 'brand' : g < 0.25 ? 'present' : 'danger') as any
@@ -79,6 +87,7 @@ const fail = (s?: Summary) => (s ? (s.failRate * 100).toFixed(2) + '%' : '—')
     <UiCard :title="$t('Strategy leaderboard')" :icon="Trophy" :subtitle="isUA ? $t('UA optimal decision trees from our exact search: {a} normal (КОТРА), {b} hard ({h}). Hard mode: revealed hints must be reused.', { a: O.normal.toFixed(4), b: O.hard.toFixed(4), h: O.hardOpener }) : $t('Optimal decision trees: {a} normal, {b} hard (SALET; Selby, Bertsimas & Paskov). Hard mode: revealed hints must be reused.', { a: O.normal.toFixed(4), b: O.hard.toFixed(4) })">
       <div class="flex flex-wrap items-center gap-2 mb-4">
         <SelectButton v-model="mode" :options="modes" optionLabel="l" optionValue="v" :allowEmpty="false" size="small" data-board-mode />
+        <SelectButton v-model="grouped" :options="layouts" optionLabel="l" optionValue="v" :allowEmpty="false" size="small" data-board-layout />
         <div class="flex-1"></div>
         <span class="text-caption text-muted" data-compare-hint>{{ picked.length === 2 ? picked.map(id => rows.find(r => r.id === id)?.name).join(' vs ') : $t('Tick two rows to compare them') }}</span>
         <UiButton v-if="picked.length" :icon="X" variant="ghost" :ariaLabel="$t('Clear selection')" @click="picked = []" />
@@ -89,13 +98,15 @@ const fail = (s?: Summary) => (s ? (s.failRate * 100).toFixed(2) + '%' : '—')
         <!-- desktop / tablet: table -->
         <div class="hidden sm:block overflow-x-auto"><table class="text-caption w-full" data-board-table>
           <thead><tr class="text-muted text-left">
-            <th class="w-6"></th><th class="py-1 pr-3 font-medium">{{ $t('Strategy') }}</th><th class="pr-3 font-medium">{{ $t('Opener') }}</th>
+            <th class="w-12"></th><th class="py-1 pr-3 font-medium">{{ $t('Strategy') }}</th><th class="pr-3 font-medium">{{ $t('Opener') }}</th>
             <template v-if="mode !== 'hard'"><th class="pr-3 font-medium">{{ mode === 'both' ? $t('Normal avg') : $t('Avg') }}</th><th class="pr-3 font-medium min-w-32">{{ $t('gap') }}</th><th class="pr-3 font-medium">{{ $t('fail') }}</th><th class="pr-3 font-medium">{{ $t('worst') }}</th></template>
             <template v-if="mode !== 'normal'"><th class="pr-3 font-medium">{{ $t('Hard avg') }}</th><th class="pr-3 font-medium" :class="mode === 'hard' && 'min-w-32'">{{ $t('gap') }}</th><th class="pr-3 font-medium">{{ $t('fail') }}</th><th class="font-medium">{{ $t('worst') }}</th></template>
           </tr></thead>
-          <tbody><tr v-for="r in rows" :key="r.id" class="border-t border-line hover:bg-surface-2 transition-colors cursor-pointer" :class="picked.includes(r.id) && 'bg-brand-500/8'" @click="toggle(r.id)" data-board-row :data-id="r.id">
-            <td class="py-1.5"><input type="checkbox" class="accent-brand-600 size-4" :checked="picked.includes(r.id)" :aria-label="$t('Select {s} for comparison', { s: r.name })" @click.stop="toggle(r.id)" /></td>
-            <td class="py-1.5 pr-3 font-medium"><span v-tooltip.top="r.full" class="cursor-help">{{ r.name }}</span><UiBadge v-if="r.cached" tone="neutral" class="ml-1.5" v-tooltip.top="$t('Re-run in this browser (cached)')">↻</UiBadge></td>
+          <tbody v-for="sec in sections" :key="sec.id" :data-board-group="sec.id">
+            <tr v-if="sec.label" class="border-t border-line"><td :colspan="cols" class="pt-3 pb-1 text-caption font-semibold uppercase tracking-wide text-muted" data-board-group-title>{{ sec.label }}</td></tr>
+            <tr v-for="r in sec.rows" :key="r.id" class="border-t border-line hover:bg-surface-2 transition-colors cursor-pointer" :class="picked.includes(r.id) && 'bg-brand-500/8'" @click="toggle(r.id)" data-board-row :data-id="r.id">
+            <td class="py-1.5 pr-2 whitespace-nowrap"><input type="checkbox" class="accent-brand-600 size-4 align-middle" :checked="picked.includes(r.id)" :aria-label="$t('Select {s} for comparison', { s: r.name })" @click.stop="toggle(r.id)" /><span class="inline-block w-6 text-right text-muted tabular-nums align-middle" v-tooltip.top="$t('Rank by average')">{{ r.rank }}</span></td>
+            <td class="py-1.5 pr-3"><span v-tooltip.top="r.full" class="cursor-help font-medium">{{ r.name }}</span><UiBadge v-if="r.cached" tone="neutral" class="ml-1.5" v-tooltip.top="$t('Re-run in this browser (cached)')">↻</UiBadge><div v-if="r.blurb" class="text-muted leading-snug max-w-md" data-board-blurb>{{ r.blurb }}</div></td>
             <td class="pr-3 font-mono uppercase font-semibold">{{ r.opener }}</td>
             <template v-if="mode !== 'hard'">
               <td class="pr-3 tabular-nums font-semibold">{{ f3(r.n.avg) }}</td>
@@ -109,21 +120,23 @@ const fail = (s?: Summary) => (s ? (s.failRate * 100).toFixed(2) + '%' : '—')
           </tr></tbody>
         </table></div>
         <!-- phone: cards -->
-        <ul class="sm:hidden flex flex-col gap-2" data-board-cards>
-          <li v-for="(r, i) in rows" :key="r.id" class="rounded-card border p-3 flex flex-col gap-1.5 cursor-pointer transition-colors" :class="picked.includes(r.id) ? 'border-brand-500 bg-brand-500/8' : 'border-line'" @click="toggle(r.id)" data-board-card>
+        <div class="sm:hidden flex flex-col gap-2" data-board-cards>
+          <template v-for="sec in sections" :key="sec.id"><h4 v-if="sec.label" class="text-caption font-semibold uppercase tracking-wide text-muted mt-2">{{ sec.label }}</h4>
+          <ul class="flex flex-col gap-2"><li v-for="r in sec.rows" :key="r.id" class="rounded-card border p-3 flex flex-col gap-1.5 cursor-pointer transition-colors" :class="picked.includes(r.id) ? 'border-brand-500 bg-brand-500/8' : 'border-line'" @click="toggle(r.id)" data-board-card>
             <div class="flex items-center gap-2"><input type="checkbox" class="accent-brand-600 size-4 shrink-0" :checked="picked.includes(r.id)" :aria-label="$t('Select {s} for comparison', { s: r.name })" @click.stop="toggle(r.id)" />
-              <span class="text-caption text-muted w-5">{{ i + 1 }}</span><b class="flex-1 min-w-0 truncate">{{ r.name }}</b><span class="font-mono uppercase text-caption font-semibold">{{ r.opener }}</span></div>
+              <span class="text-caption text-muted w-5">{{ r.rank }}</span><b class="flex-1 min-w-0 truncate">{{ r.name }}</b><span class="font-mono uppercase text-caption font-semibold">{{ r.opener }}</span></div>
             <div v-if="primary(r)" class="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption pl-6">
               <span class="text-title font-extrabold tabular-nums">{{ f3(primary(r)!.avg) }}</span>
               <UiBadge :tone="tone(gap(primary(r), mode === 'hard'))">+{{ gap(primary(r), mode === 'hard').toFixed(3) }}</UiBadge>
               <span class="text-muted">{{ $t('fail') }} {{ fail(primary(r)) }}</span><span class="text-muted">{{ $t('worst') }} {{ primary(r)!.worst }}</span>
             </div>
             <div v-if="mode === 'both' && r.h" class="text-caption text-muted pl-6">{{ $t('Hard avg') }} <b class="text-fg tabular-nums">{{ f3(r.h.avg) }}</b> · +{{ gap(r.h, true).toFixed(3) }}</div>
-            <p class="text-caption text-muted pl-6 line-clamp-2">{{ r.full }}</p>
-          </li>
-        </ul>
+            <p class="text-caption text-muted pl-6 line-clamp-2">{{ r.blurb || r.full }}</p>
+          </li></ul>
+          </template>
+        </div>
       </template>
-      <p class="text-caption text-muted mt-3">{{ $t('Hover a strategy name for its full description.') }} {{ $t('Candidate-only strategies are automatically hard-mode legal, so their hard numbers equal normal ones.') }} <span class="inline-block size-2 rounded-full align-middle" :style="{ background: tile.correct }"></span> {{ $t('= optimal.') }}</p>
+      <p class="text-caption text-muted mt-3">{{ $t('Hover a strategy name for its full description.') }} {{ $t('The opener column is the first word each strategy plays; fixed-opener rows (SALET / КОТРА) make like-for-like comparisons.') }} {{ $t('Candidate-only strategies are automatically hard-mode legal, so their hard numbers equal normal ones.') }} <span class="inline-block size-2 rounded-full align-middle" :style="{ background: tile.correct }"></span> {{ $t('= optimal.') }}</p>
     </UiCard>
     <UiAdvanced :title="$t('More charts')" :subtitle="$t('Gap chart, guess-count distribution and candidates per turn (ticked rows, or the top 5)')">
       <UiCard :title="$t('Gap to the proven optimum · normal vs hard mode')"><VChart :option="gapOpt" style="height: 480px" autoresize /></UiCard>

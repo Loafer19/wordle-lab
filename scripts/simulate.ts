@@ -6,6 +6,7 @@ import { PRESET_STRATEGIES } from '../src/lib/compose'
 import { STAGED_STRATEGIES } from '../src/lib/staged'
 import { simulateEx, simulatePair, twoStepStrategy, parseSelbyTree, verifyTree, OPTIMUM, type RichResult, type TreeNode } from '../src/lib/advanced'
 import { OPTIMA } from '../src/lib/optimum'
+import { LOOK_A_DESC, LOOK_A_NAME, LOOK_B_DESC, LOOK_B_NAME } from '../src/lib/lookahead'
 const root = new URL('..', import.meta.url).pathname
 const args0 = process.argv.slice(2), LANG = args0.includes('--lang') ? args0[args0.indexOf('--lang') + 1] : 'en'
 const D = LANG === 'en' ? 'data/' : `data/${LANG}/`, P = LANG === 'en' ? 'public/' : `public/${LANG}/`
@@ -28,15 +29,26 @@ const trees: Record<string, TreeNode> | null = LANG === 'en' ? {
 } : null
 if (trees) for (const m of Object.keys(trees)) { const e = verifyTree(trees[m], answers, m === 'hard'); console.log(`verify optimal ${m} tree: ${e.length ? e.length + ' ERRORS ' + e.slice(0, 3) : 'OK'}`); if (e.length) process.exit(1) }
 if (trees) await Bun.write(root + P + 'optimal-tree.json', JSON.stringify(trees))
+// 2-ply lookahead trees (scripts/lookahead/lookahead.py): b = min expected guesses, a = 'safe' (most answers finishable within 2 more), normal mode only
+const LK = LANG === 'en' ? 'data/lookahead/salet' : `data/${LANG}/lookahead/kotra`
+const look: Record<'b' | 'a', TreeNode> | null = await Bun.file(root + LK + '.b.json').exists() ? { b: await Bun.file(root + LK + '.b.json').json(), a: await Bun.file(root + LK + '.a.json').json() } : null
+if (look) for (const m of ['b', 'a'] as const) { const e = verifyTree(look[m], answers); console.log(`verify lookahead ${m} tree: ${e.length ? e.length + ' ERRORS ' + e.slice(0, 3) : 'OK'}`); if (e.length) process.exit(1) }
+if (look) await Bun.write(root + P + 'lookahead-tree.json', JSON.stringify(look))
+const lookStrats: Strategy[] = !look ? [] : [
+  { id: 'lookahead-b', name: LOOK_B_NAME, desc: LOOK_B_DESC, pick: c => ({ guess: c[0], score: 0, why: '' }) },
+  { id: 'lookahead-a', name: LOOK_A_NAME, desc: LOOK_A_DESC, pick: c => ({ guess: c[0], score: 0, why: '' }) },
+]
 
 const treeStrats: Strategy[] = !trees ? [] : LANG === 'en'
   ? [{ id: 'optimal', name: 'Optimal tree (SALET)', desc: 'Provably optimal decision tree (Selby / Bertsimas–Paskov), loaded from alex1770/wordle.', pick: c => ({ guess: c[0], score: 0, why: '' }) }]
   : [{ id: 'optimal', name: 'Optimal tree (UA)', desc: 'Proven-optimal UA decision tree (КОТРА, exact search).', pick: c => ({ guess: c[0], score: 0, why: '' }) },
      { id: 'optimal-max5', name: 'Optimal tree (UA, ≤5 guesses)', desc: 'Best average with a 5-guess guarantee (КОТРА, exact search).', pick: c => ({ guess: c[0], score: 0, why: '' }) }]
-const treeFor = (id: string, hard: boolean) => !trees ? undefined : LANG === 'en' ? (id === 'optimal' ? trees[hard ? 'hard' : 'normal'] : undefined) : hard ? (id === 'optimal' ? trees.hard : undefined) : ({ optimal: trees.normal, 'optimal-max5': trees.max5 } as Record<string, TreeNode>)[id]
-const all: Strategy[] = [...treeStrats, twoStepStrategy(), ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...STRATEGIES].filter(s => !ids.length || ids.includes(s.id))
+const treeFor = (id: string, hard: boolean) => id.startsWith('lookahead-') ? (hard ? undefined : look?.[id === 'lookahead-b' ? 'b' : 'a']) : !trees ? undefined : LANG === 'en' ? (id === 'optimal' ? trees[hard ? 'hard' : 'normal'] : undefined) : hard ? (id === 'optimal' ? trees.hard : undefined) : ({ optimal: trees.normal, 'optimal-max5': trees.max5 } as Record<string, TreeNode>)[id]
+const all: Strategy[] = [...treeStrats, ...lookStrats, twoStepStrategy(), ...PRESET_STRATEGIES, ...STAGED_STRATEGIES, ...STRATEGIES].filter(s => !ids.length || ids.includes(s.id))
 const results: RichResult[] = []
 for (const s of all) for (const hard of noHard ? [false] : [false, true]) {
+  if (LANG !== 'en' && s.id === 'entropy-fixed') continue // UA max entropy already opens with КОТРА → identical to entropy-all
+  if (hard && s.id.startsWith('lookahead-')) continue // the lookahead trees are normal-mode only
   if (LANG !== 'en' && hard && s.id === 'optimal-max5') continue // the ≤5 UA tree is normal-mode only (hard: 'optimal' uses the КАРСТ hard tree)
   const r = simulateEx(s, ctx, { hard, tree: treeFor(s.id, hard), optimum: OPTIMA[LANG as 'en' | 'ua'] ?? OPTIMUM })
   results.push(r)

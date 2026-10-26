@@ -5,6 +5,7 @@ import { composeStrategy, type Spec } from './compose'
 import { workerStrategies } from './watchAll'
 import { STRATEGIES, type Ctx, type Strategy } from './wordle'
 import { CI, NL } from './alpha'
+import { isTreeId } from './lookahead'
 
 export type OpenerError = 'empty' | 'length' | 'letters' | 'unknown'
 export interface OpenerCheck { ok: boolean; word: string; error?: OpenerError }
@@ -31,7 +32,7 @@ export const OPENER_ERROR_TEXT: Record<OpenerError, string> = {
 export const FALLBACK_FOLLOW = 'entropy-all'
 export function followId(stratId: string, known: (id: string) => boolean): string {
   if (stratId.startsWith('custom:')) return stratId
-  return !stratId.startsWith('optimal') && known(stratId) ? stratId : FALLBACK_FOLLOW
+  return !isTreeId(stratId) && known(stratId) ? stratId : FALLBACK_FOLLOW
 }
 // Same picks as STRATEGIES' 'entropy-all' (pool order, ties prefer candidates, identical float sums) but on pre-encoded words with an
 // allocation-free feedback: a full tree scans every allowed guess at every node, so this is the hot loop.

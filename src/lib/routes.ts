@@ -3,7 +3,7 @@ export const SECTIONS: Record<string, string[]> = {
   play: [],
   assistant: ['solve', 'review', 'watch'],
   learn: ['guide', 'letters', 'openers', 'inspector'],
-  strategies: ['leaderboard', 'compare', 'lab'],
+  strategies: ['leaderboard', 'compare', 'lab', 'lookahead'],
   explore: ['tree', 'flow', 'map'],
   community: [],
 }

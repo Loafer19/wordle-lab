@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { t } from './lib/i18n'
 import { ref, computed, defineAsyncComponent } from 'vue'
-import { Gamepad2, Brain, CaseSensitive, Rocket, Sun, Moon, Sparkles, Network, Waves, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag, Scale, History, GraduationCap, Eye, Footprints, ScanSearch, Trophy, Users } from 'lucide-vue-next'
+import { Gamepad2, Brain, CaseSensitive, Rocket, Sun, Moon, Sparkles, Network, Waves, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag, Scale, History, GraduationCap, Eye, Footprints, ScanSearch, Trophy, Users, Telescope } from 'lucide-vue-next'
 import { ready } from './lib/words'
 import { isDark, toggleDark } from './lib/theme'
 import { route, href } from './lib/route'
@@ -18,7 +18,7 @@ const lazy = (l: () => Promise<any>) => (loaders.push(l), defineAsyncComponent(l
 const sub = {
   assistant: [{ id: 'solve', label: t('Help me now'), icon: Brain, comp: lazy(() => import('./components/SolverView.vue')) }, { id: 'review', label: t('Review a game'), icon: GraduationCap, comp: lazy(() => import('./components/CoachView.vue')) }, { id: 'watch', label: t('Watch a strategy'), icon: Eye, comp: lazy(() => import('./components/WatchView.vue')) }],
   learn: [{ id: 'guide', label: t('Start here'), icon: Footprints, comp: lazy(() => import('./components/GuideView.vue')) }, { id: 'letters', label: t('Letters'), icon: CaseSensitive, comp: lazy(() => import('./components/LettersView.vue')) }, { id: 'openers', label: t('Top openers'), icon: Rocket, comp: lazy(() => import('./components/OpenersView.vue')) }, { id: 'inspector', label: t('Word inspector'), icon: ScanSearch, comp: lazy(() => import('./components/InspectorView.vue')) }],
-  strategies: [{ id: 'leaderboard', label: t('Leaderboard'), icon: Trophy, comp: lazy(() => import('./components/LeaderboardView.vue')) }, { id: 'compare', label: t('Compare'), icon: GitCompare, comp: lazy(() => import('./components/CompareView.vue')), hidden: true }, { id: 'lab', label: t('Strategy Lab'), icon: Blocks, comp: lazy(() => import('./components/LabView.vue')) }],
+  strategies: [{ id: 'leaderboard', label: t('Leaderboard'), icon: Trophy, comp: lazy(() => import('./components/LeaderboardView.vue')) }, { id: 'compare', label: t('Compare'), icon: GitCompare, comp: lazy(() => import('./components/CompareView.vue')), hidden: true }, { id: 'lab', label: t('Strategy Lab'), icon: Blocks, comp: lazy(() => import('./components/LabView.vue')) }, { id: 'lookahead', label: t('Lookahead'), icon: Telescope, comp: lazy(() => import('./components/LookaheadView.vue')) }],
   explore: [{ id: 'tree', label: t('Tree'), icon: Network, comp: lazy(() => import('./components/TreeView.vue')) }, { id: 'flow', label: t('Flow'), icon: Waves, comp: lazy(() => import('./components/SankeyView.vue')) }, { id: 'map', label: t('Answer map'), icon: MapIcon, comp: lazy(() => import('./components/AnswerMapView.vue')) }],
 }
 const CommunityView = lazy(() => import('./components/CommunityView.vue'))

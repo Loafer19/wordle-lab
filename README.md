@@ -51,8 +51,12 @@ Every strategy plays every answer. *Hard* = Wordle hard mode (revealed letters m
 | Strategy | Opener | Normal | Fail | Hard | Fail (hard) |
 |---|---|---:|---:|---:|---:|
 | **Optimal tree (SALET)** — Selby, proven | SALET | **3.4212** | 0 | **3.5084** | 0 |
+| **Lookahead 2-ply** (min expected guesses, precomputed tree) | SALET | **3.4212** (7920, worst 5) | 0 | – | – |
+| Small groups + entropy (Σ 1/group + 20·H, instant) | SALET | 3.426 | 0 | 3.519 | 0.26% |
+| Max entropy (any word), fixed opener — like-for-like baseline | SALET | 3.434 | 0 | 3.524 | 0.22% |
 | Two-step entropy | SLATE | 3.446 | 0 | 3.553 | 0.30% |
 | Small groups (Σ 1/group, largest ≤ ⌈n/4⌉) | SALET | 3.450 | 0 | 3.546 | 0.22% |
+| Lookahead 2-ply safe (98.4% in ≤ 4, precomputed tree) | SALET | 3.454 | 0 | – | – |
 | Max entropy (any word) | SOARE | 3.465 | 0 | 3.603 | 0.30% |
 | Min expected size | ROATE | 3.481 | 0 | 3.597 | 0.22% |
 | Explore 2 → candidates (Ruslan balanced) | SOARE | 3.515 | 0.35% | 3.632 | 0.65% |
@@ -65,6 +69,8 @@ Every strategy plays every answer. *Hard* = Wordle hard mode (revealed letters m
 | Ruslan positional (candidates) | STARE | 3.622 | 0.65% | 3.622 | 0.65% |
 | Ruslan freq (candidates) | ALERT | 3.684 | 0.95% | 3.684 | 0.95% |
 | Random candidate | – | 4.091 | 1.30% | 4.066 | 1.68% |
+
+The opener column matters: the same rule after SOARE costs 50–80 guesses more than after SALET, so the fixed-opener max-entropy row is the fair baseline for the SALET strategies. The lookahead strategies are normal mode only (their trees are built for normal mode); *Strategies › Lookahead* in the app explains them and shows the opener and parameter experiments.
 
 Best opener pair: **SLATE + HUMID** (3.633). Regenerate everything with `bun run simulate` (`--lang ua` for Ukrainian).
 
@@ -82,8 +88,11 @@ The UA optima are **our own exact results** (`scripts/ua-optimal/`, a Selby-styl
 |---|---|---:|---:|---:|---:|
 | **Optimal tree (UA)** / **(UA, hard)** | КОТРА / КАРСТ | **3.3809** | 0 | **3.4537** | 0.12% |
 | Optimal tree (UA, ≤5 guesses) | КОТРА | 3.3815 | 0 | – | – |
+| **Lookahead 2-ply** (min expected guesses, precomputed tree) | КОТРА | **3.3809** (5805, worst 6) | 0 | – | – |
+| Small groups + entropy (Σ 1/group + 20·H, instant) | КОТРА | 3.389 | 0 | 3.478 | 0.52% |
 | Small groups (Σ 1/group, largest ≤ ⌈n/4⌉) | КОТРА | 3.394 | 0 | 3.506 | 0.41% |
 | Max entropy (any word) | КОТРА | 3.396 | 0 | 3.488 | 0.29% |
+| Lookahead 2-ply safe (98.0% in ≤ 4, precomputed tree) | КОТРА | 3.402 | 0 | – | – |
 | Min expected size | КОТРА | 3.409 | 0 | 3.503 | 0.29% |
 | Two-step entropy | КОТРА | 3.418 | 0 | 3.497 | 0.23% |
 | Explore 2 → candidates (Ruslan balanced) | КОТРА | 3.433 | 0.29% | 3.514 | 0.41% |
@@ -97,7 +106,7 @@ The UA optima are **our own exact results** (`scripts/ua-optimal/`, a Selby-styl
 | Ruslan freq (candidates) | АКТОР | 3.649 | 0.76% | 3.649 | 0.76% |
 | Random candidate | – | 4.134 | 2.27% | 4.070 | 1.75% |
 
-Gap tables in the app compare each language with its own optimum (EN 3.4212 / 3.5084, UA 3.3809 / 3.4537).
+In UA max entropy already opens with КОТРА, so there is no separate fixed-opener row. Gap tables in the app compare each language with its own optimum (EN 3.4212 / 3.5084, UA 3.3809 / 3.4537).
 How much the second guess matters: [docs/analysis-second-step.md](docs/analysis-second-step.md) (scripts in `scripts/analysis/`).
 
 ## 🎓 Game review & fingerprint
@@ -116,6 +125,8 @@ $$P(p) = \frac{|S_p|}{|S|}, \qquad H(g) = -\sum_{p} P(p)\,\log_2 P(p)$$
 
 * **Entropy** picks the guess with the highest *H*. **Two-step** adds the expected entropy of the best follow-up guess in each group.
 * **Small groups** maximises Σₚ 1/|*Sₚ*| (many groups of one, so a good chance to know the answer next turn), only among guesses whose largest group is at most ⌈|*S*|/4⌉; if none qualifies it uses max entropy.
+* **Small groups + entropy** maximises Σₚ 1/|*Sₚ*| + 20·*H(g)* over all allowed words, with no cap: the entropy term keeps large groups splitting evenly.
+* **Lookahead 2-ply** picks the guess with the lowest expected number of guesses, looking one guess further: a group of 1 costs 1, of 2 costs 1.5, and a bigger group costs 1 + the best next guess (over all allowed words) of the mean cost of the groups it leaves, where a group of *k* ≥ 3 is estimated as (2*k* − 1)/*k* + 0.25. Only the top 50 guesses by Σ 1/|*Sₚ*| plus all candidates are tried. **Lookahead 2-ply safe** instead maximises the number of answers whose group can be finished within two more guesses. Both are precomputed trees (`scripts/lookahead/`, see its README), fall back to Small groups + entropy off the tree, and are heuristics: that the 2-ply tree hits the proven optimum (7920 EN, 5805 UA) is an empirical result, not a proof.
 * **Minimax** minimises maxₚ |*Sₚ*|. **Expected size** minimises Σ |*Sₚ*|² / |*S*|.
 * **Letter frequency**: if *f* is the number of candidates containing a letter and *n* the number of candidates, the balanced score is *f·(n−f)*. It rewards letters that split the candidates roughly in half.
 * **Optimal** follows a precomputed decision tree that minimises the total number of guesses over all answers. It is verified on load, and if your guesses leave the tree it falls back to two-step. In *Explore › Tree* you can start from any allowed word instead: the first guess is yours and every later move is chosen by max entropy (the precomputed tree only covers its own opener).

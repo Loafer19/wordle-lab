@@ -16,6 +16,7 @@ import InfoTip from './InfoTip.vue'
 import CoachReport from './CoachReport.vue'
 import { useCoach } from '../lib/useCoach'
 import PatternSquares from './PatternSquares.vue'
+import { isTreeId } from '../lib/lookahead'
 
 const stratId = ref('freqbal-cand')
 const steps = ref<{ w: string; d: number[]; sizeBefore: number; sizeAfter: number; sug: string }[]>([])
@@ -31,7 +32,7 @@ function compute() {
   setTimeout(() => {
     const s = allStrategies.value.find(x => x.id === stratId.value)!
     const pre = precomputed.value.find(r => r.id === s.id)
-    if (steps.value.length === 0 && pre && s.id !== 'random' && !s.id.startsWith('optimal')) sug.value = { guess: pre.opener, score: 0, why: t('Best first word for this strategy (precomputed): "{w}" gives {b} bits of information on average.', { w: pre.opener.toUpperCase(), b: entropy(pre.opener, answers.value).toFixed(2) }) }
+    if (steps.value.length === 0 && pre && s.id !== 'random' && !isTreeId(s.id)) sug.value = { guess: pre.opener, score: 0, why: t('Best first word for this strategy (precomputed): "{w}" gives {b} bits of information on average.', { w: pre.opener.toUpperCase(), b: entropy(pre.opener, answers.value).toFixed(2) }) }
     else sug.value = s.pick(cands.value, { answers: answers.value, allowed: allowed.value }, steps.value.length + 1)
     guess.value = sug.value.guess; digits.value = demoSecret.value ? patternDigits(feedback(guess.value, demoSecret.value)) : [-1, -1, -1, -1, -1]; err.value = ''; errHint.value = []; busy.value = false
   }, 10)
