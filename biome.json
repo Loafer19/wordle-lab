@@ -6,18 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": [
-      "**",
-      "!public",
-      "!data",
-      "!dist",
-      "!scripts/sweeps",
-      "!scripts/analysis/*.out.json",
-      "!docs",
-      "!footer-variants",
-      "!bun.lock",
-      "!**/*.md"
-    ]
+    "includes": ["**", "!public", "!data", "!dist", "!scripts/sweeps", "!scripts/analysis/*.out.json", "!docs", "!footer-variants", "!bun.lock", "!**/*.md"]
   },
   "formatter": {
     "enabled": true,

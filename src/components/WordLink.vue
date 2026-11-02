@@ -4,8 +4,12 @@ import { ref } from 'vue'
 import Popover from 'primevue/popover'
 import WordMeaning from './WordMeaning.vue'
 defineProps<{ word: string }>()
-const op = ref(), shown = ref(false)
-const toggle = (e: Event) => { shown.value = true; op.value.toggle(e) }
+const op = ref(),
+  shown = ref(false)
+const toggle = (e: Event) => {
+  shown.value = true
+  op.value.toggle(e)
+}
 </script>
 <template>
   <span class="inline">
@@ -14,6 +18,15 @@ const toggle = (e: Event) => { shown.value = true; op.value.toggle(e) }
   </span>
 </template>
 <style scoped>
-.word-link { font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, currentColor 40%, transparent); }
-.word-link:hover { color: var(--color-brand); }
+.word-link {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+}
+.word-link:hover {
+  color: var(--color-brand);
+}
 </style>

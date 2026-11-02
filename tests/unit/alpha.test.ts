@@ -8,7 +8,10 @@ test('alphabet map is a bijection', () => {
   expect(new Set([...ALPHA].map(c => CI[c.charCodeAt(0)])).size).toBe(ALPHA.length)
   for (const c of 'ґєії') expect(CI[c.charCodeAt(0)]).toBeGreaterThanOrEqual(LATIN.length)
 })
-for (const [lang, letters, dir] of [['en', LATIN, 'data/'], ['ua', UKR, 'data/ua/']] as const) {
+for (const [lang, letters, dir] of [
+  ['en', LATIN, 'data/'],
+  ['ua', UKR, 'data/ua/']
+] as const) {
   test(`${lang}: positional frequencies sum to 5·N and every letter of the alphabet appears`, async () => {
     const allowed = await rd(dir + 'allowed.txt')
     const { overall, pos } = letterFreq(allowed)
@@ -25,7 +28,8 @@ test('ua feedback handles ї/є/ґ and duplicate letters', () => {
   expect(feedback('ґанок', 'ганок')).toBe(2 * 3 + 2 * 9 + 2 * 27 + 2 * 81)
 })
 test('ua Ruslan explanation lists Cyrillic letters', async () => {
-  const answers = await rd('data/ua/answers.txt'), allowed = await rd('data/ua/allowed.txt')
+  const answers = await rd('data/ua/answers.txt'),
+    allowed = await rd('data/ua/allowed.txt')
   const s = STRATEGIES.find(x => x.id === 'freqbal-cand')!.pick(answers, { answers, allowed }, 0)
   expect(s.why).toMatch(/[А-ЯҐЄІЇ]\(\d+\)/)
   expect(s.why).not.toMatch(/[A-Z]\(\d+\)/)

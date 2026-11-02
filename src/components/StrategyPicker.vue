@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import Select from 'primevue/select'; import SelectButton from 'primevue/selectbutton'
+import Select from 'primevue/select'
+import SelectButton from 'primevue/selectbutton'
 import { simIndex } from '../lib/simdata'
 import { customs } from '../lib/custom'
 import { t } from '../lib/i18n'
@@ -8,8 +9,14 @@ import { shortName } from '../lib/names'
 const id = defineModel<string>('id', { required: true })
 const hard = defineModel<boolean>('hard', { default: false })
 withDefaults(defineProps<{ showMode?: boolean }>(), { showMode: true })
-const opts = computed(() => [...simIndex.value.filter(s => s.mode === 'normal').map(s => ({ id: s.id, label: `${shortName(s.id, t(s.name))} · ${s.avg.toFixed(3)}`, title: t(s.name) })), ...customs.value.map(c => ({ id: c.id, label: `★ ${c.name}` }))])
-const modes = [{ v: false, l: t('Normal') }, { v: true, l: t('Hard') }]
+const opts = computed(() => [
+  ...simIndex.value.filter(s => s.mode === 'normal').map(s => ({ id: s.id, label: `${shortName(s.id, t(s.name))} · ${s.avg.toFixed(3)}`, title: t(s.name) })),
+  ...customs.value.map(c => ({ id: c.id, label: `★ ${c.name}` }))
+])
+const modes = [
+  { v: false, l: t('Normal') },
+  { v: true, l: t('Hard') }
+]
 </script>
 <template>
   <div class="flex flex-wrap items-center gap-2 min-w-0 max-w-full">

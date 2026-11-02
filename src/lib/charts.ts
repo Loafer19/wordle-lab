@@ -9,4 +9,10 @@ import { chartPalette } from './tokens'
 // Heavier, view-specific parts are registered next to the views that use them:
 //   charts-line.ts (Inspector, Leaderboard), charts-heatmap.ts (Letters, Openers pair heatmap), charts2.ts (Tree, Flow)
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent])
-export const baseC = computed(() => ({ backgroundColor: 'transparent', color: chartPalette, textStyle: { color: fg.value, fontFamily: 'Inter, system-ui, sans-serif' } , tooltip: { trigger: 'axis' }, legend: { textStyle: { color: fg.value }, type: 'scroll' } }))
+export const baseC = computed(() => ({
+  backgroundColor: 'transparent',
+  color: chartPalette,
+  textStyle: { color: fg.value, fontFamily: 'Inter, system-ui, sans-serif' },
+  tooltip: { trigger: 'axis' },
+  legend: { textStyle: { color: fg.value }, type: 'scroll' }
+}))

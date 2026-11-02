@@ -11,17 +11,27 @@ const cors = { 'access-control-allow-origin': '*' }
 export async function mockDictionaries(ctx: BrowserContext) {
   if (process.env.E2E_LIVE_DICT) return
   await ctx.route(/^https:\/\/api\.dictionaryapi\.dev\/api\/v2\/entries\/en\//, r => r.fulfill({ json: fill(dictFixture, decodeURIComponent(r.request().url().split('/').pop()!)), headers: cors }))
-  await ctx.route(/^https:\/\/en\.wiktionary\.org\/api\/rest_v1\/page\/definition\//, r => r.fulfill({ json: fill(wiktFixture, decodeURIComponent(r.request().url().split('/').pop()!)), headers: cors }))
+  await ctx.route(/^https:\/\/en\.wiktionary\.org\/api\/rest_v1\/page\/definition\//, r =>
+    r.fulfill({ json: fill(wiktFixture, decodeURIComponent(r.request().url().split('/').pop()!)), headers: cors })
+  )
 }
-export async function open(tab: string, opts: { reducedMotion?: 'reduce' | 'no-preference'; viewport?: { width: number; height: number }; lang?: 'en' | 'ua' } = {}): Promise<{ b: Browser; p: Page; errors: string[] }> {
+export async function open(
+  tab: string,
+  opts: { reducedMotion?: 'reduce' | 'no-preference'; viewport?: { width: number; height: number }; lang?: 'en' | 'ua' } = {}
+): Promise<{ b: Browser; p: Page; errors: string[] }> {
   const b = await chromium.launch({ executablePath: CHROME })
   const ctx = await b.newContext({ viewport: opts.viewport ?? { width: 1300, height: 1000 }, reducedMotion: opts.reducedMotion ?? 'reduce' })
   await mockDictionaries(ctx)
   if (opts.lang) await ctx.addInitScript(l => localStorage.setItem('wl-lang', l), opts.lang)
-  const p = await ctx.newPage(); const errors: string[] = []
-  p.on('console', m => { if (['error', 'warning'].includes(m.type())) errors.push(m.text()) })
+  const p = await ctx.newPage()
+  const errors: string[] = []
+  p.on('console', m => {
+    if (['error', 'warning'].includes(m.type())) errors.push(m.text())
+  })
   p.on('pageerror', e => errors.push(e.message))
-  await p.goto(`${BASE}/#tab=${tab}`); await p.reload(); await p.waitForTimeout(1500)
+  await p.goto(`${BASE}/#tab=${tab}`)
+  await p.reload()
+  await p.waitForTimeout(1500)
   return { b, p, errors }
 }
 export const tiles = (p: Page) => p.locator('button[data-tile]').evaluateAll(es => es.map(e => e.getAttribute('aria-label')!.split(': ')[1]))

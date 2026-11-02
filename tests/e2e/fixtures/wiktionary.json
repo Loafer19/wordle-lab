@@ -1,5 +1,3 @@
 {
-  "en": [
-    { "partOfSpeech": "Noun", "definitions": [{ "definition": "Fixture definition for <b>{word}</b> (e2e mock of Wiktionary REST)" }] }
-  ]
+  "en": [{ "partOfSpeech": "Noun", "definitions": [{ "definition": "Fixture definition for <b>{word}</b> (e2e mock of Wiktionary REST)" }] }]
 }
