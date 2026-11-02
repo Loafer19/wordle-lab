@@ -11,7 +11,9 @@
     "definitions": "bun scripts/definitions.ts",
     "test:e2e": "bun test tests/e2e",
     "test:unit": "bun test tests/unit",
-    "i18n": "bun scripts/i18n-check.ts"
+    "i18n": "bun scripts/i18n-check.ts",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
   },
   "dependencies": {
     "@primeuix/themes": "2.0.3",
@@ -24,6 +26,7 @@
     "vue-echarts": "^8.3.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.6.4",
     "@tailwindcss/vite": "^4.3.3",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^24.13.3",
