@@ -20,7 +20,7 @@ const words = ref([...famous])
 function add() { const w = custom.value.toLowerCase(); if (w.length === 5 && !words.value.includes(w)) words.value.push(w); custom.value = '' }
 const data = computed(() => words.value.map(w => { const b = buckets(w, answers.value); let mx = 0, nz = 0; b.forEach(c => { if (c) nz++; if (c > mx) mx = c })
   return { w, h: entropy(w, answers.value), mx, nz } }).sort((a, b) => b.h - a.h))
-const opt = computed(() => ({ ...baseC.value, title: { show: false }, grid: { left: 10, right: 50, top: 10, bottom: 20, containLabel: true },
+const opt = computed(() => ({ ...baseC.value, grid: { left: 10, right: 50, top: 10, bottom: 20, containLabel: true },
   xAxis: { type: 'value', min: 2 }, yAxis: { type: 'category', data: data.value.map(d => d.w.toUpperCase()).reverse() },
   series: [{ type: 'bar', data: data.value.map(d => +d.h.toFixed(2)).reverse(), label: { show: true, position: 'right', color: fg.value }, itemStyle: { color: otherColor, borderRadius: [0, 4, 4, 0] } }] }))
 const inspect = (w: string) => { inspectWord.value = w.toLowerCase(); go('learn', 'inspector') }

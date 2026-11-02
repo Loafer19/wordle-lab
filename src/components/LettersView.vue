@@ -5,6 +5,7 @@ import { computed, ref } from 'vue'
 import VChart from 'vue-echarts'
 import SelectButton from 'primevue/selectbutton'
 import { baseC } from '../lib/charts'
+import '../lib/charts-heatmap'
 import UiCard from './ui/UiCard.vue'
 import { BookOpen, CaseSensitive, Grid3x3 } from 'lucide-vue-next'
 import { ruslanColor, tile } from '../lib/tokens'
@@ -18,12 +19,12 @@ const words = computed(() => (src.value === 'answers' ? answers.value : allowed.
 const f = computed(() => letterFreq(words.value))
 const letters = META.letters.split('')
 const order = computed(() => letters.map(l => ({ l, v: f.value.overall[CI[l.charCodeAt(0)]] })).sort((a, b) => b.v - a.v))
-const overallOpt = computed(() => ({ ...baseC.value, title: { show: false },
+const overallOpt = computed(() => ({ ...baseC.value,
   xAxis: { type: 'category', data: order.value.map(o => o.l.toUpperCase()) }, yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
   series: [{ type: 'bar', data: order.value.map((o, i) => ({ value: +(100 * o.v / words.value.length).toFixed(1), itemStyle: { color: i < 7 ? ruslanColor : tile.absent } })) }] }))
 const heatOpt = computed(() => { const data: number[][] = []; let max = 0
   f.value.pos.forEach((row, p) => letters.forEach((l, c) => { const v = row[CI[l.charCodeAt(0)]]; data.push([p, c, v]); max = Math.max(max, v) }))
-  return { ...baseC.value, tooltip: {}, title: { show: false }, grid: { left: 40, right: 80 },
+  return { ...baseC.value, tooltip: {}, grid: { left: 40, right: 80 },
     xAxis: { type: 'category', data: ['1', '2', '3', '4', '5'] }, yAxis: { type: 'category', data: letters.map(l => l.toUpperCase()), inverse: true },
     visualMap: { min: 0, max, calculable: true, orient: 'vertical', right: 0, top: 'center', textStyle: { color: fg.value }, inRange: { color: ['#0f172a', '#0ea5e9', '#facc15'] } },
     series: [{ type: 'heatmap', data, label: { show: true, fontSize: 9, color: fg.value } }] } })
