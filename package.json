@@ -10,7 +10,8 @@
     "simulate": "bun scripts/simulate.ts",
     "definitions": "bun scripts/definitions.ts",
     "test:e2e": "bun test tests/e2e",
-    "test:unit": "bun test tests/unit"
+    "test:unit": "bun test tests/unit",
+    "i18n": "bun scripts/i18n-check.ts"
   },
   "dependencies": {
     "@primeuix/themes": "2.0.3",
