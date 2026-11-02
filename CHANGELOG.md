@@ -2,12 +2,14 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.5.1] - 2026-11-02
 
-Housekeeping: smaller chart chunks, precompressed assets, CI, sturdier e2e, and a slimmer footer (#2).
+Housekeeping: smaller chart chunks, precompressed assets, CI, a code formatter, sturdier e2e, and a slimmer footer (#2).
 
 ### Added
 - **CI:** `.github/workflows/ci.yml` runs `bun install --frozen-lockfile`, the build, the unit tests and the i18n check on pushes to `main` and on pull requests. New script `bun run i18n`.
+- **Release workflow:** `.github/workflows/release.yml` tags `v<version>` and publishes a GitHub release with that version's CHANGELOG section whenever a push to `main` carries a `package.json` version that isn't tagged yet.
+- **Biome formatter:** `bun run format` / `bun run format:check` (2 spaces, single quotes, no semicolons, 200 columns; Vue templates included), checked in CI. The codebase is formatted once in its own commit.
 - **Caddyfile** in the repo (was a `printf` in the Dockerfile): serves the precompressed `.br`/`.gz` files, keeps `encode zstd gzip` as a fallback, `/assets/*` immutable, everything else `Cache-Control: no-cache`.
 
 ### Changed
@@ -19,6 +21,7 @@ Housekeeping: smaller chart chunks, precompressed assets, CI, sturdier e2e, and 
 - README: Strategies row (grouped leaderboard, head-to-head Compare, Lookahead page), 18 strategies, refreshed leaderboard and compare screenshots.
 
 ### Removed
+- Comments that only restated the code.
 - Unused `src/assets/vite.svg` and `vue.svg`.
 - Unreferenced screenshots in `docs/screenshots/` (rounds 4–11 and the old top-level 01–10 shots); `before/` and `after/` stay because `docs/ui-audit.md` links to them.
 
@@ -175,7 +178,7 @@ Old links keep working: `#tab=solver`/`assist` → Assistant › Help me now, `#
 - Simulation of all 2,315 answers, Compare, the live Tuner, decision Tree, Flow, Patterns, Answer map, Decision paths, Letters, and Openers with a pair heatmap.
 - Playwright tests, Dockerfile and MIT license.
 
-[Unreleased]: https://github.com/Loafer19/wordle-lab/compare/v1.5.0...HEAD
+[1.5.1]: https://github.com/Loafer19/wordle-lab/compare/v1.5.0...v1.5.1
 [1.2.0]: https://github.com/Loafer19/wordle-lab/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Loafer19/wordle-lab/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Loafer19/wordle-lab/releases/tag/v1.0.0
