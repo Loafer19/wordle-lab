@@ -151,7 +151,7 @@ bun run definitions  # optional: precompute word meanings into data/ and public/
 
 Docker: `docker build -t wordle-lab . && docker run -p 8080:80 wordle-lab` (Bun build, served by Caddy with the [`Caddyfile`](Caddyfile): precompressed brotli/gzip from the build, immutable caching for `/assets/*`).
 
-CI: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the build, the unit tests and the i18n check on every push to `main` and every pull request (e2e stays local, it needs Chrome and takes about 9 minutes).
+CI: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the Biome format check, the build, the unit tests and the i18n check on every push to `main` and every pull request (e2e stays local, it needs Chrome and takes about 9 minutes). Format with `bun run format`. Releases: [`release.yml`](.github/workflows/release.yml) tags and publishes `v<version>` from the CHANGELOG when a version bump lands on `main`.
 
 ## 🙏 Credits & data
 
