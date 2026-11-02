@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { t } from './lib/i18n'
 import { ref, computed, defineAsyncComponent } from 'vue'
-import { Gamepad2, Brain, CaseSensitive, Rocket, Sun, Moon, Sparkles, Network, Waves, Map as MapIcon, GitCompare, Blocks, Send, Github, FlaskConical, Compass, Tag, Scale, History, GraduationCap, Eye, Footprints, ScanSearch, Trophy, Users, Telescope, Boxes } from 'lucide-vue-next'
+import { Gamepad2, Brain, CaseSensitive, Rocket, Sun, Moon, Sparkles, Network, Waves, Map as MapIcon, GitCompare, Blocks, FlaskConical, Compass, GraduationCap, Eye, Footprints, ScanSearch, Trophy, Users, Telescope, Boxes } from 'lucide-vue-next'
 import { ready } from './lib/words'
 import { isDark, toggleDark } from './lib/theme'
 import { route, href } from './lib/route'
@@ -10,6 +10,7 @@ import UiButton from './components/ui/UiButton.vue'
 import UiIcon from './components/ui/UiIcon.vue'
 import AppLogo from './components/AppLogo.vue'
 import SettingsPopover from './components/SettingsPopover.vue'
+import AppFooter from './components/AppFooter.vue'
 import SectionView from './components/SectionView.vue'
 import PlayView from './components/PlayView.vue'
 // every non-Play view is its own chunk (ECharts and the heavier views load only when opened)
@@ -34,9 +35,6 @@ const loaded = ref(false); ready.then(() => (loaded.value = true))
 // pre-warm: once the first view is up and the browser is idle, fetch the other views' chunks so tab switches are instant
 const idle = (f: () => void) => ('requestIdleCallback' in window ? (window as any).requestIdleCallback(f, { timeout: 4000 }) : setTimeout(f, 2500))
 ready.then(() => setTimeout(() => idle(() => loaders.forEach(l => l().catch(() => {}))), 1500))
-const version = __APP_VERSION__, commit = __COMMIT__
-const commitUrl = commit && commit !== 'dev' ? `https://github.com/Loafer19/wordle-lab/commit/${commit}` : 'https://github.com/Loafer19/wordle-lab/blob/main/CHANGELOG.md'
-const built = new Date(__BUILD_DATE__).toLocaleDateString(isUA ? 'uk-UA' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 const current = computed(() => route.tab)
 </script>
 <template>
@@ -77,16 +75,6 @@ const current = computed(() => route.tab)
         <SectionView v-else :key="current" :tab="current" :views="sub[current as keyof typeof sub]" />
       </Transition>
     </main>
-    <footer class="mt-10 pt-6 border-t border-line flex flex-wrap items-center justify-between gap-3 text-caption text-muted" data-footer>
-      <span class="flex flex-wrap items-center gap-2" data-footer-left>
-        <span class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface"><Scale :size="13" />{{ $t('Wordle Lab · MIT · not affiliated with NYT') }}</span>
-        <a href="https://t.me/Loafer19" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface hover:bg-surface-2 hover:text-fg transition-colors"><Send :size="13" class="text-brand" />{{ $t('Made by @Loafer19') }}</a>
-        <a href="https://github.com/Loafer19/wordle-lab" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface hover:bg-surface-2 hover:text-fg transition-colors"><Github :size="13" />{{ $t('Source on GitHub') }}</a>
-      </span>
-      <span class="flex flex-wrap items-center gap-2" data-footer-right>
-        <a :href="`https://github.com/Loafer19/wordle-lab/releases/tag/v${version}`" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface hover:bg-surface-2 hover:text-fg transition-colors font-mono font-semibold !text-brand-700 dark:!text-brand-400 !border-brand-500/30" v-tooltip.top="$t('Release notes')" data-version><Tag :size="13" />v{{ version }}</a>
-        <a :href="commitUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-line bg-surface hover:bg-surface-2 hover:text-fg transition-colors" v-tooltip.top="commit && commit !== 'dev' ? $t('Commit {c}', { c: commit }) : $t('Changelog')" data-updated><History :size="13" />{{ $t('updated {d}', { d: built }) }}</a>
-      </span>
-    </footer>
+    <AppFooter />
   </div>
 </template>
