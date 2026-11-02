@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Site footer: info pills on the left, version + updated pills on the right
 import { Scale, Send, Tag, History } from 'lucide-vue-next'
 import { isUA } from '../lib/lang'
 const version = __APP_VERSION__, commit = __COMMIT__

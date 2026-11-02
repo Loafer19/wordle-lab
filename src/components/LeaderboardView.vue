@@ -59,7 +59,6 @@ const gap = (s: Summary | undefined, hard: boolean) => (s ? gapTo(s.avg, lang, h
 const maxGap = computed(() => Math.max(0.05, ...rows.value.map(r => gap(mode.value === 'hard' ? r.h : r.n, mode.value === 'hard')).filter(Number.isFinite)))
 const tone = (g: number) => (g < 0.001 ? 'correct' : g < 0.1 ? 'brand' : g < 0.25 ? 'present' : 'danger') as any
 const primary = (r: Row) => (mode.value === 'hard' ? r.h : r.n)
-// selection → compare
 const picked = ref<string[]>([])
 const toggle = (id: string) => { const p = picked.value; picked.value = p.includes(id) ? p.filter(x => x !== id) : [...p, id].slice(-2) }
 function compare() {
@@ -68,7 +67,6 @@ function compare() {
   compareSel.value = { a: picked.value[0], b: picked.value[1], hardA: h, hardB: h }
   go('strategies', 'compare')
 }
-// more charts (collapsed)
 const chartRows = computed(() => (picked.value.length ? rows.value.filter(r => picked.value.includes(r.id)) : rows.value.slice(0, 5)))
 const d7 = (d: number[]) => [1, 2, 3, 4, 5, 6].map(i => d[i] ?? 0).concat(d.slice(7).reduce((a, b) => a + b, 0))
 const distOpt = computed(() => ({ ...baseC.value, legend: { ...baseC.value.legend, top: 0 }, grid: { top: 50, left: 50, right: 20 }, xAxis: { type: 'category', data: ['1', '2', '3', '4', '5', '6', '7+'] }, yAxis: { type: 'value' }, series: chartRows.value.map(r => ({ type: 'bar', name: r.name, data: d7(r.n.dist) })) }))
@@ -96,7 +94,6 @@ const fail = (s?: Summary) => (s ? (s.failRate * 100).toFixed(2) + '%' : '—')
       </div>
       <div v-if="!rows.length" class="flex flex-col gap-2" data-skeleton><Skeleton v-for="i in 8" :key="i" height="1.6rem" /></div>
       <template v-else>
-        <!-- desktop / tablet: table -->
         <div class="hidden sm:block overflow-x-auto"><table class="text-caption w-full" data-board-table>
           <thead><tr class="text-muted text-left">
             <th class="w-12"></th><th class="py-1 pr-3 font-medium">{{ $t('Strategy') }}</th><th class="pr-3 font-medium">{{ $t('Opener') }}</th>
@@ -120,7 +117,6 @@ const fail = (s?: Summary) => (s ? (s.failRate * 100).toFixed(2) + '%' : '—')
             </template>
           </tr></tbody>
         </table></div>
-        <!-- phone: cards -->
         <div class="sm:hidden flex flex-col gap-2" data-board-cards>
           <template v-for="sec in sections" :key="sec.id"><h4 v-if="sec.label" class="text-caption font-semibold uppercase tracking-wide text-muted mt-2">{{ sec.label }}</h4>
           <ul class="flex flex-col gap-2"><li v-for="r in sec.rows" :key="r.id" class="rounded-card border p-3 flex flex-col gap-1.5 cursor-pointer transition-colors" :class="picked.includes(r.id) ? 'border-brand-500 bg-brand-500/8' : 'border-line'" @click="toggle(r.id)" data-board-card>

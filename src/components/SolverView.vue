@@ -86,7 +86,6 @@ onKeyStroke(e => {
   else if (gk && gk.length === 1 && !/^[1-5]$/.test(k)) { guess.value = guess.value.length >= 5 ? gk : guess.value + gk; digits.value = [-1, -1, -1, -1, -1] }
 })
 
-// Demo: walks through a sample game automatically
 let timer: number | undefined
 function stopDemo() { clearTimeout(timer); timer = undefined }
 function demo() {

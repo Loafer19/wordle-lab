@@ -58,7 +58,6 @@ const current = computed(() => route.tab)
         </a>
       </div>
     </nav>
-    <!-- phones: fixed bottom tab bar -->
     <nav class="sm:hidden fixed bottom-0 inset-x-0 z-20 bg-surface/95 backdrop-blur border-t border-line pb-[env(safe-area-inset-bottom)]" :aria-label="$t('Main')" data-bottomnav>
       <div class="grid grid-cols-6">
         <a v-for="t in tabs" :key="t.id" :href="href(t.id)" :aria-current="current === t.id ? 'page' : undefined" data-tab-link-mobile :data-tab="t.id"

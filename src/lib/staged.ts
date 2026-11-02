@@ -1,4 +1,4 @@
-// Ruslan's explainable letter-based "staged" strategies (round 8).
+// Ruslan's explainable letter-based "staged" strategies.
 // Stage 1 (turns 1..coverTurns): COVERAGE — any valid word, no repeated letters, covering letters whose presence rate
 //   among the remaining answers is closest to 50%, plus a positional bonus (letter often/sometimes in that spot) and a
 //   penalty for putting a letter where no remaining answer has it (e.g. Z first).

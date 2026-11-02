@@ -122,7 +122,6 @@ watch(coach, r => {
 const shareText = computed(() => buildShare({ title: `Wordle Lab ${mode.value === 'daily' ? '#' + dayIndex() : t('(random)')}`, n: won.value ? rows.value.length : 'X', hard: hard.value, rows: rows.value.map(r => r.d),
   skill: coach.value && !coach.value.error ? coach.value.efficiency : undefined, luck: coach.value && !coach.value.error ? coach.value.luck : undefined, optimal: optN.value,
   labels: { skill: t('Skill'), luck: t('Luck'), optimal: t('Optimal'), bits: t('bits') }, url: location.origin }))
-/** signed luck rounded to 1 decimal, never "−0.0" */
 const luckStr = signed1
 const cardInput = (): CardInput => ({ title: 'Wordle Lab', sub: mode.value === 'daily' ? '#' + dayIndex() + (isUA ? ' · UA' : '') : t('(random)') + (isUA ? ' · UA' : ''), rows: rows.value.map(r => r.d), score: `${won.value ? rows.value.length : 'X'}/6${hard.value ? '*' : ''}`,
   skill: coach.value && !coach.value.error ? `${t('Skill')} ${Math.round(coach.value.efficiency * 100)}%` : undefined,

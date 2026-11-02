@@ -113,7 +113,6 @@ export function analyzeGame(game: CoachStep[], answers: string[], allowed: strin
     if (!solved && luck >= 1) tips.push({ kind: 'lucky', v: { x: luck.toFixed(2) } })
     else if (!solved && luck <= -1) tips.push({ kind: 'unlucky', v: { x: (-luck).toFixed(2) } })
     steps.push({ i, w, d, p, before: n, after: solved ? 0 : after.length, bits: solved ? log2(n) : bits, expBits: played.bits, expRemaining: played.expRemaining, isCandidate: set.has(w), best, tree: treeMove, luck: solved ? log2(n) - played.bits : luck, luckPct: n > 1 ? more / n : 0.5, efficiency: eff, tips, sample: after.slice(0, 8) })
-    // update knowledge
     d.forEach((x, j) => { const c = w[j]; if (x === 2) { greenAt[j] = c; present.add(c) } else if (x === 1) { yellowAt[j].add(c); present.add(c) } })
     d.forEach((x, j) => { if (x === 0 && !present.has(w[j])) grey.add(w[j]) })
     hist.push({ g: w, p }); cands = after
