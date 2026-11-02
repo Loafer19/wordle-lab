@@ -29,6 +29,6 @@ for (const lang of ['en', 'ua'] as const) for (const vp of [{ width: 1400, heigh
     const r = await fits(p)
     expect(r.length).toBeGreaterThan(0); expect(r.every(x => x.ok)).toBe(true)
     expect(r[0].t).toMatch(lang === 'en' ? /^(Solved in \d|Not solved)$/ : /^(Розгадано за \d|Не розгадано)$/)
-    expect(errors.filter(e => !/status of 404/.test(e))).toEqual([]) // a random answer may have no dictionary entry (404 from the definitions API)
+    expect(errors).toEqual([]) // definitions APIs are mocked in helpers.ts, so a random answer can no longer 404 or hit an outage
   } finally { await b.close() }
 }, 90000)
