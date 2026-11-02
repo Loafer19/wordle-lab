@@ -1,7 +1,7 @@
 {
   "name": "wordle-lab",
   "private": true,
-  "version": "1.5.0",
+  "version": "1.5.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,10 @@
     "simulate": "bun scripts/simulate.ts",
     "definitions": "bun scripts/definitions.ts",
     "test:e2e": "bun test tests/e2e",
-    "test:unit": "bun test tests/unit"
+    "test:unit": "bun test tests/unit",
+    "i18n": "bun scripts/i18n-check.ts",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
   },
   "dependencies": {
     "@primeuix/themes": "2.0.3",
@@ -19,19 +22,21 @@
     "echarts": "^6.1.0",
     "lucide-vue-next": "^1.0.0",
     "primevue": "4.5.5",
-    "vue": "^3.5.42",
+    "vue": "^3.5.44",
     "vue-echarts": "^8.3.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.6.4",
     "@tailwindcss/vite": "^4.3.3",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^24.13.3",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/tsconfig": "^0.9.1",
-    "playwright-core": "^1.64.0",
+    "playwright-core": "^1.64.1",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
-    "vite": "^8.3.0",
-    "vue-tsc": "^3.3.11"
+    "vite": "^8.3.5",
+    "vite-plugin-compression2": "^2.5.4",
+    "vue-tsc": "^3.3.14"
   }
 }

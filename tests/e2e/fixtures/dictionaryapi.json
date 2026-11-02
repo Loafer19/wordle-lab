@@ -1,0 +1,11 @@
+[
+  {
+    "word": "{word}",
+    "phonetic": "/ˈfɪkstʃə/",
+    "phonetics": [{ "text": "/ˈfɪkstʃə/" }],
+    "meanings": [
+      { "partOfSpeech": "verb", "definitions": [{ "definition": "Fixture definition for {word} (e2e mock of api.dictionaryapi.dev)", "example": "an example with {word}" }] },
+      { "partOfSpeech": "noun", "definitions": [{ "definition": "Second fixture sense of {word}" }] }
+    ]
+  }
+]

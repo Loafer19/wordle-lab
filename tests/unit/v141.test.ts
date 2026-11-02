@@ -4,7 +4,16 @@ import { readFileSync } from 'node:fs'
 import { cardLayout, CARD_THEME, CARD_W } from '../../src/lib/shareImage'
 import { tile } from '../../src/lib/tokens'
 import { planAll, fromSim, playJobs } from '../../src/lib/watchAll'
-const base = { title: 'Wordle Lab', sub: '#100', rows: [[0, 1, 0, 0, 2], [2, 2, 2, 2, 2]], score: '2/6', url: 'wordle.fundsflow.fun' }
+const base = {
+  title: 'Wordle Lab',
+  sub: '#100',
+  rows: [
+    [0, 1, 0, 0, 2],
+    [2, 2, 2, 2, 2]
+  ],
+  score: '2/6',
+  url: 'wordle.fundsflow.fun'
+}
 
 test('share card layout: one tile per letter in tile colours, themed background, grows with rows/badges', () => {
   const L = cardLayout({ ...base, dark: true })
@@ -43,8 +52,14 @@ test('sim lookup is aligned with the answer list and agrees with live play for t
 
 test('luck never reads −0.0; long badges stay inside the card', async () => {
   const { signed1 } = await import('../../src/lib/fingerprint')
-  expect(signed1(-0.02)).toBe('+0.0'); expect(signed1(-0.06)).toBe('−0.1'); expect(signed1(1.24)).toBe('+1.2')
+  expect(signed1(-0.02)).toBe('+0.0')
+  expect(signed1(-0.06)).toBe('−0.1')
+  expect(signed1(1.24)).toBe('+1.2')
   const L = cardLayout({ ...base, dark: true, skill: 'Майстерність 100%', luck: 'Удача +12.3' })
   const pills = L.ops.filter(o => o.k === 'rect' && o.h === 40)
-  for (const o of pills) if (o.k === 'rect') { expect(o.w).toBeGreaterThanOrEqual('Майстерність 100%'.length * 11 + 36); expect(o.x + o.w).toBeLessThanOrEqual(CARD_W) }
+  for (const o of pills)
+    if (o.k === 'rect') {
+      expect(o.w).toBeGreaterThanOrEqual('Майстерність 100%'.length * 11 + 36)
+      expect(o.x + o.w).toBeLessThanOrEqual(CARD_W)
+    }
 })

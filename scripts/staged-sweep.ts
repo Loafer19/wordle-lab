@@ -1,8 +1,10 @@
 // bun scripts/staged-sweep.ts [--lang ua] [--hard] [--set name] — sweeps staged-strategy parameters.
 import { stagedStrategy, stagedVariant, type StagedParams } from '../src/lib/staged'
 import { simulateEx } from '../src/lib/advanced'
-const root = new URL('..', import.meta.url).pathname, a = process.argv.slice(2)
-const LANG = a.includes('--lang') ? a[a.indexOf('--lang') + 1] : 'en', hard = a.includes('--hard')
+const root = new URL('..', import.meta.url).pathname,
+  a = process.argv.slice(2)
+const LANG = a.includes('--lang') ? a[a.indexOf('--lang') + 1] : 'en',
+  hard = a.includes('--hard')
 const D = LANG === 'en' ? 'data/' : `data/${LANG}/`
 const rd = async (p: string) => (await Bun.file(root + p).text()).split(/\s+/).filter(Boolean)
 const ctx = { answers: await rd(D + 'answers.txt'), allowed: await rd(D + 'allowed.txt') }

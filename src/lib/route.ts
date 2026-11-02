@@ -11,4 +11,6 @@ function parse() {
 }
 export const route = reactive(parse())
 window.addEventListener('hashchange', () => Object.assign(route, parse()))
-export const go = (tab: string, view?: string) => { location.hash = href(tab, view) }
+export const go = (tab: string, view?: string) => {
+  location.hash = href(tab, view)
+}

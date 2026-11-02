@@ -6,7 +6,8 @@ RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run build
 
-FROM caddy:2-alpine
+# Caddy >= 2.11: 2.10.x answers precompressed (.br/.gz) files with a bogus 206 Partial Content (caddyserver/caddy#7250)
+FROM caddy:2.11-alpine
 COPY --from=build /app/dist /srv
-RUN printf ':80 {\n  root * /srv\n  encode zstd gzip\n  header /assets/* Cache-Control "public, max-age=31536000, immutable"\n  try_files {path} /index.html\n  file_server\n}\n' > /etc/caddy/Caddyfile
+COPY Caddyfile /etc/caddy/Caddyfile
 EXPOSE 80
