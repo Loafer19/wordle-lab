@@ -93,12 +93,6 @@ await run(
   },
   { lang: 'ua' }
 )
-await run('compare', async p => {
-  await go(p, 'strategies&view=compare', 3000)
-  await p.waitForSelector('[data-diffs]', { timeout: 30000 })
-  await p.waitForTimeout(800)
-  await shot(p, 'dark-compare')
-})
 await run(
   'light-compare',
   async p => {
@@ -109,16 +103,6 @@ await run(
   },
   { theme: 'light' }
 )
-await run('lab', async p => {
-  await go(p, 'strategies&view=lab', 4000)
-  await p.waitForSelector('[data-lab-avg]')
-  await p.waitForTimeout(2500)
-  await shot(p, 'dark-lab')
-})
-await run('assist', async p => {
-  await go(p, 'assistant&view=solve')
-  await shot(p, 'dark-assist')
-})
 await run('review', async p => {
   await go(p, 'assistant&view=review')
   await p.waitForSelector('[data-coach-step]', { timeout: 30000 })
@@ -134,10 +118,6 @@ await run('watch', async p => {
   await p.waitForTimeout(800)
   await shot(p, 'watch')
 })
-await run('openers', async p => {
-  await go(p, 'learn&view=openers')
-  await shot(p, 'dark-openers')
-})
 await run(
   'light-patterns',
   async p => {
@@ -146,12 +126,6 @@ await run(
   },
   { theme: 'light' }
 )
-await run('tree', async p => {
-  await go(p, 'explore&view=tree', 3000)
-  await p.waitForSelector('canvas', { timeout: 20000 })
-  await p.waitForTimeout(1500)
-  await shot(p, 'dark-tree')
-})
 await run('tree-opener', async p => {
   await go(p, 'explore&view=tree', 3000)
   await p.waitForSelector('canvas', { timeout: 20000 })
@@ -165,11 +139,6 @@ await run('flow', async p => {
   await go(p, 'explore&view=flow', 3000)
   await p.waitForTimeout(1500)
   await shot(p, 'dark-flow')
-})
-await run('map', async p => {
-  await go(p, 'explore&view=map', 3000)
-  await p.waitForTimeout(1500)
-  await shot(p, 'dark-map')
 })
 await run(
   'ua-play-mob',

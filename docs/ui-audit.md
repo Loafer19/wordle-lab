@@ -1,7 +1,7 @@
 # UI/UX audit — Wordle Lab (v2, 2026-10-12)
 
-Screens walked in headless Chrome: 6 tabs × desktop (1400×900) / mobile (390×844) × dark / light → `docs/screenshots/before/`.
-Console: 0 errors / 0 warnings. Fixed versions: `docs/screenshots/after/`.
+Screens walked in headless Chrome: 6 tabs × desktop (1400×900) / mobile (390×844) × dark / light.
+Console: 0 errors / 0 warnings.
 
 | # | Area | Finding | Severity | Fix |
 |---|------|---------|----------|-----|
