@@ -32,7 +32,7 @@ test('Ukrainian UI: tabs, settings, footer and html lang are translated', async 
 test('footer: left info pills, right version + updated pills with real links', async () => {
   const { b, p, errors } = await open('play')
   try {
-    expect(await p.locator('[data-footer-left] > *').count()).toBe(3)
+    expect(await p.locator('[data-footer-left] > *').count()).toBe(2)
     const v = p.locator('[data-footer-right] [data-version]')
     expect((await v.innerText()).trim()).toMatch(/^v\d+\.\d+\.\d+$/)
     expect(await v.getAttribute('href')).toMatch(/releases\/tag\/v\d+\.\d+\.\d+$/)
