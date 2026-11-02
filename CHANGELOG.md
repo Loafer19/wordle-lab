@@ -2,6 +2,29 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+Housekeeping: smaller chart chunks, precompressed assets, CI, sturdier e2e, and footer candidates for #2.
+
+### Added
+- **Footer preview variants** (#2): `?footer=a|b|c|d` shows a candidate footer (a: `v1.5.0 · GitHub`; b: version + updated date with a GitHub icon; c: one muted line with version, GitHub, author and licence; d: icon-only row with a version tooltip). Without the parameter the current footer stays. The footer now lives in `src/components/AppFooter.vue`.
+- **CI:** `.github/workflows/ci.yml` runs `bun install --frozen-lockfile`, the build, the unit tests and the i18n check on pushes to `main` and on pull requests. New script `bun run i18n`.
+- **Caddyfile** in the repo (was a `printf` in the Dockerfile): serves the precompressed `.br`/`.gz` files, keeps `encode zstd gzip` as a fallback, `/assets/*` immutable, everything else `Cache-Control: no-cache`.
+
+### Changed
+- **Charts:** only the ECharts parts in use are registered (dropped Title, MarkLine, Scatter, DataZoom); line charts and heatmap + visual map moved to their own chunks (`charts-line`, `charts-heatmap`). The shared charts chunk is 525 kB / 177 kB gzip / 150 kB brotli (was 615 kB / 205 kB gzip).
+- **Build:** `vite-plugin-compression2` writes brotli (q11) and gzip (-9) copies of every text asset over 1 kB, including the JSON data.
+- Docker image uses `caddy:2.11-alpine` (2.10.x answers precompressed files with 206 Partial Content).
+- Dependencies: vue 3.5.44, vite 8.3.5, vue-tsc 3.3.14, playwright-core 1.64.1.
+- README: Strategies row (grouped leaderboard, head-to-head Compare, Lookahead page), 18 strategies, refreshed leaderboard and compare screenshots.
+
+### Removed
+- Unused `src/assets/vite.svg` and `vue.svg`.
+- Unreferenced screenshots in `docs/screenshots/` (rounds 4–11 and the old top-level 01–10 shots); `before/` and `after/` stay because `docs/ui-audit.md` links to them.
+
+### Tests
+- e2e: `api.dictionaryapi.dev` and Wiktionary are answered from `tests/e2e/fixtures/` in every browser context, so outages and CORS errors from those hosts can no longer fail tests (`E2E_LIVE_DICT=1` uses the real APIs). Footer variants a–d in EN/UA.
+
 ## [1.5.0] - 2026-10-26
 
 Lookahead strategies that look two guesses ahead, a leaderboard grouped by type, and a head-to-head Compare panel.
@@ -152,6 +175,7 @@ Old links keep working: `#tab=solver`/`assist` → Assistant › Help me now, `#
 - Simulation of all 2,315 answers, Compare, the live Tuner, decision Tree, Flow, Patterns, Answer map, Decision paths, Letters, and Openers with a pair heatmap.
 - Playwright tests, Dockerfile and MIT license.
 
+[Unreleased]: https://github.com/Loafer19/wordle-lab/compare/v1.5.0...HEAD
 [1.2.0]: https://github.com/Loafer19/wordle-lab/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Loafer19/wordle-lab/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Loafer19/wordle-lab/releases/tag/v1.0.0
